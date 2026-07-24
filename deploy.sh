@@ -30,21 +30,25 @@ log "Syncing public files from Portfolio_2026 ..."
 
 cd "$DST"
 
-if [ -n "$("$GIT" status --porcelain)" ]; then
-  log "Committing changes ..."
-  "$GIT" add -A
-  "$GIT" -c user.name="cenatdesign-bot" \
-         -c user.email="cenatdesign-bot@users.noreply.github.com" \
-         commit -q -m "Publish: sync case studies $(date '+%Y-%m-%d %H:%M')"
-  if "$GIT" remote get-url origin >/dev/null 2>&1; then
-    log "Pushing to GitHub ..."
-    "$GIT" push -q origin HEAD 2>/dev/null || log "  (git push skipped/failed — continuing to Railway)"
-  fi
-else
-  log "No file changes — redeploying current state."
+if [ -z "$("$GIT" status --porcelain)" ]; then
+  log "No changes to publish — site is already up to date. Nothing to do."
+  exit 0
 fi
 
-log "Deploying to Railway ..."
-run_railway up --detach --service nate-portfolio
+log "Committing changes ..."
+"$GIT" add -A
+"$GIT" -c user.name="cenatdesign-bot" \
+       -c user.email="cenatdesign-bot@users.noreply.github.com" \
+       commit -q -m "Publish: sync case studies $(date '+%Y-%m-%d %H:%M')"
 
-log "Done. Live at https://nate-portfolio-production.up.railway.app"
+# Primary deploy path: push to GitHub, which auto-deploys on Railway.
+# Fallback (no remote or push fails): upload directly with `railway up`.
+if "$GIT" remote get-url origin >/dev/null 2>&1 && \
+   GIT_TERMINAL_PROMPT=0 "$GIT" push -q origin main; then
+  log "Pushed to GitHub — Railway is auto-deploying."
+else
+  log "GitHub push unavailable — deploying directly via Railway ..."
+  run_railway up --detach --service nate-portfolio
+fi
+
+log "Done. Live shortly at https://nate-portfolio-production.up.railway.app"
