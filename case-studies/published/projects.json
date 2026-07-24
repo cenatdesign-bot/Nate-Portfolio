@@ -27,35 +27,5 @@
     "summary": "The 50+ component library behind the MyLoyal app, themed across 13+ brands and serving 750k+ users, so features ship to every brand at once instead of brand by brand.",
     "caseStudyUrl": "/case-studies/published/case-study-myloyal-design-system.json",
     "publishedAt": 1783599009146
-  },
-  {
-    "slug": "myloyal-activity-feed",
-    "title": "MyLoyal Activity Feed",
-    "subtitle": "A persistent engagement surface for the MyLoyal app",
-    "year": 2026,
-    "tags": [
-      "Product Design",
-      "Mobile",
-      "Engagement"
-    ],
-    "summary": "Push notifications die the moment they're swiped away. I'm designing a persistent 13-card activity feed, with carousel mechanics and a state machine, so quests, offers, and notifications have a place users can return to.",
-    "caseStudyUrl": "/case-studies/published/case-study-myloyal-activity-feed.json",
-    "publishedAt": 1780065149452,
-    "coverImage": "/assets/case-studies/myloyal-activity-feed/cover-thumb.webp"
-  },
-  {
-    "slug": "push-notification-consolidation",
-    "title": "Push Notification Consolidation",
-    "subtitle": "Unifying scattered entry points into one clear admin flow",
-    "year": 2026,
-    "tags": [
-      "Product Design",
-      "Admin UX",
-      "Systems Thinking"
-    ],
-    "summary": "Admins couldn't tell what state a push was in. I'm redesigning MyLoyal's scattered push entry points into one unified flow, with status visible at every stage from draft through sent.",
-    "caseStudyUrl": "/case-studies/published/case-study-push-notification-consolidation.json",
-    "publishedAt": 1780065616088,
-    "coverImage": "/assets/case-studies/push-notification-consolidation/cover-thumb.webp"
   }
 ]
