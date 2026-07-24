@@ -10,11 +10,20 @@ PORT = int(os.environ.get("PORT", 3458))
 IS_PRODUCTION = bool(os.environ.get("RAILWAY_ENVIRONMENT"))
 HOST = "0.0.0.0" if IS_PRODUCTION else "127.0.0.1"
 
-# Optional private gate. When PORTFOLIO_PASSWORD is set, the whole site
-# requires HTTP Basic Auth so it stays visible only to whoever has the
-# credentials. Username defaults to "nate" but can be overridden.
+# Two independent gates:
+#
+# 1. PORTFOLIO_PASSWORD — when set, the WHOLE site requires HTTP Basic Auth
+#    (native browser prompt). Use this to keep everything private. Username
+#    defaults to "nate".
+# 2. CASE_STUDY_PASSWORD — when set (and PORTFOLIO_PASSWORD is NOT), the site
+#    is public but the detailed case-study JSON files stay locked. The front-end
+#    collects the password and sends it as `Authorization: Basic <b64 user:pass>`
+#    on those fetches. Teaser data (projects.json, covers) stays public so the
+#    work grid still renders. This is the "public portfolio, private case
+#    studies" mode.
 AUTH_USER = os.environ.get("PORTFOLIO_USER", "nate")
 AUTH_PASSWORD = os.environ.get("PORTFOLIO_PASSWORD")
+CASE_STUDY_PASSWORD = os.environ.get("CASE_STUDY_PASSWORD")
 REALM = "Nataly Cetre Portfolio"
 
 # Source/config files that should never be served to visitors. Matched by
@@ -59,6 +68,29 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(b"Authentication required.")
 
+    def _basic_password(self):
+        """The password from an Authorization: Basic header, or None."""
+        header = self.headers.get("Authorization", "")
+        if not header.startswith("Basic "):
+            return None
+        try:
+            decoded = base64.b64decode(header[6:]).decode("utf-8", "replace")
+            _user, _, password = decoded.partition(":")
+            return password
+        except Exception:
+            return None
+
+    def _is_case_study_detail(self):
+        path = self.path.split("?", 1)[0].split("#", 1)[0]
+        name = path.rsplit("/", 1)[-1].lower()
+        return name.startswith("case-study-") and name.endswith(".json")
+
+    def _case_study_authorized(self):
+        supplied = self._basic_password()
+        if supplied is None:
+            return False
+        return hmac.compare_digest(supplied, CASE_STUDY_PASSWORD)
+
     def _is_blocked(self):
         path = self.path.split("?", 1)[0].split("#", 1)[0]
         parts = [p for p in path.split("/") if p]
@@ -69,9 +101,17 @@ class Handler(SimpleHTTPRequestHandler):
 
     def _guard(self):
         # Returns True if the request was handled (blocked/unauthorized).
-        if not self._authorized():
-            self._require_auth()
-            return True
+        if AUTH_PASSWORD:
+            # Whole-site gate (native Basic Auth prompt).
+            if not self._authorized():
+                self._require_auth()
+                return True
+        elif CASE_STUDY_PASSWORD and self._is_case_study_detail():
+            # Case-study gate. Silent 401 (no WWW-Authenticate) so the browser
+            # never shows its own dialog — the site's own unlock UI handles it.
+            if not self._case_study_authorized():
+                self.send_error(401, "Case study locked")
+                return True
         if self._is_blocked():
             self.send_error(404, "Not found")
             return True

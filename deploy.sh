@@ -19,6 +19,11 @@ log "Syncing public files from Portfolio_2026 ..."
 # Published case-study JSONs (what changes when you publish/update a case study).
 "$RSYNC" -a --delete \
   "$SRC/case-studies/published/" "$DST/case-studies/published/"
+# The case-study viewer page itself. This is what the "Read the full case study"
+# CTA opens (/case-studies/project-case-study.html?slug=...). Without it that link
+# 404s in production, so it must ship alongside the published JSONs.
+"$RSYNC" -a \
+  "$SRC/case-studies/project-case-study.html" "$DST/case-studies/project-case-study.html"
 # Public assets (fonts, CV, case-study images). No --delete: keep the deploy
 # copy even if a source image is temporarily missing.
 "$RSYNC" -a "$SRC/assets/" "$DST/assets/"
