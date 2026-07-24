@@ -3,10 +3,12 @@
 import base64
 import hmac
 import os
+import sys
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 PORT = int(os.environ.get("PORT", 3458))
-HOST = "0.0.0.0" if os.environ.get("RAILWAY_ENVIRONMENT") else "127.0.0.1"
+IS_PRODUCTION = bool(os.environ.get("RAILWAY_ENVIRONMENT"))
+HOST = "0.0.0.0" if IS_PRODUCTION else "127.0.0.1"
 
 # Optional private gate. When PORTFOLIO_PASSWORD is set, the whole site
 # requires HTTP Basic Auth so it stays visible only to whoever has the
@@ -15,6 +17,10 @@ AUTH_USER = os.environ.get("PORTFOLIO_USER", "nate")
 AUTH_PASSWORD = os.environ.get("PORTFOLIO_PASSWORD")
 REALM = "Nataly Cetre Portfolio"
 
+# Source/config files that should never be served to visitors. Matched by
+# basename; any dotfile is blocked too.
+BLOCKED_NAMES = {"server.py", "procfile", "readme.md", "deploy.sh"}
+
 # Always serve this script's own folder, regardless of launch cwd.
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -22,7 +28,12 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 class Handler(SimpleHTTPRequestHandler):
     def end_headers(self):
         self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
         self.send_header("Referrer-Policy", "no-referrer")
+        if IS_PRODUCTION:
+            self.send_header(
+                "Strict-Transport-Security", "max-age=31536000; includeSubDomains"
+            )
         super().end_headers()
 
     def _authorized(self):
@@ -48,14 +59,32 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(b"Authentication required.")
 
-    def do_GET(self):
+    def _is_blocked(self):
+        path = self.path.split("?", 1)[0].split("#", 1)[0]
+        parts = [p for p in path.split("/") if p]
+        if any(p.startswith(".") for p in parts):
+            return True
+        name = parts[-1].lower() if parts else ""
+        return name in BLOCKED_NAMES
+
+    def _guard(self):
+        # Returns True if the request was handled (blocked/unauthorized).
         if not self._authorized():
-            return self._require_auth()
+            self._require_auth()
+            return True
+        if self._is_blocked():
+            self.send_error(404, "Not found")
+            return True
+        return False
+
+    def do_GET(self):
+        if self._guard():
+            return
         super().do_GET()
 
     def do_HEAD(self):
-        if not self._authorized():
-            return self._require_auth()
+        if self._guard():
+            return
         super().do_HEAD()
 
     def list_directory(self, path):
@@ -64,6 +93,13 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    # Fail closed in production: never expose the site unprotected because an
+    # env var went missing. Local dev (no RAILWAY_ENVIRONMENT) stays open.
+    if IS_PRODUCTION and not AUTH_PASSWORD:
+        sys.exit(
+            "Refusing to start: PORTFOLIO_PASSWORD is not set in production. "
+            "Set it (private) or intentionally run locally to serve unprotected."
+        )
     gated = "private (Basic Auth)" if AUTH_PASSWORD else "public"
     print(f"Serving portfolio on {HOST}:{PORT} [{gated}]", flush=True)
     HTTPServer((HOST, PORT), Handler).serve_forever()
