@@ -1,0 +1,58 @@
+{
+  "slug": "myloyal-design-system",
+  "title": "MyLoyal Design System",
+  "subtitle": "One library, thirteen brands",
+  "year": 2026,
+  "tags": [
+    "Design Systems",
+    "Mobile",
+    "Multi-brand"
+  ],
+  "summary": "The 50+ component library behind the MyLoyal app, themed across 13+ brands and serving 750k+ users, so features ship to every brand at once instead of brand by brand.",
+  "caseStudyUrl": "/case-studies/published/case-study-myloyal-design-system.json",
+  "services": [
+    "Design Systems",
+    "Component Library",
+    "Multi-brand Theming",
+    "Mobile UI Design"
+  ],
+  "sections": {
+    "problem": {
+      "statement": "MyLoyal serves 13+ client brands from one product. Without a shared component system, every brand's app risked drifting into one-off screens, and every new feature meant redesigning the same patterns again, brand by brand.",
+      "bizCtx": "MyLoyal is a loyalty platform used by brands across Denmark. Each client gets the app in their own brand identity, but the product underneath is the same. The economics only work if one design can serve every brand.",
+      "constraints": "Every component had to hold up under any client's brand identity, from colors and typography to imagery, without per-brand redesign. The system covers the member-facing mobile app used by 750k+ users."
+    },
+    "insight": {
+      "methods": [
+        "Recurring patterns observed designing across brands"
+      ],
+      "findings": [
+        {
+          "finding": "Screens repeated across brands with only identity-level differences",
+          "evidence": "Designing the same flows for different brands showed that layout and behavior rarely changed; colors, type, and imagery did.",
+          "implication": "Split what's shared (structure, behavior) from what's themed (identity)."
+        },
+        {
+          "finding": "Handoff cost was being paid repeatedly",
+          "evidence": "Engineers were receiving near-duplicate specs for the same patterns under different brands.",
+          "implication": "A shared library would let one spec serve every brand."
+        }
+      ],
+      "decision": "Theme, don't fork: one library where structure and interaction are designed once, and a brand gets its colors, type, and imagery. It never gets its own version of a component."
+    },
+    "design": {
+      "solution": "A library of 50+ components covering the MyLoyal member app, with brand identity applied as a theme layer, so one product can present as 13+ different branded apps. The library grew iteratively: a pattern earned its way in by recurring across brands, rather than being designed speculatively.",
+      "flows": "When a new client brand joins, their identity is applied to the existing library rather than designed from scratch. Onboarding a brand becomes a theming exercise instead of a redesign.",
+      "annotations": "The tension worth managing: every client wants to feel unique, while the product needs to stay one product. The system draws that line at identity (theirs) versus structure and behavior (shared)."
+    },
+    "outcome": {
+      "shipped": "Live in production across the MyLoyal member app, serving 13+ client brands and 750k+ users.",
+      "measures": "No formal instrumentation on the system itself, but three shifts are visible day to day: features ship to all brands at once instead of brand by brand, design-to-dev handoff is faster because engineers reuse known components, and new brands onboard as a theming exercise instead of a redesign.",
+      "learnings": "A multi-brand system forces honesty about what a component really is. If a pattern only works under one brand's identity, it isn't a component yet. Designing against the hardest brand first made the whole library sturdier."
+    }
+  },
+  "imageData": [],
+  "publishedAt": 1783599009146,
+  "status": "Shipped",
+  "role": "Product Designer"
+}

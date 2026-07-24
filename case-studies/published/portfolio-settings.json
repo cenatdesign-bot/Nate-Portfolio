@@ -1,0 +1,43 @@
+{
+  "process": {
+    "subtitleNoun": "principles",
+    "principles": [
+      {
+        "titleLines": [
+          "Start in the data,",
+          "not the deck."
+        ],
+        "italicLineIndex": 1,
+        "description": "Every project begins with what's already known: analytics, support tickets, prior research, the team's own intuitions. The design problem isn't visible until I've sat with the evidence.",
+        "label": "Discovery"
+      },
+      {
+        "titleLines": [
+          "Make the small thing",
+          "first."
+        ],
+        "italicLineIndex": 1,
+        "description": "Strategy and shipped pixels are the same conversation. Earning trust to do bigger work means landing the smaller version cleanly first: a single screen, a single flow, a single decision that holds up in production.",
+        "label": "Method"
+      },
+      {
+        "titleLines": [
+          "Detail is",
+          "the product."
+        ],
+        "italicLineIndex": 1,
+        "description": "A great interaction isn't the wireframe; it's the handful of micro-decisions made between Figma and the engineer's pull request. Most of the value lives in the last 10%.",
+        "label": "Craft"
+      },
+      {
+        "titleLines": [
+          "Decide once,",
+          "document forever."
+        ],
+        "italicLineIndex": 1,
+        "description": "Design that scales is design that's traceable. Every recurring decision deserves a written rationale, not because anyone will read it, but because the act of writing it down is what makes it sturdy.",
+        "label": "Systems"
+      }
+    ]
+  }
+}

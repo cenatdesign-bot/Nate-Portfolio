@@ -1,0 +1,175 @@
+{
+  "identity": {
+    "name": "Nataly C",
+    "nameSpaced": "Nataly · C",
+    "initials": "N·C",
+    "tagline": "Product Designer",
+    "pageTitle": "Nataly C — Product Designer",
+    "metaDescription": "Nataly C — Product designer working at the intersection of research, systems thinking, and interaction design.",
+    "ogTitle": "Nataly C — Product Designer",
+    "ogDescription": "Product designer crafting intuitive digital products with research, systems thinking, and interaction design.",
+    "email": "natalicetre@gmail.com",
+    "dateRange": "2024 — 2026",
+    "copyrightOwner": "Nataly C",
+    "copyrightYear": 2026,
+    "accessCode": "NC2026",
+    "version": "V4"
+  },
+  "social": [
+    {
+      "label": "LinkedIn",
+      "href": "https://www.linkedin.com/in/nataly-cetre-b93618158/"
+    },
+    {
+      "label": "Behance",
+      "href": "https://www.behance.net/natalicetr5d99"
+    },
+    {
+      "label": "CV",
+      "href": "assets/Nataly-C-Product-Designer.pdf"
+    }
+  ],
+  "tokens": {
+    "colors": {
+      "black": "#0a0a0a",
+      "white": "#f5f3ef",
+      "mid": "#8a8680",
+      "line": "rgba(10,10,10,0.12)"
+    },
+    "fonts": {
+      "serif": "'Syne', sans-serif",
+      "smallCaps": "'Syne', sans-serif",
+      "mono": "'Syne', sans-serif"
+    }
+  },
+  "gate": {
+    "label": "Case studies are private"
+  },
+  "nav": {
+    "links": [
+      {
+        "label": "Work",
+        "href": "#projects"
+      },
+      {
+        "label": "Process",
+        "href": "#process"
+      },
+      {
+        "label": "Lab",
+        "href": "#lab"
+      },
+      {
+        "label": "About",
+        "href": "#about"
+      },
+      {
+        "label": "Contact",
+        "href": "#contact"
+      }
+    ],
+    "caseStudyBack": "← Portfolio"
+  },
+  "hero": {
+    "bgWord": "Design",
+    "headlineLines": [
+      "Designing",
+      "digital",
+      "experiences"
+    ],
+    "italicLineIndex": 1,
+    "description": "I design digital products from the inside out: starting in research, ending in shipped interfaces. Currently working with teams who care about the small details as much as the strategic ones.",
+    "ctaPrimary": {
+      "label": "Explore Work",
+      "href": "#projects"
+    },
+    "ctaSecondary": {
+      "label": "Get in Touch",
+      "href": "#contact"
+    },
+    "counter": "Selected Projects — 2026"
+  },
+  "marquee": [
+    "Product Strategy",
+    "Design Systems",
+    "Interaction Design",
+    "Research & Discovery",
+    "Accessibility",
+    "Design Leadership"
+  ],
+  "work": {
+    "label": "Selected Work",
+    "fallbackNote": "Placeholder content — publish from the Design Process Framework to populate this section",
+    "manifestNote": "Live from /case-studies/manifest.json"
+  },
+  "about": {
+    "label": "About",
+    "headlineLines": [
+      "I build",
+      "digital products",
+      "with intent."
+    ],
+    "italicLineIndex": 1,
+    "bio": [
+      "My path into product design started in visual and editorial design, and evolved through freelance work and in-house roles into full-scope product design at <strong>MyLoyal</strong> in Copenhagen, where I've spent the last <strong>5+ years</strong> shaping loyalty and engagement experiences for brands across Denmark. That graphic design foundation still shows up in my work today: a stronger-than-average eye for visual craft, typography, and motion, layered on top of research, systems thinking, and interaction design.",
+      "Every project starts with the same question: what's actually happening for the person using this, and why? I work iteratively, sketching, testing, refining, staying close to design trends without chasing them, and I'm most useful in the messy middle of a project, turning ambiguous problems into shipped systems that hold up in production. Calm under pressure, observant, and happiest working closely with a team rather than in isolation."
+    ],
+    "stats": [
+      {
+        "num": "750k",
+        "label": "Users Impacted"
+      },
+      {
+        "num": "50+",
+        "label": "Design System Components"
+      },
+      {
+        "num": "13+",
+        "label": "Brand Partners"
+      },
+      {
+        "num": "9",
+        "label": "Years Experience"
+      }
+    ],
+    "disciplines": [
+      {
+        "label": "Product & UX Design",
+        "tag": "Core"
+      },
+      {
+        "label": "Design Systems",
+        "tag": "Core"
+      },
+      {
+        "label": "Cross-functional Collaboration",
+        "tag": "Core"
+      },
+      {
+        "label": "Visual & Brand Design",
+        "tag": "Select"
+      },
+      {
+        "label": "Client & Stakeholder Communication",
+        "tag": "Select"
+      },
+      {
+        "label": "AI-Assisted Prototyping & Build",
+        "tag": "Select"
+      }
+    ]
+  },
+  "contact": {
+    "bgWord": "Let's build.",
+    "label": "Open to opportunities",
+    "headlineLines": [
+      "Have something",
+      "worth building",
+      "together?"
+    ],
+    "italicLineIndex": 1
+  },
+  "footer": {
+    "status": "Available for work · Copenhagen, Denmark"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "slug": "club-invitation-links",
+  "title": "Club Invitation Links",
+  "subtitle": "Self-serve club onboarding via a magic link",
+  "year": 2026,
+  "tags": [
+    "Product Design",
+    "Full-stack",
+    "Growth"
+  ],
+  "summary": "Club managers were adding members one at a time by hand. I designed a magic-link invitation flow, so onboarding became a single shareable link, with domain whitelisting and expiration controls managers own themselves.",
+  "caseStudyUrl": "/case-studies/published/case-study-club-invitation-links.json",
+  "services": [
+    "Product Strategy",
+    "Full-Stack UX",
+    "Admin UI Design",
+    "Web Registration Design",
+    "Referral & Incentive Design"
+  ],
+  "sections": {
+    "problem": {
+      "statement": "Club managers had no way to invite members automatically. Every invitation required manual admin work, with no self-serve link that could onboard people whether or not they already had the app installed.",
+      "bizCtx": "MyLoyal's clubs are exclusive groups that give members fixed discounts and benefits negotiated with MyLoyal's client brands. As clubs grew, one-by-one manual invitation put repetitive admin work on club managers for something that should be self-serve.",
+      "constraints": "The link needed to work whether or not the recipient already had the app: web registration for people without it, with a prompt to download the app once they finished registering. Club managers needed control over who could join (domain whitelisting) and how long the link stayed valid (an expiration date)."
+    },
+    "insight": {
+      "methods": [
+        "Internal discussions with club managers"
+      ],
+      "findings": [
+        {
+          "finding": "Managers wanted control, not just automation",
+          "evidence": "Requests for domain restriction and link expiration came up directly from club managers.",
+          "implication": "The link needed eligibility and validity settings, not just a join URL."
+        },
+        {
+          "finding": "Many invitees wouldn't have the app yet",
+          "evidence": "Prospective members split between existing app users and people who had never installed it.",
+          "implication": "Registration had to work on web first, then hand off to the app."
+        }
+      ],
+      "decision": "One magic link that adds anyone who completes registration through it, automatic with no approval step, with domain whitelisting and expiration owned by the club manager."
+    },
+    "design": {
+      "solution": "A link-creation screen for club managers with domain whitelisting and expiration date controls, paired with a registration flow for invitees. If the invitee doesn't have the app, they complete registration on web, then are prompted to download the app to finish joining.",
+      "flows": "Club manager generates a link, optionally restricts it to specific email domains, and optionally sets an expiration date. Invitee opens the link: if they have the app, it opens directly; if not, they complete web registration and are directed to download the app afterward.",
+      "annotations": "One nuance for clients: MyLoyal lets clients choose whether the reward for an invite goes to the invitee, the inviter, both, or neither. Referral-reward structures like this sit in a legal gray area, not clearly prohibited, but not the most recommended approach either. Rather than restrict the configuration, MyLoyal keeps it flexible and treats the choice as the client's responsibility, while offering setup recommendations."
+    },
+    "outcome": {
+      "shipped": "Live. Club manager link-creation and settings screen (domain whitelisting, expiration date), plus the invitee registration flow for both app-installed and non-installed users.",
+      "measures": "No formal numbers are tracked yet. What changed in practice: club managers went from adding members one at a time by hand to sharing a single link they control. The measures that matter going forward: how many clubs adopt link invitations, members joined through a link versus added manually, and whether manual invitation work disappears from the admin side.",
+      "learnings": "Several rounds of iteration were needed to settle the whitelist and expiration configuration and the web-to-app handoff. The referral-reward legal ambiguity was one of the trickier product decisions, resolved by keeping the setting flexible for clients rather than MyLoyal dictating one approach."
+    }
+  },
+  "imageData": [
+    {
+      "src": "/assets/case-studies/club-invitation-links/cover.webp",
+      "alt": "Placeholder cover image for the Club Invitation Links case study; final UI screenshots coming soon."
+    },
+    {
+      "src": "/assets/case-studies/club-invitation-links/img-2.webp",
+      "alt": "Placeholder image; final screenshots of the invitation link creation and registration flow coming soon."
+    }
+  ],
+  "publishedAt": 1780065171629,
+  "status": "Shipped",
+  "role": "Product Designer"
+}

@@ -1,0 +1,72 @@
+{
+  "slug": "push-notification-consolidation",
+  "title": "Push Notification Consolidation",
+  "subtitle": "Unifying scattered entry points into one clear admin flow",
+  "year": 2026,
+  "tags": [
+    "Product Design",
+    "Admin UX",
+    "Systems Thinking"
+  ],
+  "summary": "Admins couldn't tell what state a push was in. I'm redesigning MyLoyal's scattered push entry points into one unified flow, with status visible at every stage from draft through sent.",
+  "caseStudyUrl": "/case-studies/published/case-study-push-notification-consolidation.json",
+  "services": [
+    "Product Strategy",
+    "Information Architecture",
+    "Systems Design",
+    "Interaction Design",
+    "Admin Workflow Design"
+  ],
+  "sections": {
+    "problem": {
+      "statement": "Sending a push notification from the MyLoyal admin panel was confusing and low-confidence for admins. Pushes could be sent from multiple different places, and there was no clear way to see what stage a push was at.",
+      "bizCtx": "The admin panel had grown to allow sending pushes from several different touch points, without a consistent way to track a push's status once it was created. That hesitation undermined a core tool for client engagement.",
+      "constraints": "Multiple existing entry points for sending pushes needed to be reconciled into one consistent flow without breaking existing admin habits."
+    },
+    "insight": {
+      "methods": [
+        "Internal discussions with admins"
+      ],
+      "findings": [
+        {
+          "finding": "Admins couldn't tell what stage a push was at",
+          "evidence": "No consistent status indicator across the different places pushes could be sent from.",
+          "implication": "A single, clear status system visible regardless of entry point."
+        },
+        {
+          "finding": "Multiple entry points created inconsistent experiences",
+          "evidence": "Each touch point handled the sending flow slightly differently.",
+          "implication": "Consolidate entry points into one unified flow."
+        }
+      ],
+      "decision": "One unified flow with status visible at every stage, regardless of where the admin starts. Status clarity leads the design; consolidation supports it."
+    },
+    "design": {
+      "solution": "A consolidated push notification flow with a single, clear status system visible at every stage, replacing the previous scattered entry points.",
+      "flows": "Admins create and send a push through the unified flow, with status clearly visible at each step from draft through sent.",
+      "annotations": "Confidence comes from clear, consistent status visibility rather than an added approval step, which was deliberately left out of the design."
+    },
+    "outcome": {
+      "shipped": "Still in development. The consolidated flow and status system have been designed.",
+      "measures": "Not shipped yet; the measures the design should be held against once live: time for an admin to create and send a push, mid-flow abandonment, whether status questions from admins disappear, and whether the unified flow fully replaces the old entry points in practice.",
+      "learnings": "Consolidating the scattered entry points surfaced the real problem: inconsistent status reporting was undermining admin confidence even more than the number of entry points itself."
+    }
+  },
+  "imageData": [
+    {
+      "src": "/assets/case-studies/push-notification-consolidation/cover.webp",
+      "alt": "Placeholder cover image for the Push Notification Consolidation case study; final UI screenshots coming soon."
+    },
+    {
+      "src": "/assets/case-studies/push-notification-consolidation/img-2.webp",
+      "alt": "Placeholder image; final screenshots of the unified push notification flow coming soon."
+    },
+    {
+      "src": "/assets/case-studies/push-notification-consolidation/img-3.webp",
+      "alt": "Placeholder image; final screenshots of the push status indicator system coming soon."
+    }
+  ],
+  "publishedAt": 1780065616088,
+  "status": "In development",
+  "role": "Product Designer"
+}

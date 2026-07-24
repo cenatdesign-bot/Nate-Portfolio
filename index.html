@@ -1,0 +1,3558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Nataly C — Product designer working at the intersection of research, systems thinking, and interaction design.">
+<meta property="og:title" content="Nataly C — Product Designer">
+<meta property="og:description" content="Product designer crafting intuitive digital products with research, systems thinking, and interaction design.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="/assets/og-image.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Nataly C — Product Designer">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Nataly C — Product Designer">
+<meta name="twitter:description" content="Product designer crafting intuitive digital products with research, systems thinking, and interaction design.">
+<meta name="twitter:image" content="/assets/og-image.jpg">
+<meta name="twitter:image:alt" content="Nataly C — Product Designer">
+<title>Nataly C — Product Designer</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230a0a0a' rx='4'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Georgia,serif' font-size='10' font-weight='400' fill='%23f5f3ef' letter-spacing='1'>N·C</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f3ef;
+    --mid: #6f6b64;
+    --line: rgba(10,10,10,0.12);
+    --ease: cubic-bezier(0.76, 0, 0.24, 1);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--white);
+    color: var(--black);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.038;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 256px;
+    mix-blend-mode: multiply;
+  }
+
+  /* ── CURSOR ── */
+  #cursor {
+    position: fixed;
+    width: 10px; height: 10px;
+    background: var(--black);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.3s var(--ease), height 0.3s var(--ease), background 0.3s;
+    will-change: left, top;
+  }
+  #cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid var(--black);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: left 0.12s var(--ease), top 0.12s var(--ease), width 0.3s var(--ease), height 0.3s var(--ease), opacity 0.3s;
+    will-change: left, top;
+    opacity: 0.5;
+  }
+  body.cursor-hover #cursor { width: 6px; height: 6px; }
+  body.cursor-hover #cursor-ring { width: 60px; height: 60px; opacity: 0.25; }
+  body.cursor-project #cursor { width: 80px; height: 80px; background: var(--black); }
+  body.cursor-project #cursor-ring { opacity: 0; }
+  body.cursor-project #cursor::after {
+    content: 'VIEW';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    font-weight: 400;
+  }
+  body.cursor-lab #cursor { width: 80px; height: 80px; background: var(--white); }
+  body.cursor-lab #cursor-ring { opacity: 0; }
+  body.cursor-lab #cursor::after {
+    content: 'OPEN';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--black);
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    font-weight: 400;
+  }
+
+  /* ── PASSWORD GATE ── */
+  body.locked { overflow: hidden; }
+  #password-gate {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    background: var(--white);
+    display: none; /* hidden by default — shown only when opening a case study */
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  #password-gate.active {
+    display: flex;
+  }
+  #password-gate::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.038;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 256px;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+  .gate-inner {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+    position: relative;
+  }
+  .gate-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 200;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--black);
+  }
+  .gate-divider {
+    width: 32px;
+    height: 1px;
+    background: var(--line);
+  }
+  .gate-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-top: -1rem;
+  }
+  .gate-form {
+    display: flex;
+    border: 1px solid var(--line);
+  }
+  .gate-form input {
+    padding: 0.85rem 1.5rem;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--black);
+    width: 190px;
+  }
+  .gate-form input::placeholder { color: var(--mid); opacity: 0.45; }
+  .gate-form button {
+    padding: 0.85rem 1.4rem;
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .gate-form button:hover { opacity: 0.75; }
+  .gate-error {
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    color: var(--mid);
+    min-height: 1em;
+    margin-top: -1.5rem;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem 3.5rem;
+    background: rgba(245, 243, 239, 0.70);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  nav::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 3.5rem; right: 3.5rem;
+    height: 1px;
+    background: var(--line);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 200;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--black);
+    text-decoration: none;
+  }
+  .nav-links {
+    display: flex;
+    gap: 3rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--black);
+    text-decoration: none;
+    opacity: 0.5;
+    transition: opacity 0.25s;
+  }
+  .nav-links a:hover { opacity: 1; }
+  .nav-index {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--mid);
+    opacity: 0.7;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 3.5rem 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -52%);
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(120px, 22vw, 320px);
+    font-weight: 300;
+    font-style: italic;
+    letter-spacing: -0.03em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(10,10,10,0.06);
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+    will-change: transform;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: flex-end;
+    gap: 2rem;
+  }
+  .hero-headline {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(52px, 8vw, 112px);
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+  }
+  .hero-headline em {
+    font-style: italic;
+    font-weight: 300;
+    display: block;
+    padding-left: 2.5rem;
+  }
+  .hero-right {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .hero-desc {
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    line-height: 1.9;
+    color: var(--mid);
+    max-width: 320px;
+    opacity: 0;
+    animation: fadeUp 1s var(--ease) 0.8s forwards;
+  }
+  .hero-cta-group {
+    display: flex;
+    gap: 1.2rem;
+    align-items: center;
+    opacity: 0;
+    animation: fadeUp 1s var(--ease) 1s forwards;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.95rem 2rem;
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid var(--black);
+    transition: background 0.3s, color 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--white);
+    transform: translateX(-101%);
+    transition: transform 0.4s var(--ease);
+  }
+  .btn-primary:hover { color: var(--black); }
+  .btn-primary:hover::before { transform: translateX(0); }
+  .btn-primary span { position: relative; z-index: 1; }
+  .btn-ghost {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--black);
+    text-decoration: none;
+    opacity: 0.45;
+    transition: opacity 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn-ghost::after { content: '↗'; font-size: 0.8rem; }
+  .btn-ghost:hover { opacity: 1; }
+  .hero-scroll-indicator {
+    position: absolute;
+    bottom: 3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    animation: fadeIn 1s ease 1.5s forwards;
+  }
+  .scroll-line {
+    width: 1px;
+    height: 48px;
+    background: linear-gradient(to bottom, transparent, var(--black));
+    animation: scrollPulse 2s ease infinite;
+  }
+  .hero-counter {
+    position: absolute;
+    top: 50%;
+    right: 3.5rem;
+    transform: translateY(-50%);
+    writing-mode: vertical-rl;
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    color: var(--mid);
+    opacity: 0.5;
+  }
+
+  /* ── MARQUEE ── */
+  .marquee-section {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+    padding: 1.1rem 0;
+  }
+  .marquee-track {
+    display: flex;
+    white-space: nowrap;
+    animation: marquee 22s linear infinite;
+  }
+  .marquee-track:hover { animation-play-state: paused; }
+  .marquee-item {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    padding-right: 2.5rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--mid);
+  }
+  .marquee-dot {
+    width: 4px; height: 4px;
+    background: var(--black);
+    border-radius: 50%;
+    opacity: 0.3;
+    flex-shrink: 0;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 4rem 3.5rem 2.5rem;
+  }
+  .section-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--mid);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .section-label::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--mid);
+  }
+  .section-number {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--mid);
+    opacity: 0.4;
+  }
+
+  /* ── PROJECTS GRID ── */
+  .projects-grid {
+    padding: 0 3.5rem 6rem;
+  }
+  .project-item {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    border-top: 1px solid var(--line);
+    cursor: none;
+    transition: background 0.3s;
+    position: relative;
+  }
+  .project-item:last-child { border-bottom: 1px solid var(--line); }
+  .project-item::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -1px;
+    width: 0; height: 1px;
+    background: var(--black);
+    transition: width 0.5s var(--ease);
+  }
+  .project-item:hover::after { width: 100%; }
+  .project-visual {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16/10;
+    background: #e8e6e2;
+  }
+  .project-visual-inner {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.7s var(--ease);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .project-item:hover .project-visual-inner { transform: scale(1.04); }
+  .project-visual-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(40px, 6vw, 80px);
+    font-style: italic;
+    font-weight: 300;
+    color: rgba(10,10,10,0.1);
+    letter-spacing: -0.02em;
+    overflow: hidden;
+    position: relative;
+  }
+  .p1 .project-visual-placeholder { background: #dbd8d3; }
+  .p2 .project-visual-placeholder { background: #e2e0db; }
+  .p3 .project-visual-placeholder { background: #d5d2cc; }
+  .p4 .project-visual-placeholder { background: #e8e5df; }
+  .p5 .project-visual-placeholder { background: #d8d5ce; }
+
+  .project-visual-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 60px,
+      rgba(10,10,10,0.02) 60px,
+      rgba(10,10,10,0.02) 61px
+    );
+  }
+  .project-info {
+    padding: 3rem 3rem 3rem 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .project-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .project-index {
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--mid);
+    margin-top: 0.1rem;
+  }
+  .project-tags {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  .project-tag {
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid);
+    border: 1px solid var(--line);
+    padding: 0.25rem 0.7rem;
+  }
+  .project-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 3.5vw, 50px);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin: 2rem 0 1rem;
+  }
+  .project-desc {
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+    line-height: 1.9;
+    color: var(--mid);
+    max-width: 340px;
+  }
+  .project-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+  .project-year {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    color: var(--mid);
+    opacity: 0.6;
+  }
+  .project-arrow {
+    width: 36px; height: 36px;
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s, border-color 0.3s;
+    font-size: 0.9rem;
+  }
+  .project-item:hover .project-arrow {
+    background: var(--black);
+    border-color: var(--black);
+    color: var(--white);
+  }
+
+  /* small status note under the projects grid */
+  .projects-source {
+    padding: 1.5rem 3.5rem 3rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--mid);
+    opacity: 0.5;
+    text-align: center;
+  }
+  @media (max-width: 768px) {
+    .projects-source { padding: 1rem 1.25rem 2rem; letter-spacing: 0.18em; }
+  }
+
+  /* "Read the full case study" CTA inside the project modal */
+  .modal-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-top: 3rem;
+    padding: 0.95rem 2rem;
+    background: var(--black);
+    color: var(--white);
+    text-decoration: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: 1px solid var(--black);
+    transition: opacity 0.25s;
+  }
+  .modal-cta:hover { opacity: 0.75; }
+
+  /* ── PROCESS ── */
+  .process-section { border-top: 1px solid var(--line); }
+  .process-grid { padding: 0 3.5rem 6rem; }
+  .process-step {
+    display: grid;
+    grid-template-columns: 80px 1fr 160px;
+    gap: 3rem;
+    border-top: 1px solid var(--line);
+    padding: clamp(2.5rem, 4vw, 4rem) 0;
+    align-items: start;
+  }
+  .process-step:last-child { border-bottom: 1px solid var(--line); }
+  .process-num {
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--mid);
+    padding-top: 0.6rem;
+  }
+  .process-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 3.5vw, 48px);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+  }
+  .process-title em {
+    font-style: italic;
+    font-weight: 300;
+    display: block;
+    padding-left: clamp(1rem, 2vw, 2.5rem);
+  }
+  .process-desc {
+    font-size: 0.82rem;
+    letter-spacing: 0.03em;
+    line-height: 2;
+    color: var(--mid);
+    margin-top: 1.4rem;
+    max-width: 520px;
+  }
+  .process-meta {
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--mid);
+    padding-top: 0.6rem;
+    text-align: right;
+  }
+
+  /* ── LAB SECTION ── */
+  .lab-section {
+    background: var(--black);
+    padding: 5rem 0 6rem;
+    border-top: 1px solid var(--black);
+  }
+  .lab-header {
+    padding: 0 3.5rem 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+  }
+  .lab-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(245,243,239,0.35);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .lab-label::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: rgba(245,243,239,0.35);
+  }
+  .lab-count {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: rgba(245,243,239,0.18);
+  }
+  .lab-intro {
+    padding: 0 3.5rem 4rem;
+  }
+  .lab-intro h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 4vw, 60px);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    color: var(--white);
+    margin-bottom: 1.2rem;
+  }
+  .lab-intro h2 em { font-style: italic; }
+  .lab-intro p {
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    line-height: 1.95;
+    color: rgba(245,243,239,0.38);
+    max-width: 400px;
+  }
+  .lab-grid {
+    padding: 0 3.5rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid rgba(245,243,239,0.09);
+    border-left: 1px solid rgba(245,243,239,0.09);
+  }
+  .lab-card {
+    border-right: 1px solid rgba(245,243,239,0.09);
+    border-bottom: 1px solid rgba(245,243,239,0.09);
+    padding: 2rem 2rem 2.4rem;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.35s;
+    position: relative;
+    text-decoration: none;
+  }
+  a.lab-card { cursor: none; }
+  .lab-card:not(.concept-card):hover {
+    background: rgba(245,243,239,0.04);
+  }
+  .lab-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2.2rem;
+  }
+  .lab-status {
+    font-size: 0.48rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 0.22rem 0.65rem;
+    border: 1px solid;
+  }
+  .lab-status.live   { background: #4a9e4a; border-color: #4a9e4a; color: #f0f7f0; }
+  .lab-status.concept{ color: rgba(245,243,239,0.25); border-color: rgba(245,243,239,0.12); }
+  .lab-status.wip    { color: #c9a850; border-color: rgba(201,168,80,0.28); }
+  body.dark-mode .lab-status.live { background: #3a8a3a; border-color: #3a8a3a; color: #d4f0d4; }
+  /* Lab is a dark band with hardcoded cream text; keep it dark when the
+     theme variables invert, or its text lands cream-on-cream */
+  body.dark-mode .lab-section { background: #0a0a0a; border-top-color: rgba(245,243,239,0.12); }
+  body.dark-mode .lab-intro h2,
+  body.dark-mode .lab-card-name { color: #f5f3ef; }
+  body.dark-mode .lab-card:not(.concept-card):hover .lab-arrow {
+    background: #f5f3ef; border-color: #f5f3ef; color: #0a0a0a;
+  }
+  .lab-num {
+    font-size: 0.5rem;
+    letter-spacing: 0.22em;
+    color: rgba(245,243,239,0.18);
+  }
+  .lab-card-name {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(22px, 2vw, 28px);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 0.9rem;
+    flex: 1;
+  }
+  .lab-card-name em { font-style: italic; }
+  .lab-card-desc {
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    line-height: 1.9;
+    color: rgba(245,243,239,0.38);
+    margin-bottom: 2rem;
+  }
+  .lab-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.2rem;
+    border-top: 1px solid rgba(245,243,239,0.09);
+    margin-top: auto;
+  }
+  .lab-card-tags {
+    display: flex;
+    gap: 0;
+  }
+  .lab-tag {
+    font-size: 0.48rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(245,243,239,0.22);
+  }
+  .lab-tag + .lab-tag::before {
+    content: ' · ';
+    color: rgba(245,243,239,0.12);
+    margin: 0 0.3rem;
+  }
+  .lab-arrow {
+    width: 28px; height: 28px;
+    border: 1px solid rgba(245,243,239,0.14);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(245,243,239,0.35);
+    font-size: 0.8rem;
+    transition: background 0.3s, border-color 0.3s, color 0.3s;
+    flex-shrink: 0;
+  }
+  .lab-card:not(.concept-card):hover .lab-arrow {
+    background: var(--white);
+    border-color: var(--white);
+    color: var(--black);
+  }
+  .concept-card { opacity: 0.45; }
+  .concept-card .lab-arrow { display: none; }
+
+  /* Lab responsive */
+  @media (max-width: 900px) {
+    .lab-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .lab-header { padding: 0 1.25rem; }
+    .lab-intro  { padding: 0 1.25rem 3rem; }
+    .lab-grid   { padding: 0 1.25rem; grid-template-columns: 1fr; }
+    .lab-card   { padding: 1.6rem 1.25rem 2rem; }
+  }
+
+  /* ── ABOUT SECTION ── */
+  .about-section {
+    border-top: 1px solid var(--line);
+    padding: 7rem 3.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 4rem;
+    align-items: start;
+  }
+  .about-left h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(42px, 5.5vw, 80px);
+    font-weight: 300;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+  }
+  .about-left h2 em {
+    font-style: italic;
+    display: block;
+  }
+  .about-right-content {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+  .about-text {
+    font-size: 0.82rem;
+    letter-spacing: 0.03em;
+    line-height: 2;
+    color: var(--mid);
+  }
+  .about-text strong {
+    color: var(--black);
+    font-weight: 400;
+  }
+  .about-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+  .stat-item {
+    padding: 2rem 0;
+    border-right: 1px solid var(--line);
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+  }
+  .stat-item:first-child { padding-left: 0; border-left: none; }
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 300;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-top: 0.4rem;
+    display: block;
+  }
+  .discipline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .discipline-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    transition: padding-left 0.25s var(--ease);
+  }
+  .discipline-item:hover { padding-left: 0.5rem; }
+  .discipline-item:first-child { border-top: 1px solid var(--line); }
+  .disc-year { color: var(--mid); opacity: 0.5; }
+
+  /* ── CONTACT ── */
+  .contact-section {
+    border-top: 1px solid var(--line);
+    padding: 7rem 3.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .contact-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(60px, 12vw, 180px);
+    font-style: italic;
+    font-weight: 300;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(10,10,10,0.04);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .contact-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+  }
+  .contact-label::before, .contact-label::after {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: var(--mid);
+    opacity: 0.4;
+  }
+  .contact-headline {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(42px, 6vw, 88px);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 3rem;
+    position: relative;
+  }
+  .contact-headline em { font-style: italic; }
+  .contact-email {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(20px, 2.5vw, 36px);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    color: var(--black);
+    text-decoration: none;
+    border-bottom: 1px solid var(--black);
+    padding-bottom: 0.15rem;
+    transition: opacity 0.25s;
+    position: relative;
+  }
+  .contact-email:hover { opacity: 0.5; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 2rem 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-copy {
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid);
+    opacity: 0.5;
+  }
+  .footer-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+  .footer-links a {
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+    opacity: 0.5;
+    transition: opacity 0.25s;
+  }
+  .footer-links a:hover { opacity: 1; }
+  .footer-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid);
+    opacity: 0.6;
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    background: var(--black);
+    border-radius: 50%;
+    animation: statusPulse 2.5s ease infinite;
+  }
+
+  /* ── PROJECT MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 800;
+    background: var(--white);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s var(--ease), visibility 0.5s;
+    overflow-y: auto;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  .modal-close {
+    position: fixed;
+    top: 2rem; right: 3.5rem;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    background: none;
+    border: none;
+    color: var(--black);
+    cursor: none;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.4s ease 0.3s, transform 0.4s ease 0.3s;
+  }
+  .modal-overlay.active .modal-close { opacity: 1; transform: translateY(0); }
+  .modal-close-icon {
+    width: 32px; height: 32px;
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.25s;
+  }
+  .modal-close:hover .modal-close-icon { background: var(--black); color: var(--white); }
+  .modal-content {
+    padding: 8rem 3.5rem 5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.5s var(--ease) 0.15s, transform 0.5s var(--ease) 0.15s;
+  }
+  .modal-overlay.active .modal-content { opacity: 1; transform: translateY(0); }
+  .modal-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: end;
+    margin-bottom: 4rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(48px, 7vw, 100px);
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+  }
+  .modal-title em { font-style: italic; display: block; }
+  .modal-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem 2rem;
+  }
+  .modal-meta-item label {
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--mid);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .modal-meta-item span {
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    color: var(--black);
+  }
+  .modal-hero-image {
+    width: 100%;
+    aspect-ratio: 16/8;
+    background: #dbd8d3;
+    margin-bottom: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .modal-hero-image::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 80px,
+      rgba(10,10,10,0.02) 80px,
+      rgba(10,10,10,0.02) 81px
+    );
+  }
+  .modal-hero-text {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(60px, 10vw, 140px);
+    font-style: italic;
+    font-weight: 300;
+    color: rgba(10,10,10,0.07);
+    letter-spacing: -0.02em;
+    position: relative;
+  }
+  .modal-body {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 6rem;
+    margin-bottom: 4rem;
+  }
+  .modal-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+  .modal-sidebar h3 {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 1rem;
+  }
+  .modal-text p {
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    line-height: 2;
+    color: var(--mid);
+    margin-bottom: 1.5rem;
+  }
+  .modal-text p strong { color: var(--black); font-weight: 400; }
+  .modal-text h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(22px, 2.5vw, 34px);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    margin-bottom: 1.5rem;
+    margin-top: 2.5rem;
+  }
+  .service-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .service-list li {
+    list-style: none;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--mid);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .service-list li::before { content: '—'; opacity: 0.3; }
+  .modal-image-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .modal-img-block {
+    aspect-ratio: 4/3;
+    background: #e2e0db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .modal-img-block:first-child {
+    grid-column: span 2;
+    aspect-ratio: 16/9;
+    background: #d5d2cc;
+  }
+  .modal-img-block::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 40px,
+      rgba(10,10,10,0.015) 40px,
+      rgba(10,10,10,0.015) 41px
+    );
+  }
+  .modal-img-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-style: italic;
+    font-weight: 300;
+    color: rgba(10,10,10,0.1);
+    position: relative;
+  }
+  /* Real images from framework */
+  .modal-img-real { padding: 0; }
+  .modal-img-real::before { display: none; }
+  .modal-img-photo {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    cursor: zoom-in;
+    transition: opacity 0.2s ease;
+  }
+  .modal-img-photo:hover { opacity: 0.88; }
+  /* Cover image in project card */
+  .project-visual-cover {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  /* Cover image in modal hero */
+  .modal-hero-photo { padding: 0; background: #0a0a0a !important; }
+  .modal-hero-photo::before { display: none; }
+  .modal-hero-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  /* ── Portfolio Modal Lightbox ── */
+  #modalLightbox {
+    position: fixed; inset: 0;
+    background: rgba(10,10,10,0.96);
+    z-index: 10000; display: none;
+    align-items: center; justify-content: center;
+    padding: clamp(2rem, 5vw, 4rem);
+    cursor: zoom-out;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  #modalLightbox.open { display: flex; }
+  #modalLightbox .lb-img {
+    max-width: 100%; max-height: 88vh;
+    object-fit: contain;
+    cursor: default;
+    animation: lbZoom 0.28s ease;
+    display: block;
+  }
+  @keyframes lbZoom {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  #modalLightbox .lb-close {
+    position: absolute;
+    top: clamp(1.2rem, 3vw, 2.2rem);
+    right: clamp(1.2rem, 3vw, 2.2rem);
+    width: 44px; height: 44px;
+    background: transparent;
+    border: 1px solid rgba(245,243,239,0.35);
+    color: #f5f3ef;
+    font-size: 22px; line-height: 1;
+    font-family: inherit;
+    cursor: pointer;
+    border-radius: 0;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  #modalLightbox .lb-close:hover {
+    background: #f5f3ef; color: #0a0a0a; border-color: #f5f3ef;
+  }
+  #modalLightbox .lb-counter {
+    position: absolute;
+    top: clamp(1.2rem, 3vw, 2.2rem);
+    left: clamp(1.2rem, 3vw, 2.2rem);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(245,243,239,0.55);
+  }
+  #modalLightbox .lb-caption {
+    position: absolute;
+    bottom: clamp(1.2rem, 3vw, 2.2rem);
+    left: 50%; transform: translateX(-50%);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(245,243,239,0.7);
+    text-align: center;
+    max-width: 80vw;
+  }
+  .modal-next {
+    border-top: 1px solid var(--line);
+    padding-top: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-next-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--mid);
+    opacity: 0.5;
+  }
+  .modal-next-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(24px, 3vw, 44px);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    cursor: none;
+    transition: opacity 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .modal-next-title:hover { opacity: 0.5; }
+
+  /* ── MODAL: rich case study sections (driven by framework manifest) ── */
+  .modal-pitch {
+    font-family: 'Syne', sans-serif;
+    font-style: italic;
+    font-size: clamp(22px, 3vw, 32px);
+    font-weight: 300;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: var(--black);
+    text-align: left;
+    max-width: 720px;
+    margin: 0 0 2.5rem;
+  }
+  .modal-lead {
+    font-size: 0.82rem;
+    letter-spacing: 0.03em;
+    line-height: 2;
+    color: var(--mid);
+    max-width: 680px;
+    margin: 0 0 4rem;
+    text-align: left;
+  }
+  .modal-text-section {
+    padding: 2.8rem 0;
+    border-top: 1px solid var(--line);
+  }
+  .modal-text-section:first-child { border-top: none; padding-top: 0; }
+  .text-section-num {
+    display: block;
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 1.4rem;
+  }
+  .modal-text-section h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--black);
+    margin: 1.8rem 0 0.6rem;
+    opacity: 0.7;
+  }
+  .modal-text-section p {
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    line-height: 2;
+    color: var(--mid);
+    margin-bottom: 1rem;
+  }
+  .modal-text .text-statement {
+    font-family: 'Syne', sans-serif;
+    font-style: italic;
+    font-size: clamp(18px, 1.8vw, 22px);
+    font-weight: 300;
+    line-height: 1.55;
+    letter-spacing: -0.005em;
+    color: var(--black);
+    margin-bottom: 1.5rem;
+  }
+  .modal-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.4rem;
+  }
+  .modal-chip {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid);
+    border: 1px solid var(--line);
+    padding: 0.3rem 0.7rem;
+  }
+  .modal-findings {
+    display: flex;
+    flex-direction: column;
+    margin: 1.5rem 0 1.2rem;
+  }
+  .modal-finding {
+    border-top: 1px solid var(--line);
+    padding: 1.2rem 0;
+  }
+  .modal-finding:last-child { border-bottom: 1px solid var(--line); }
+  .modal-finding .finding-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.5rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--mid);
+    opacity: 0.6;
+    margin-bottom: 0.4rem;
+  }
+  .modal-finding strong {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(16px, 1.5vw, 20px);
+    font-weight: 300;
+    color: var(--black);
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.005em;
+  }
+  .modal-finding p {
+    margin-bottom: 0.4rem;
+    font-size: 0.65rem;
+    line-height: 1.85;
+  }
+  .modal-finding em {
+    font-style: italic;
+    font-size: 0.65rem;
+    color: var(--mid);
+    letter-spacing: 0.04em;
+  }
+  .modal-hmw {
+    font-family: 'Syne', sans-serif;
+    font-style: italic;
+    font-size: clamp(18px, 2vw, 26px);
+    font-weight: 300;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    color: var(--black);
+    padding: 1.2rem 0 1.2rem 1.6rem;
+    border-left: 1px solid var(--black);
+    margin: 1.5rem 0;
+  }
+  .modal-principles {
+    list-style: none;
+    margin: 1rem 0 1.2rem;
+    padding: 0;
+  }
+  .modal-principles li {
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.7rem;
+    line-height: 1.7;
+    color: var(--mid);
+    letter-spacing: 0.04em;
+  }
+  .modal-principles li:first-child { border-top: 1px solid var(--line); }
+  .modal-principles strong {
+    color: var(--black);
+    font-weight: 400;
+  }
+  .modal-quotes {
+    margin: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .modal-quotes blockquote {
+    font-family: 'Syne', sans-serif;
+    font-style: italic;
+    font-size: clamp(15px, 1.4vw, 18px);
+    font-weight: 300;
+    line-height: 1.55;
+    color: var(--black);
+    padding: 0.5rem 0 0.5rem 1.4rem;
+    border-left: 1px solid var(--mid);
+  }
+  @media (max-width: 768px) {
+    .modal-pitch { font-size: clamp(18px, 5vw, 24px); margin-bottom: 1.8rem; }
+    .modal-lead { font-size: 0.72rem; margin-bottom: 2.5rem; text-align: left; }
+    .modal-text-section { padding: 2rem 0; }
+    .modal-hmw { padding-left: 1rem; font-size: clamp(16px, 5vw, 20px); }
+  }
+
+  /* ── KEYBOARD FOCUS STATES ── */
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--black);
+    outline-offset: 2px;
+  }
+  body.dark-mode a:focus-visible,
+  body.dark-mode button:focus-visible {
+    outline: 2px solid var(--white);
+  }
+  .nav-links a:focus-visible {
+    outline: 2px solid var(--black);
+    outline-offset: 4px;
+  }
+  .btn-primary:focus-visible,
+  .btn-ghost:focus-visible {
+    outline: 2px solid var(--black);
+    outline-offset: 3px;
+  }
+  .gate-form input:focus-visible {
+    outline: 2px solid var(--black);
+    outline-offset: 2px;
+  }
+  .gate-form button:focus-visible {
+    outline: 2px solid var(--white);
+    outline-offset: 2px;
+  }
+  .project-item:focus-visible,
+  a.lab-card:focus-visible {
+    outline: 2px solid var(--black);
+    outline-offset: 0;
+  }
+  .contact-email:focus-visible {
+    outline: 2px solid var(--black);
+    outline-offset: 2px;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(0.5); transform-origin: top; }
+    50% { opacity: 1; transform: scaleY(1); }
+  }
+  @keyframes statusPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  /* scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+
+  /* ── SKIP LINK (keyboard bypass) ── */
+  .skip-link {
+    position: absolute; left: 8px; top: -60px;
+    background: var(--black); color: var(--white);
+    padding: 10px 16px; border-radius: 6px; z-index: 100000;
+    font-size: 0.8rem; letter-spacing: 0.02em; text-decoration: none;
+    transition: top 0.2s var(--ease);
+  }
+  .skip-link:focus { top: 8px; }
+  #main-content:focus { outline: none; }
+
+  /* ── REDUCED MOTION — respect users who opt out of animation ── */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+    .reveal { opacity: 1 !important; transform: none !important; }
+    .hero-headline { opacity: 1 !important; }
+    .marquee-track { animation: none !important; }
+    #cursor, #cursor-ring { display: none !important; }
+  }
+
+  /* ── TOUCH / COARSE POINTER — restore native cursor, drop custom one ── */
+  @media (hover: none), (pointer: coarse) {
+    #cursor, #cursor-ring { display: none !important; }
+    body, a, a.lab-card, .btn-primary, .btn-ghost { cursor: auto !important; }
+  }
+
+  /* hero entrance */
+  .hero-headline { opacity: 0; animation: fadeUp 1.2s var(--ease) 0.2s forwards; }
+
+  /* page load */
+  .page-enter {
+    animation: fadeIn 0.6s ease forwards;
+  }
+
+  /* ── MOBILE RESPONSIVE ── */
+  @media (max-width: 768px) {
+    /* Hide custom cursor on mobile */
+    #cursor, #cursor-ring { display: none; }
+    body { cursor: auto; }
+    
+    /* Navigation */
+    nav {
+      padding: 1.5rem 1.25rem;
+      flex-wrap: wrap;
+    }
+    nav::after { left: 1.25rem; right: 1.25rem; }
+    .nav-logo { font-size: 0.7rem; }
+    .nav-links { gap: 1.5rem; }
+    .nav-links a { font-size: 0.6rem; }
+    .nav-index { display: none; }
+    
+    /* Hero */
+    .hero {
+      padding: 0 1.25rem 3rem;
+      min-height: 85vh;
+    }
+    .hero-content {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+    .hero-headline { font-size: clamp(38px, 12vw, 52px); }
+    .hero-headline em { padding-left: 1rem; }
+    .hero-desc { max-width: 100%; }
+    .hero-counter { display: none; }
+    .hero-scroll-indicator { bottom: 2rem; }
+    .hero-bg-text { font-size: clamp(80px, 18vw, 140px); }
+    
+    /* Sections */
+    .section-header {
+      padding: 3rem 1.25rem 2rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    
+    /* Projects */
+    .projects-grid { padding: 0 1.25rem 4rem; }
+    .project-item {
+      grid-template-columns: 1fr;
+      cursor: pointer;
+    }
+    .project-visual { aspect-ratio: 4/3; }
+    .project-info { padding: 2rem 1.5rem; }
+    .project-title { font-size: clamp(26px, 7vw, 36px); }
+    .project-desc { max-width: 100%; }
+    
+    /* Process */
+    .process-grid { padding: 0 1.25rem 4rem; }
+    .process-step { grid-template-columns: 40px 1fr; gap: 0.75rem 1rem; padding: 2rem 0; }
+    .process-meta { grid-column: 2; text-align: left; padding-top: 0.5rem; opacity: 0.5; }
+    .process-title { font-size: clamp(24px, 7vw, 32px); }
+    .process-title em { padding-left: 0.75rem; }
+    .process-desc { font-size: 0.65rem; line-height: 1.85; }
+
+    /* About */
+    .about-section {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      padding: 5rem 1.25rem;
+    }
+    .about-left h2 { font-size: clamp(32px, 10vw, 52px); }
+    .about-stats {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .stat-item {
+      border-right: none;
+      border-bottom: 1px solid var(--line);
+      padding: 1.5rem 0;
+    }
+    .stat-item:last-child { border-bottom: none; padding-bottom: 0; }
+    
+    /* Contact */
+    .contact-section {
+      padding: 5rem 1.25rem;
+    }
+    .contact-headline { font-size: clamp(32px, 10vw, 56px); }
+    .contact-email { font-size: clamp(16px, 5vw, 28px); }
+    .contact-bg { font-size: clamp(50px, 14vw, 100px); }
+    
+    /* Footer */
+    footer {
+      padding: 1.5rem 1.25rem;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    .footer-links { gap: 1.5rem; }
+    
+    /* Modal */
+    .modal-close {
+      top: 1.5rem;
+      right: 1.25rem;
+      font-size: 0.55rem;
+    }
+    .modal-content { padding: 6rem 1.25rem 3rem; }
+    .modal-header {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      padding-bottom: 2rem;
+      margin-bottom: 3rem;
+    }
+    .modal-title { font-size: clamp(36px, 10vw, 60px); }
+    .modal-meta-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .modal-hero-image {
+      aspect-ratio: 4/3;
+      margin-bottom: 3rem;
+    }
+    .modal-hero-text { font-size: clamp(40px, 12vw, 80px); }
+    .modal-body {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      margin-bottom: 3rem;
+    }
+    .modal-image-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .modal-img-block:first-child {
+      grid-column: span 1;
+      aspect-ratio: 4/3;
+    }
+    .modal-next { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .modal-next-title { font-size: clamp(20px, 6vw, 32px); }
+    
+    /* Easter eggs - adjust toast */
+    .easter-egg-toast {
+      bottom: 2rem;
+      left: 1.25rem;
+      right: 1.25rem;
+      width: auto;
+      transform: translateX(0) translateY(100px);
+      text-align: center;
+    }
+    .easter-egg-toast.show {
+      transform: translateX(0) translateY(0);
+    }
+    
+    /* Stats overlay */
+    .stats-overlay { padding: 6rem 1.25rem 3rem; }
+    .stats-close { top: 1.5rem; right: 1.25rem; }
+    .stats-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    /* Buttons */
+    .btn-primary { padding: 0.85rem 1.5rem; font-size: 0.55rem; }
+    .btn-ghost { font-size: 0.55rem; }
+    .hero-cta-group { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+  }
+
+  /* Tablet adjustments */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    nav { padding: 2rem 2rem; }
+    nav::after { left: 2rem; right: 2rem; }
+    .hero { padding: 0 2rem 4rem; }
+    .section-header { padding: 3.5rem 2rem 2rem; }
+    .projects-grid { padding: 0 2rem 5rem; }
+    .about-section { padding: 6rem 2rem; }
+    .contact-section { padding: 6rem 2rem; }
+    footer { padding: 2rem; }
+    .modal-content { padding: 7rem 2rem 4rem; }
+    .modal-close { right: 2rem; }
+  }
+
+  /* Touch target improvements for mobile */
+  @media (max-width: 768px) {
+    a, button { min-height: 44px; }
+    .nav-links a { padding: 0.5rem 0; }
+    .btn-primary, .btn-ghost { min-height: 48px; }
+    .modal-close { min-height: 48px; min-width: 48px; }
+    .stats-close { min-height: 48px; min-width: 100px; }
+    .project-item { padding: 1rem 0; }
+  }
+
+  /* ── DARK MODE ── */
+  body.dark-mode {
+    --black: #f5f3ef;
+    --white: #0a0a0a;
+    --mid: #9a968f;
+    --line: rgba(245,243,239,0.12);
+  }
+  body.dark-mode nav {
+    background: rgba(10, 10, 10, 0.70);
+  }
+  body.dark-mode .hero-bg-text,
+  body.dark-mode .contact-bg,
+  body.dark-mode .project-visual-placeholder,
+  body.dark-mode .modal-hero-text,
+  body.dark-mode .modal-img-label {
+    -webkit-text-stroke: 1px rgba(245,243,239,0.06);
+  }
+  body.dark-mode::before { mix-blend-mode: screen; }
+  body.dark-mode .project-visual-placeholder::before,
+  body.dark-mode .modal-hero-image::before,
+  body.dark-mode .modal-img-block::before {
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 60px,
+      rgba(245,243,239,0.02) 60px,
+      rgba(245,243,239,0.02) 61px
+    );
+  }
+
+  /* ── EASTER EGG NOTIFICATION ── */
+  .easter-egg-toast {
+    position: fixed;
+    bottom: 3rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--black);
+    color: var(--white);
+    padding: 1rem 2rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: 1px solid var(--black);
+    opacity: 0;
+    z-index: 10001;
+    transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+    pointer-events: none;
+  }
+  .easter-egg-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── STATS OVERLAY ── */
+  /* ── STATS OVERLAY ── */
+  .stats-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: #0a0a0a;
+    color: #f5f3ef;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s var(--ease), visibility 0.5s;
+    overflow-y: auto;
+    padding: 6rem 3.5rem 5rem;
+  }
+  .stats-overlay.active { opacity: 1; visibility: visible; }
+
+  .stats-close {
+    position: fixed;
+    top: 2rem;
+    right: 3.5rem;
+    z-index: 1001;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    background: none;
+    border: 1px solid rgba(245,243,239,0.2);
+    padding: 0.75rem 1.4rem;
+    color: #f5f3ef;
+    cursor: none;
+    transition: background 0.25s, color 0.25s, border-color 0.25s;
+  }
+  .stats-close:hover { background: #f5f3ef; color: #0a0a0a; border-color: #f5f3ef; }
+
+  .stats-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: clamp(3rem, 6vw, 5rem);
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(245,243,239,0.1);
+  }
+  .stats-eyebrow {
+    font-size: 0.55rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(245,243,239,0.35);
+  }
+  .stats-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 5vw, 72px);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: #f5f3ef;
+  }
+  .stats-title em { font-style: italic; }
+  .stats-disclaimer {
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    color: rgba(245,243,239,0.25);
+    align-self: flex-end;
+    max-width: 220px;
+    line-height: 1.7;
+    text-align: right;
+  }
+
+  /* Bento-style uneven grid */
+  .stats-bento {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: minmax(140px, auto);
+    gap: 1px;
+    background: rgba(245,243,239,0.08);
+    max-width: 1200px;
+  }
+  .s-cell {
+    background: #0a0a0a;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.25s;
+  }
+  .s-cell:hover { background: #111; }
+
+  /* Span variants */
+  .s-col-4  { grid-column: span 4; }
+  .s-col-5  { grid-column: span 5; }
+  .s-col-6  { grid-column: span 6; }
+  .s-col-7  { grid-column: span 7; }
+  .s-col-8  { grid-column: span 8; }
+  .s-col-12 { grid-column: span 12; }
+  .s-row-2  { grid-row: span 2; }
+
+  .s-label {
+    font-size: 0.52rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(245,243,239,0.35);
+    line-height: 1;
+  }
+  .s-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 300;
+    letter-spacing: -0.03em;
+    line-height: 0.9;
+    color: #f5f3ef;
+    font-size: clamp(48px, 7vw, 96px);
+  }
+  .s-num.xl { font-size: clamp(72px, 11vw, 160px); }
+  .s-num.sm { font-size: clamp(32px, 4vw, 56px); }
+  .s-desc {
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    line-height: 1.75;
+    color: rgba(245,243,239,0.45);
+    max-width: 380px;
+  }
+  .s-tag {
+    display: inline-block;
+    font-size: 0.48rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    border: 1px solid rgba(245,243,239,0.15);
+    padding: 0.25rem 0.65rem;
+    color: rgba(245,243,239,0.4);
+    align-self: flex-start;
+  }
+  .s-accent { color: rgba(245,243,239,0.12); font-style: italic; }
+  /* watermark text in bg */
+  .s-watermark {
+    position: absolute;
+    right: -0.5rem;
+    bottom: -1rem;
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(60px, 10vw, 120px);
+    font-weight: 300;
+    font-style: italic;
+    color: rgba(245,243,239,0.04);
+    letter-spacing: -0.03em;
+    pointer-events: none;
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  @media (max-width: 900px) {
+    .s-col-4, .s-col-5, .s-col-6, .s-col-7, .s-col-8 { grid-column: span 6; }
+    .s-col-12 { grid-column: span 12; }
+    .stats-bento { grid-template-columns: repeat(6, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .s-col-4, .s-col-5, .s-col-6, .s-col-7, .s-col-8, .s-col-12 { grid-column: span 6; }
+    .stats-bento { grid-template-columns: repeat(6, 1fr); }
+    .stats-overlay { padding: 5rem 1rem 3rem; }
+    .stats-close { right: 1rem; }
+  }
+</style>
+<noscript><style>
+  /* Without JS the IntersectionObserver never reveals content — force it visible */
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .hero-headline { opacity: 1 !important; }
+</style></noscript>
+</head>
+<body class="page-enter">
+<a href="#main-content" class="skip-link">Skip to content</a>
+
+<!-- Password Gate -->
+<div id="password-gate" role="dialog" aria-modal="true" aria-label="Site access">
+  <div class="gate-inner">
+    <div class="gate-logo" data-cfg="identity.initials">N·C</div>
+    <div class="gate-divider"></div>
+    <p class="gate-label" data-cfg="gate.label">Private preview</p>
+    <form class="gate-form" id="gateForm" novalidate>
+      <input type="password" id="gateInput" placeholder="Access code" autocomplete="off" aria-label="Access code" spellcheck="false">
+      <button type="submit">Enter</button>
+    </form>
+    <p class="gate-error" id="gateError" aria-live="polite"></p>
+  </div>
+</div>
+
+<!-- Custom Cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- Navigation -->
+<nav>
+  <a href="#" class="nav-logo" data-cfg="identity.initials">N·C</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#projects">Work</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#lab">Lab</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <span class="nav-index" data-cfg="identity.dateRange">2024 — 2026</span>
+</nav>
+
+<main id="main-content" tabindex="-1">
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg-text" id="heroBg">Design</div>
+  <div class="hero-content">
+    <h1 class="hero-headline" id="heroHeadline">
+      Designing<br>
+      <em>digital</em><br>
+      experiences
+    </h1>
+    <div class="hero-right">
+      <p class="hero-desc" id="heroDesc">
+        I design digital products from the inside out: starting in research, ending in shipped interfaces. Currently working with teams who care about the small details as much as the strategic ones.
+      </p>
+      <div class="hero-cta-group" id="heroCtas">
+        <a href="#projects" class="btn-primary" data-cfg-cta="primary"><span>Explore Work</span></a>
+        <a href="#contact" class="btn-ghost" data-cfg-cta="secondary">Get in Touch</a>
+      </div>
+    </div>
+  </div>
+  <div class="hero-counter" data-cfg="hero.counter">Selected Projects — 2026</div>
+  <div class="hero-scroll-indicator">
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- Marquee -->
+<div class="marquee-section" aria-hidden="true">
+  <div class="marquee-track" id="marqueeTrack" data-cfg-marquee>
+    <div class="marquee-item"><span>Product Strategy</span><span class="marquee-dot"></span><span>Design Systems</span><span class="marquee-dot"></span><span>Interaction Design</span><span class="marquee-dot"></span><span>Research &amp; Discovery</span><span class="marquee-dot"></span><span>Accessibility</span><span class="marquee-dot"></span><span>Design Leadership</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>Product Strategy</span><span class="marquee-dot"></span><span>Design Systems</span><span class="marquee-dot"></span><span>Interaction Design</span><span class="marquee-dot"></span><span>Research &amp; Discovery</span><span class="marquee-dot"></span><span>Accessibility</span><span class="marquee-dot"></span><span>Design Leadership</span><span class="marquee-dot"></span></div>
+  </div>
+</div>
+
+<!-- Projects -->
+<section id="projects">
+  <div class="section-header">
+    <div class="section-label" data-cfg="work.label">Selected Work</div>
+    <div class="section-number" id="projectsCount">— projects</div>
+  </div>
+  <div class="projects-grid" id="projectsGrid"></div>
+  <p class="projects-source" id="projectsSource" hidden></p>
+</section>
+
+<!-- Process -->
+<section id="process" class="process-section">
+  <div class="section-header">
+    <div class="section-label" data-cfg="process.label">Process</div>
+    <div class="section-number" id="processCount">04 principles</div>
+  </div>
+  <div class="process-grid" id="processGrid">
+
+    <article class="process-step reveal">
+      <span class="process-num">01</span>
+      <div class="process-body">
+        <h3 class="process-title">Start in the data,<br><em>not the deck.</em></h3>
+        <p class="process-desc">Every project begins with what's already known: analytics, support tickets, prior research, the team's own intuitions. The design problem isn't visible until I've sat with the evidence.</p>
+      </div>
+      <span class="process-meta">Discovery</span>
+    </article>
+
+    <article class="process-step reveal reveal-delay-1">
+      <span class="process-num">02</span>
+      <div class="process-body">
+        <h3 class="process-title">Make the small thing<br><em>first.</em></h3>
+        <p class="process-desc">Strategy and shipped pixels are the same conversation. Earning trust to do bigger work means landing the smaller version cleanly first: a single screen, a single flow, a single decision that holds up in production.</p>
+      </div>
+      <span class="process-meta">Method</span>
+    </article>
+
+    <article class="process-step reveal">
+      <span class="process-num">03</span>
+      <div class="process-body">
+        <h3 class="process-title">Detail is<br><em>the product.</em></h3>
+        <p class="process-desc">A great interaction isn't the wireframe; it's the handful of micro-decisions made between Figma and the engineer's pull request. Most of the value lives in the last 10%.</p>
+      </div>
+      <span class="process-meta">Craft</span>
+    </article>
+
+    <article class="process-step reveal reveal-delay-1">
+      <span class="process-num">04</span>
+      <div class="process-body">
+        <h3 class="process-title">Decide once,<br><em>document forever.</em></h3>
+        <p class="process-desc">Design that scales is design that's traceable. Every recurring decision deserves a written rationale, not because anyone will read it, but because the act of writing it down is what makes it sturdy.</p>
+      </div>
+      <span class="process-meta">Systems</span>
+    </article>
+
+  </div>
+</section>
+
+<!-- Lab -->
+<section id="lab" class="lab-section">
+
+  <div class="lab-header">
+    <span class="lab-label">Lab</span>
+    <span class="lab-count">— experiments</span>
+  </div>
+
+  <div class="lab-intro reveal">
+    <h2>Small tools,<br><em>big life problems.</em></h2>
+    <p>Things I build with AI to solve niche, specific, occasionally ridiculous problems for myself and family. Two are live so far, the rest are on the bench.</p>
+  </div>
+
+  <div class="lab-grid">
+
+    <!-- 01 — Design Process Framework (Live) -->
+    <a href="https://process-framework.up.railway.app" target="_blank" class="lab-card reveal">
+      <div class="lab-card-top">
+        <span class="lab-status live">Live</span>
+        <span class="lab-num">01</span>
+      </div>
+      <div class="lab-card-name">Design Process<br><em>Framework</em></div>
+      <p class="lab-card-desc">An interactive editor for documenting and publishing your design process. Built for designers who think in systems and want something nicer than a Notion doc.</p>
+      <div class="lab-card-footer">
+        <div class="lab-card-tags">
+          <span class="lab-tag">UX Tool</span>
+          <span class="lab-tag">Framework</span>
+        </div>
+        <div class="lab-arrow">→</div>
+      </div>
+    </a>
+
+    <!-- 02 — Story Spinner (Concept) -->
+    <div class="lab-card concept-card reveal reveal-delay-1">
+      <div class="lab-card-top">
+        <span class="lab-status concept">Concept</span>
+        <span class="lab-num">02</span>
+      </div>
+      <div class="lab-card-name">Story<br><em>Spinner</em></div>
+      <p class="lab-card-desc">Generates bedtime stories where the characters are your actual family members. Nightly ritual, on demand, in under 10 seconds.</p>
+      <div class="lab-card-footer">
+        <div class="lab-card-tags">
+          <span class="lab-tag">Family</span>
+          <span class="lab-tag">AI</span>
+        </div>
+        <div class="lab-arrow">→</div>
+      </div>
+    </div>
+
+    <!-- 03 — What's For Dinner (In progress) -->
+    <div class="lab-card concept-card reveal reveal-delay-2">
+      <div class="lab-card-top">
+        <span class="lab-status wip">In progress</span>
+        <span class="lab-num">03</span>
+      </div>
+      <div class="lab-card-name">What's<br><em>For Dinner?</em></div>
+      <p class="lab-card-desc">Tell it what's in the fridge. It tells you what to cook. No more scrolling through 400 saved recipes looking for something that uses the wilting spinach.</p>
+      <div class="lab-card-footer">
+        <div class="lab-card-tags">
+          <span class="lab-tag">Personal</span>
+          <span class="lab-tag">AI</span>
+        </div>
+        <div class="lab-arrow">→</div>
+      </div>
+    </div>
+
+    <!-- 04 — The Movie Decider (Concept) -->
+    <div class="lab-card concept-card reveal">
+      <div class="lab-card-top">
+        <span class="lab-status concept">Concept</span>
+        <span class="lab-num">04</span>
+      </div>
+      <div class="lab-card-name">The Movie<br><em>Decider</em></div>
+      <p class="lab-card-desc">End the 45-minute negotiation. Both people rate their mood, energy, and tolerance for subtitles, and it picks something you'll both actually watch.</p>
+      <div class="lab-card-footer">
+        <div class="lab-card-tags">
+          <span class="lab-tag">Personal</span>
+          <span class="lab-tag">AI</span>
+        </div>
+        <div class="lab-arrow">→</div>
+      </div>
+    </div>
+
+    <!-- 05 — Curio (Live) -->
+    <a href="https://curioapp.up.railway.app/" target="_blank" class="lab-card reveal">
+      <div class="lab-card-top">
+        <span class="lab-status live">Live</span>
+        <span class="lab-num">05</span>
+      </div>
+      <div class="lab-card-name">Curio<br><em>Personal Library</em></div>
+      <p class="lab-card-desc">A personal library app for collecting and organizing the things worth keeping. Careful typography, calm interactions, and a design taken all the way from first sketch to live deployment.</p>
+      <div class="lab-card-footer">
+        <div class="lab-card-tags">
+          <span class="lab-tag">Web App</span>
+          <span class="lab-tag">Library</span>
+          <span class="lab-tag">Design</span>
+        </div>
+        <div class="lab-arrow">→</div>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- About -->
+<section id="about" class="about-section">
+  <div class="about-left reveal">
+    <h2 id="aboutHeadline">I build<br><em>digital products</em><br>with intent.</h2>
+  </div>
+  <div class="about-right-content">
+    <p class="about-text reveal reveal-delay-1" id="aboutBio">
+      My path into product design started in visual and editorial design, and evolved through freelance work and in-house roles into full-scope product design at <strong>MyLoyal</strong> in Copenhagen, where I've spent the last <strong>5+ years</strong> shaping loyalty and engagement experiences for brands across Denmark. That graphic design foundation still shows up in my work today: a stronger-than-average eye for visual craft, typography, and motion, layered on top of research, systems thinking, and interaction design.
+      <br><br>
+      Every project starts with the same question: what's actually happening for the person using this, and why? I work iteratively, sketching, testing, refining, staying close to design trends without chasing them, and I'm most useful in the messy middle of a project, turning ambiguous problems into shipped systems that hold up in production. Calm under pressure, observant, and happiest working closely with a team rather than in isolation.
+    </p>
+    <div class="about-stats reveal reveal-delay-2" id="aboutStats">
+      <div class="stat-item">
+        <div class="stat-num">750k</div>
+        <span class="stat-label">Users Impacted</span>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">50+</div>
+        <span class="stat-label">Design System Components</span>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">13+</div>
+        <span class="stat-label">Brand Partners</span>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">9</div>
+        <span class="stat-label">Years Experience</span>
+      </div>
+    </div>
+    <div class="discipline-list reveal reveal-delay-2" id="aboutDisciplines">
+      <div class="discipline-item"><span>Product &amp; UX Design</span><span class="disc-year">Core</span></div>
+      <div class="discipline-item"><span>Design Systems</span><span class="disc-year">Core</span></div>
+      <div class="discipline-item"><span>Cross-functional Collaboration</span><span class="disc-year">Core</span></div>
+      <div class="discipline-item"><span>Visual &amp; Brand Design</span><span class="disc-year">Select</span></div>
+      <div class="discipline-item"><span>Client &amp; Stakeholder Communication</span><span class="disc-year">Select</span></div>
+      <div class="discipline-item"><span>AI-Assisted Prototyping &amp; Build</span><span class="disc-year">Select</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact" class="contact-section">
+  <div class="contact-bg" data-cfg="contact.bgWord">Let's build.</div>
+  <div class="contact-label reveal" data-cfg="contact.label">Open to opportunities</div>
+  <h2 class="contact-headline reveal reveal-delay-1" id="contactHeadline">
+    Have something<br><em>worth building</em><br>together?
+  </h2>
+  <br><br>
+  <a href="mailto:natalicetre@gmail.com" class="contact-email reveal reveal-delay-2" id="contactEmail">natalicetre@gmail.com</a>
+</section>
+
+</main>
+
+<!-- Footer -->
+<footer>
+  <span class="footer-copy" id="footerCopy">© 2026 Nataly C. All rights reserved.</span>
+  <ul class="footer-links" id="footerLinks">
+    <li><a href="https://www.linkedin.com/in/nataly-cetre-b93618158/" rel="noopener noreferrer" target="_blank">LinkedIn</a></li>
+    <li><a href="https://www.behance.net/natalicetr5d99" rel="noopener noreferrer" target="_blank">Behance</a></li>
+    <li><a href="assets/Nataly-C-Product-Designer.pdf" rel="noopener noreferrer" target="_blank">CV</a></li>
+  </ul>
+  <div class="footer-status">
+    <span class="status-dot"></span>
+    <span data-cfg="footer.status">Available for work · Copenhagen, Denmark</span>
+  </div>
+</footer>
+
+<!-- Project Modal -->
+<div class="modal-overlay" id="projectModal" role="dialog" aria-modal="true" aria-label="Case study">
+  <button class="modal-close" id="modalClose">
+    <div class="modal-close-icon">✕</div>
+    <span>Close</span>
+  </button>
+  <div class="modal-content" id="modalContent">
+    <!-- filled dynamically -->
+  </div>
+</div>
+
+<!-- Easter Egg Toast -->
+<div class="easter-egg-toast" id="easterToast"></div>
+
+<!-- Stats Overlay -->
+<div class="stats-overlay" id="statsOverlay">
+  <button class="stats-close" id="statsClose">Close ×</button>
+
+  <div class="stats-header">
+    <div>
+      <p class="stats-eyebrow">Unlocked · Classified Data</p>
+      <h2 class="stats-title">Things that<br><em>actually happened</em></h2>
+    </div>
+    <p class="stats-disclaimer">Numbers are approximate. The embarrassing ones are exact.</p>
+  </div>
+
+  <div class="stats-bento">
+
+    <!-- Big hero stat -->
+    <div class="s-cell s-col-8 s-row-2">
+      <span class="s-label">Times said "just one more tweak"</span>
+      <div class="s-num xl">∞</div>
+      <p class="s-desc">Design is never finished. It's only abandoned, shipped, or presented to a stakeholder who wants it in Comic Sans.</p>
+      <span class="s-watermark">tweak</span>
+    </div>
+
+    <!-- Tall right -->
+    <div class="s-cell s-col-4 s-row-2">
+      <span class="s-label">Fonts rejected before Syne</span>
+      <div class="s-num">47</div>
+      <p class="s-desc">Inter was too obvious. Helvetica felt borrowed. GT Alpina was too try-hard. Syne just fit.</p>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="s-cell s-col-4">
+      <span class="s-label">Case studies published</span>
+      <div class="s-num sm">3</div>
+      <span class="s-tag">↑ Just shipped</span>
+    </div>
+
+    <div class="s-cell s-col-4">
+      <span class="s-label">Easter eggs in this page</span>
+      <div class="s-num sm">4</div>
+      <p class="s-desc">You found one. Good luck with the rest.</p>
+    </div>
+
+    <!-- Full-width narrative -->
+    <div class="s-cell s-col-12">
+      <div style="display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:2rem;">
+        <div>
+          <span class="s-label" style="margin-bottom:1rem; display:block;">Lines of code in this portfolio</span>
+          <div class="s-num sm">3,272</div>
+        </div>
+        <div>
+          <span class="s-label" style="margin-bottom:1rem; display:block;">CSS classes defined</span>
+          <div class="s-num sm">326</div>
+        </div>
+        <div>
+          <span class="s-label" style="margin-bottom:1rem; display:block;">Media queries</span>
+          <div class="s-num sm">40+</div>
+        </div>
+        <div>
+          <span class="s-label" style="margin-bottom:1rem; display:block;">Comments left for future me</span>
+          <div class="s-num sm">80</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fun personality row -->
+    <div class="s-cell s-col-5">
+      <span class="s-label">Espressos per case study</span>
+      <div class="s-num">11</div>
+      <p class="s-desc">The push notification one took 14. It was a hard problem.</p>
+    </div>
+
+    <div class="s-cell s-col-7">
+      <span class="s-label">Tabs open during any given design session</span>
+      <div class="s-num">38</div>
+      <p class="s-desc">Figma, Notion, three Slack threads, a Spotify playlist called "focus," two reference sites, one irrelevant Wikipedia rabbit hole, and this portfolio.</p>
+      <span class="s-watermark">tabs</span>
+    </div>
+
+    <!-- Bottom row -->
+    <div class="s-cell s-col-4">
+      <span class="s-label">Years doing this</span>
+      <div class="s-num">9</div>
+      <p class="s-desc">Still surprised it worked out.</p>
+    </div>
+
+    <div class="s-cell s-col-4">
+      <span class="s-label">Users impacted across products</span>
+      <div class="s-num sm">750k</div>
+      <span class="s-tag">Real number</span>
+    </div>
+
+    <div class="s-cell s-col-4">
+      <span class="s-label">Times Figma crashed mid-flow</span>
+      <div class="s-num">too<br><span class="s-accent">many</span></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// CONFIG HYDRATOR
+// ────────────────────────────────────────────────────────────────────────────
+// portfolio.html reads /portfolio-config.json; the framework and its published
+// case study output read /config.json (kept in sync). If the fetch fails
+// (e.g. file:// access), every section silently falls back to the hardcoded
+// HTML defaults.
+// ════════════════════════════════════════════════════════════════════════════
+window.NC_CONFIG = null;
+
+function _path(obj, dotted) {
+  return dotted.split('.').reduce((o, k) => (o && o[k] != null ? o[k] : undefined), obj);
+}
+
+function _renderHeadline(el, lines, italicIdx) {
+  if (!el || !Array.isArray(lines)) return;
+  el.innerHTML = lines.map((line, i) =>
+    i === italicIdx ? `<em>${line}</em>` : line
+  ).join('<br>');
+}
+
+function applyConfig(c) {
+  if (!c) return;
+
+  // ── Design tokens → CSS custom properties on :root ──
+  const colors = (c.tokens && c.tokens.colors) || {};
+  const root = document.documentElement.style;
+  if (colors.black) root.setProperty('--black', colors.black);
+  if (colors.white) root.setProperty('--white', colors.white);
+  if (colors.mid)   root.setProperty('--mid',   colors.mid);
+  if (colors.line)  root.setProperty('--line',  colors.line);
+
+  // ── Title + meta ──
+  if (c.identity) {
+    if (c.identity.pageTitle) document.title = c.identity.pageTitle;
+    const setMeta = (sel, content) => {
+      const m = document.querySelector(sel);
+      if (m && content) m.setAttribute('content', content);
+    };
+    setMeta('meta[name="description"]',     c.identity.metaDescription);
+    setMeta('meta[property="og:title"]',    c.identity.ogTitle);
+    setMeta('meta[property="og:description"]', c.identity.ogDescription);
+  }
+
+  // ── Simple text bindings via [data-cfg="path.to.value"] ──
+  document.querySelectorAll('[data-cfg]').forEach(el => {
+    const v = _path(c, el.dataset.cfg);
+    if (v != null && v !== '') el.textContent = v;
+  });
+
+  // ── Gate password (mutates the closure-bound PASS below) ──
+  if (c.identity && c.identity.accessCode) PASS = c.identity.accessCode;
+
+  // ── Nav links rebuild ──
+  const navLinks = document.getElementById('navLinks');
+  if (navLinks && Array.isArray(c.nav && c.nav.links)) {
+    navLinks.innerHTML = c.nav.links.map(l =>
+      `<li><a href="${l.href}">${l.label}</a></li>`
+    ).join('');
+  }
+
+  // ── Hero ──
+  if (c.hero) {
+    const bg = document.getElementById('heroBg');
+    if (bg && c.hero.bgWord) bg.textContent = c.hero.bgWord;
+
+    _renderHeadline(document.getElementById('heroHeadline'),
+      c.hero.headlineLines, c.hero.italicLineIndex);
+
+    const desc = document.getElementById('heroDesc');
+    if (desc && c.hero.description) desc.textContent = c.hero.description;
+
+    const ctaPrimary = document.querySelector('[data-cfg-cta="primary"]');
+    if (ctaPrimary && c.hero.ctaPrimary) {
+      ctaPrimary.setAttribute('href', c.hero.ctaPrimary.href);
+      ctaPrimary.innerHTML = `<span>${c.hero.ctaPrimary.label}</span>`;
+    }
+    const ctaSecondary = document.querySelector('[data-cfg-cta="secondary"]');
+    if (ctaSecondary && c.hero.ctaSecondary) {
+      ctaSecondary.setAttribute('href', c.hero.ctaSecondary.href);
+      ctaSecondary.textContent = c.hero.ctaSecondary.label;
+    }
+  }
+
+  // ── Marquee (rebuild both copies for the looping animation) ──
+  if (Array.isArray(c.marquee) && c.marquee.length) {
+    const inner = c.marquee.map(t =>
+      `<span>${t}</span><span class="marquee-dot"></span>`
+    ).join('');
+    const block = `<div class="marquee-item">${inner}</div>`;
+    const track = document.querySelector('[data-cfg-marquee]');
+    if (track) track.innerHTML = block + block;
+  }
+
+  // ── Process principles ──
+  if (c.process && Array.isArray(c.process.principles)) {
+    const grid = document.getElementById('processGrid');
+    const count = document.getElementById('processCount');
+    const principles = c.process.principles;
+    if (grid) {
+      grid.innerHTML = principles.map((p, i) => {
+        const titleHTML = (p.titleLines || []).map((l, idx) =>
+          idx === p.italicLineIndex ? `<em>${l}</em>` : l
+        ).join('<br>');
+        const delay = i % 2 === 1 ? ' reveal-delay-1' : '';
+        return `
+          <article class="process-step reveal${delay}">
+            <span class="process-num">${p.num || String(i + 1).padStart(2, '0')}</span>
+            <div class="process-body">
+              <h3 class="process-title">${titleHTML}</h3>
+              <p class="process-desc">${p.description || ''}</p>
+            </div>
+            <span class="process-meta">${p.label || ''}</span>
+          </article>`;
+      }).join('');
+      // Re-register with the IntersectionObserver — the global observer ran before
+      // this content existed, so the new elements were never observed.
+      if (typeof observer !== 'undefined') {
+        grid.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+      }
+    }
+    if (count) {
+      const n = String(principles.length).padStart(2, '0');
+      const noun = c.process.subtitleNoun || 'principles';
+      count.textContent = `${n} ${noun}`;
+    }
+  }
+
+  // ── About ──
+  if (c.about) {
+    _renderHeadline(document.getElementById('aboutHeadline'),
+      c.about.headlineLines, c.about.italicLineIndex);
+
+    const bioEl = document.getElementById('aboutBio');
+    if (bioEl && Array.isArray(c.about.bio)) {
+      bioEl.innerHTML = c.about.bio.join('<br><br>');
+    }
+
+    const statsEl = document.getElementById('aboutStats');
+    if (statsEl && Array.isArray(c.about.stats)) {
+      statsEl.innerHTML = c.about.stats.map(s => `
+        <div class="stat-item">
+          <div class="stat-num">${s.num}</div>
+          <span class="stat-label">${s.label}</span>
+        </div>`).join('');
+    }
+
+    const discEl = document.getElementById('aboutDisciplines');
+    if (discEl && Array.isArray(c.about.disciplines)) {
+      discEl.innerHTML = c.about.disciplines.map(d => `
+        <div class="discipline-item"><span>${d.label}</span><span class="disc-year">${d.tag || ''}</span></div>
+      `).join('');
+    }
+  }
+
+  // ── Contact ──
+  if (c.contact) {
+    _renderHeadline(document.getElementById('contactHeadline'),
+      c.contact.headlineLines, c.contact.italicLineIndex);
+  }
+  if (c.identity && c.identity.email) {
+    const em = document.getElementById('contactEmail');
+    if (em) {
+      em.textContent = c.identity.email;
+      em.setAttribute('href', 'mailto:' + c.identity.email);
+    }
+  }
+
+  // ── Footer ──
+  if (c.identity) {
+    const copy = document.getElementById('footerCopy');
+    if (copy) {
+      const yr = c.identity.copyrightYear || new Date().getFullYear();
+      const owner = c.identity.copyrightOwner || c.identity.name || '';
+      copy.textContent = `© ${yr} ${owner}. All rights reserved.`;
+    }
+  }
+  if (Array.isArray(c.social)) {
+    const links = document.getElementById('footerLinks');
+    if (links) {
+      links.innerHTML = c.social.map(s =>
+        `<li><a href="${s.href}" rel="noopener noreferrer"${s.href.startsWith('http') || s.href.endsWith('.pdf') ? ' target="_blank"' : ''}>${s.label}</a></li>`
+      ).join('');
+    }
+  }
+}
+
+(async function loadConfig() {
+  try {
+    const res = await fetch('portfolio-config.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('portfolio-config.json not found (' + res.status + ')');
+    const cfg = await res.json();
+
+    // Overlay portfolio-settings.json (written by the framework's Portfolio Settings panel)
+    // It overrides individual sections of config without replacing the whole file.
+    try {
+      const psRes = await fetch('/case-studies/published/portfolio-settings.json', { cache: 'no-store' });
+      if (psRes.ok) {
+        const ps = await psRes.json();
+        if (ps.process) cfg.process = Object.assign({}, cfg.process, ps.process);
+        console.log('[portfolio] Merged portfolio-settings.json');
+      }
+    } catch (_) { /* portfolio-settings.json not yet published — silently skip */ }
+
+    window.NC_CONFIG = cfg;
+    applyConfig(cfg);
+    console.log('[portfolio] Hydrated from config.json');
+  } catch (err) {
+    console.log('[portfolio] Using HTML defaults (' + err.message + ')');
+  }
+})();
+
+// ════════════════════════════════════════════════════════════════════════════
+// PASSWORD GATE
+// ════════════════════════════════════════════════════════════════════════════
+let PASS = 'NC2026';   // fallback; overwritten by hydrator if config loads
+const gate = document.getElementById('password-gate');
+const gateForm = document.getElementById('gateForm');
+const gateInput = document.getElementById('gateInput');
+const gateError = document.getElementById('gateError');
+
+let _pendingProject = null; // project index to open after unlock
+
+function isUnlocked() {
+  return sessionStorage.getItem('nc_unlocked') === '1';
+}
+
+function showGate(pendingProjectIndex) {
+  _pendingProject = (pendingProjectIndex !== undefined) ? pendingProjectIndex : null;
+  gate.classList.add('active');
+  document.body.classList.add('locked');
+  setTimeout(() => gateInput.focus(), 80);
+}
+
+function hideGate() {
+  gate.classList.remove('active');
+  document.body.classList.remove('locked');
+  gateInput.value = '';
+  gateInput.disabled = false;
+}
+
+// Dismiss on backdrop click
+gate.addEventListener('click', e => {
+  if (e.target === gate) { hideGate(); _pendingProject = null; clearRoute(); }
+});
+
+gateForm.addEventListener('submit', e => {
+  e.preventDefault();
+  if (gateInput.value === PASS) {
+    sessionStorage.setItem('nc_unlocked', '1');
+    hideGate();
+    if (_pendingProject !== null) {
+      const idx = _pendingProject;
+      _pendingProject = null;
+      openProject(idx).catch(err => console.log('[portfolio] Error opening project: ' + err.message));
+    }
+  } else {
+    gateError.textContent = 'Incorrect access code.';
+    gateInput.value = '';
+    gateInput.focus();
+    setTimeout(() => { gateError.textContent = ''; }, 3000);
+  }
+});
+
+// Projects load from case-studies/manifest.json (written by the Design Process Framework on publish).
+// If the manifest isn't reachable yet, the fallback placeholders below render so the page still demos.
+let projects = [];
+let usingManifest = false;
+
+const fallbackProjects = [
+  {
+    title: "Meridian", subtitle: "Banking App",
+    year: "2025", client: "Placeholder", type: "Mobile UX & Product Design",
+    duration: "—", location: "—",
+    heroWord: "Meridian", tags: ["Mobile", "UX Research"],
+    summary: "Placeholder project. Publish a real case study from the Design Process Framework to replace it.",
+    body: "Open design-process-framework.html, complete a project, and hit Publish. The portfolio fetches case-studies/manifest.json on load and replaces these placeholders automatically.",
+    services: ["Discovery Research", "Information Architecture", "Interaction Design", "Prototyping", "Handoff"],
+    images: ["Home Screen", "Key Flow", "Final Polish"]
+  },
+  {
+    title: "Prism", subtitle: "Design System",
+    year: "2025", client: "Placeholder", type: "Design Systems",
+    duration: "—", location: "—",
+    heroWord: "Prism", tags: ["Design System", "Components"],
+    summary: "Placeholder project. Publish a real case study from the Design Process Framework to replace it.",
+    body: "This card and modal are populated from case-studies/manifest.json once you've published your first project. Until then, these placeholders stand in.",
+    services: ["System Audit", "Token Architecture", "Component Library", "Documentation", "Adoption"],
+    images: ["Token System", "Component Grid", "Documentation"]
+  },
+  {
+    title: "Terrain", subtitle: "B2B Analytics",
+    year: "2024", client: "Placeholder", type: "SaaS Product Design",
+    duration: "—", location: "—",
+    heroWord: "Terrain", tags: ["SaaS", "Dashboard"],
+    summary: "Placeholder project. Publish a real case study from the Design Process Framework to replace it.",
+    body: "When the framework writes manifest.json into /case-studies/, this section auto-renders from it. Image labels, tags, summary, scope, and the full case study link all flow through.",
+    services: ["User Research", "Dashboard Design", "Interaction Design", "Data Visualisation", "Usability Testing"],
+    images: ["Map Dashboard", "Data Panels", "Alert System"]
+  }
+];
+
+// Patch each fallback's `next` pointer based on order
+fallbackProjects.forEach((p, i) => {
+  const n = fallbackProjects[(i + 1) % fallbackProjects.length];
+  p.next = { title: n.title + (n.subtitle ? ' ' + n.subtitle : ''), index: (i + 1) % fallbackProjects.length };
+});
+projects = fallbackProjects.slice(); // start with fallback; loadProjects() may replace
+
+// Cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+
+// Detect touch device and disable custom cursor
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+if (isTouchDevice) {
+  cursor.style.display = 'none';
+  ring.style.display = 'none';
+  document.body.style.cursor = 'auto';
+} else {
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+  (function animateRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  })();
+  document.querySelectorAll('a, button, .nav-links a').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  });
+  // Project hover cursor — delegated so it works on dynamically rendered cards
+  document.addEventListener('mouseover', e => {
+    const item = e.target.closest && e.target.closest('.project-item');
+    if (item) document.body.classList.add('cursor-project');
+  });
+  document.addEventListener('mouseout', e => {
+    const item = e.target.closest && e.target.closest('.project-item');
+    if (item && !item.contains(e.relatedTarget)) document.body.classList.remove('cursor-project');
+  });
+
+  // Lab card cursor (inverted — white on dark)
+  document.addEventListener('mouseover', e => {
+    const card = e.target.closest && e.target.closest('.lab-card');
+    if (card && !card.classList.contains('concept-card')) document.body.classList.add('cursor-lab');
+  });
+  document.addEventListener('mouseout', e => {
+    const card = e.target.closest && e.target.closest('.lab-card');
+    if (card && !card.classList.contains('concept-card') && !card.contains(e.relatedTarget)) document.body.classList.remove('cursor-lab');
+  });
+}
+
+// Parallax hero bg (disabled on mobile for performance)
+const heroBg = document.getElementById('heroBg');
+
+if (!isTouchDevice && window.innerWidth > 768) {
+  document.addEventListener('mousemove', e => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 18;
+    const y = (e.clientY / window.innerHeight - 0.5) * 10;
+    heroBg.style.transform = `translate(calc(-50% + ${x}px), calc(-52% + ${y}px))`;
+  });
+}
+
+// Scroll reveal
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+revealEls.forEach(el => observer.observe(el));
+
+// Modal
+const modal = document.getElementById('projectModal');
+const modalContent = document.getElementById('modalContent');
+const modalClose = document.getElementById('modalClose');
+
+// ── DEEP LINKS ──
+// #/work/<slug> opens that case study (gate still applies). The '/' prefix
+// keeps routes distinct from section anchors like #projects.
+const ROUTE_PREFIX = '#/work/';
+
+function routeSlug() {
+  return location.hash.startsWith(ROUTE_PREFIX)
+    ? decodeURIComponent(location.hash.slice(ROUTE_PREFIX.length))
+    : null;
+}
+
+function setRoute(slug) {
+  const want = ROUTE_PREFIX + encodeURIComponent(slug);
+  if (location.hash !== want) history.pushState(null, '', want);
+}
+
+function clearRoute() {
+  if (routeSlug() !== null) history.pushState(null, '', location.pathname + location.search);
+}
+
+// Reconcile modal state with the URL (initial load + back/forward)
+function syncModalToRoute() {
+  const slug = routeSlug();
+  if (slug) {
+    const idx = projects.findIndex(p => p.slug === slug);
+    if (idx === -1) return;
+    if (!isUnlocked()) { showGate(idx); return; }
+    openProject(idx).then(() => { modal.scrollTop = 0; })
+      .catch(err => console.log('[portfolio] Error opening project from URL: ' + err.message));
+  } else if (modal.classList.contains('active')) {
+    closeProjectModal(true);
+  }
+}
+window.addEventListener('popstate', syncModalToRoute);
+
+async function openProject(index) {
+  const p = projects[index];
+  if (!p) return;
+
+  // Lazy-load case study data if not already loaded
+  if (!p.sections || Object.keys(p.sections).length === 0) {
+    if (p.caseStudyUrl) {
+      try {
+        console.log('[portfolio] Loading case study from: ' + p.caseStudyUrl);
+        const res = await fetch(p.caseStudyUrl, { cache: 'no-store' });
+        if (!res.ok) {
+          console.error('[portfolio] Failed to load case study: HTTP ' + res.status + ' (' + res.statusText + ') from ' + p.caseStudyUrl);
+          p.sections = { _error: { statement: 'Unable to load case study. Please refresh and try again.' } };
+          p.imageData = [];
+        } else {
+          const data = await res.json();
+          p.sections = data.sections || {};
+          p.imageData = data.imageData || [];  // Load images too
+          console.log('[portfolio] Loaded case study sections and images from ' + p.caseStudyUrl);
+        }
+      } catch (err) {
+        console.error('[portfolio] Failed to load case study: ' + err.message + ' (URL: ' + p.caseStudyUrl + ')');
+        p.sections = { _error: { statement: 'Error loading case study: ' + err.message } };
+        p.imageData = [];
+      }
+    } else {
+      console.warn('[portfolio] No caseStudyUrl provided for project: ' + p.slug);
+      p.sections = { _error: { statement: 'Case study URL not configured.' } };
+    }
+  }
+
+  const bgColors = ['#dbd8d3','#e2e0db','#d5d2cc','#e8e5df','#d8d5ce'];
+  const bg = bgColors[index % bgColors.length];
+  const images = (p.images || []).filter(Boolean);
+  // Gallery = all images after the cover (index 1+). Cover is shown in the hero.
+  const galleryData = (p.imageData || []).slice(1).filter(Boolean);
+  const next = p.next || { title: '', index: (index + 1) % projects.length };
+  const s = p.sections || {};
+
+  // ── helpers ──
+  const hasContent = obj =>
+    obj && Object.values(obj).some(v => Array.isArray(v) ? v.length : (v && String(v).trim()));
+  const paras = txt =>
+    String(txt || '').split(/\n+/).filter(t => t.trim()).map(t => `<p>${t.trim()}</p>`).join('');
+  const chips = arr =>
+    (arr && arr.length) ? `<div class="modal-chips">${arr.map(t => `<span class="modal-chip">${t}</span>`).join('')}</div>` : '';
+
+  // ── build optional section blocks (skip empty ones) ──
+  let bodyHTML = '';
+  let n = 0;
+  const numLabel = (label) => `0${++n} — ${label}`;
+
+  if (hasContent(s.problem)) {
+    const pr = s.problem;
+    bodyHTML += `
+      <section class="modal-text-section">
+        <span class="text-section-num">${numLabel('Problem &amp; Context')}</span>
+        ${pr.statement ? `<p class="text-statement">${pr.statement}</p>` : ''}
+        ${pr.bizCtx ? paras(pr.bizCtx) : ''}
+        ${pr.who ? `<h4>Who's affected</h4>${paras(pr.who)}` : ''}
+        ${pr.why ? `<h4>Why it matters</h4>${paras(pr.why)}` : ''}
+        ${pr.constraints ? `<h4>Constraints</h4>${paras(pr.constraints)}` : ''}
+      </section>`;
+  }
+
+  if (hasContent(s.research)) {
+    const r = s.research;
+    bodyHTML += `
+      <section class="modal-text-section">
+        <span class="text-section-num">${numLabel('Research')}</span>
+        ${chips(r.methods)}
+        ${r.goals ? `<h4>Goals</h4>${paras(r.goals)}` : ''}
+        ${(r.findings || []).length ? `
+          <div class="modal-findings">
+            ${r.findings.slice(0, 4).map((f, i) => `
+              <div class="modal-finding">
+                <div class="finding-num">F${String(i+1).padStart(2,'0')}</div>
+                ${f.finding ? `<strong>${f.finding}</strong>` : ''}
+                ${f.evidence ? `<p>${f.evidence}</p>` : ''}
+                ${f.implication ? `<em>→ ${f.implication}</em>` : ''}
+              </div>`).join('')}
+          </div>` : ''}
+        ${r.synthesis ? `<h4>Synthesis</h4>${paras(r.synthesis)}` : ''}
+      </section>`;
+  }
+
+  if (hasContent(s.define)) {
+    const df = s.define;
+    bodyHTML += `
+      <section class="modal-text-section">
+        <span class="text-section-num">${numLabel('Define')}</span>
+        ${df.hmw ? `<blockquote class="modal-hmw">${df.hmw}</blockquote>` : ''}
+        ${df.coreNeed ? `<h4>Core need</h4>${paras(df.coreNeed)}` : ''}
+        ${(df.principles || []).length ? `
+          <ul class="modal-principles">
+            ${df.principles.map(pp => `<li><strong>${pp.name}</strong>${pp.desc ? `<span> — ${pp.desc}</span>` : ''}</li>`).join('')}
+          </ul>` : ''}
+        ${df.successMetrics ? `<h4>Success metrics</h4>${paras(df.successMetrics)}` : ''}
+      </section>`;
+  }
+
+  if (hasContent(s.design)) {
+    const dg = s.design;
+    bodyHTML += `
+      <section class="modal-text-section">
+        <span class="text-section-num">${numLabel('Approach')}</span>
+        ${dg.solution ? paras(dg.solution) : ''}
+        ${dg.flows ? `<h4>Key flows</h4>${paras(dg.flows)}` : ''}
+        ${dg.annotations ? `<h4>Decisions</h4>${paras(dg.annotations)}` : ''}
+      </section>`;
+  }
+
+  if (hasContent(s.outcomes)) {
+    const out = s.outcomes;
+    bodyHTML += `
+      <section class="modal-text-section">
+        <span class="text-section-num">${numLabel('Outcomes')}</span>
+        ${out.shipped ? paras(out.shipped) : ''}
+        ${out.metrics ? `<h4>Success criteria</h4>${paras(out.metrics)}` : ''}
+        ${out.qualFeedback ? `<div class="modal-quotes">${
+          out.qualFeedback.split(/\n+/).filter(l => l.trim()).slice(0, 2)
+            .map(q => `<blockquote>${q.trim()}</blockquote>`).join('')
+        }</div>` : ''}
+      </section>`;
+  }
+
+  if (s.reflections && (s.reflections.learnings || s.reflections.worked)) {
+    bodyHTML += `
+      <section class="modal-text-section">
+        <span class="text-section-num">${numLabel('Reflections')}</span>
+        ${s.reflections.learnings ? paras(s.reflections.learnings) : paras(s.reflections.worked)}
+      </section>`;
+  }
+
+  // Fallback for sparse projects (no sections filled): use card-level summary/body.
+  if (!bodyHTML) {
+    bodyHTML = (p.body ? `<p>${p.body}</p>` : '')
+            || (p.summary ? `<p>${p.summary}</p>` : '');
+  }
+
+  // ── sidebar ──
+  const sidebarBlocks = [];
+  const services = (p.services || []).filter(Boolean);
+  if (services.length) {
+    sidebarBlocks.push(`
+      <div>
+        <h3>Scope of Work</h3>
+        <ul class="service-list">${services.map(t => `<li>${t}</li>`).join('')}</ul>
+      </div>`);
+  }
+  if ((s.research && s.research.methods || []).length) {
+    sidebarBlocks.push(`
+      <div>
+        <h3>Methods</h3>
+        <ul class="service-list">${s.research.methods.map(t => `<li>${t}</li>`).join('')}</ul>
+      </div>`);
+  }
+
+  modalContent.innerHTML = `
+    <div class="modal-header">
+      <h2 class="modal-title">${p.title}${p.subtitle ? `<em>${p.subtitle}</em>` : ''}</h2>
+      <div class="modal-meta-grid">
+        <div class="modal-meta-item"><label>Client</label><span>${p.client || '—'}</span></div>
+        <div class="modal-meta-item"><label>Year</label><span>${p.year || '—'}</span></div>
+        <div class="modal-meta-item"><label>Type</label><span>${p.type || '—'}</span></div>
+        <div class="modal-meta-item"><label>Duration</label><span>${p.duration || '—'}</span></div>
+        <div class="modal-meta-item"><label>${p.role ? 'Role' : 'Location'}</label><span>${p.role || p.location || '—'}</span></div>
+      </div>
+    </div>
+    ${p.imageData && p.imageData[0]
+      ? `<div class="modal-hero-image modal-hero-photo"><img src="${p.imageData[0] && p.imageData[0].src ? p.imageData[0].src : p.imageData[0]}" alt="${p.title}" class="modal-hero-img"></div>`
+      : `<div class="modal-hero-image" style="background:${bg}"><div class="modal-hero-text">${p.heroWord || (p.title || '').split(/\s+/)[0]}</div></div>`}
+    ${p.oneliner ? `<p class="modal-pitch">${p.oneliner}</p>` : ''}
+    ${p.summaryLead ? `<p class="modal-lead">${p.summaryLead}</p>` : ''}
+    <div class="modal-body">
+      <div class="modal-sidebar">${sidebarBlocks.join('')}</div>
+      <div class="modal-text">${bodyHTML}</div>
+    </div>
+    ${galleryData.length ? `<div class="modal-image-grid">
+      ${galleryData.map((dataUrl, i) => `<div class="modal-img-block modal-img-real" style="background:#0a0a0a"><img src="${dataUrl && dataUrl.src ? dataUrl.src : dataUrl}" alt="${dataUrl && dataUrl.alt ? dataUrl.alt : 'Image ' + (i + 2)}" loading="lazy" class="modal-img-photo"></div>`).join('')}
+    </div>` : images.length > 1 ? `<div class="modal-image-grid">
+      ${images.slice(1).map((img, i) => `<div class="modal-img-block" style="background:${bgColors[(index+i+1)%bgColors.length]}"><span class="modal-img-label">${img}</span></div>`).join('')}
+    </div>` : ''}
+    ${p.publishedHref ? `<a href="${p.publishedHref}" target="_blank" rel="noopener" class="modal-cta">Read the full case study ↗</a>` : ''}
+    <div class="modal-next">
+      <span class="modal-next-label">Next Project</span>
+      <div class="modal-next-title" data-project="${next.index}">${next.title} ↗</div>
+    </div>
+  `;
+  if (!modal.classList.contains('active')) _modalReturnFocus = document.activeElement;
+  modal.classList.add('active');
+  setTimeout(() => modalClose.focus(), 0);
+  if (p.slug) setRoute(p.slug);
+  document.body.style.overflow = 'hidden';
+  // Fix iOS viewport scrolling
+  if (isTouchDevice) {
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+  }
+  // bind next project
+  modalContent.querySelector('.modal-next-title').addEventListener('click', function() {
+    openProject(parseInt(this.dataset.project)).then(() => { modal.scrollTop = 0; });
+  });
+  if (!isTouchDevice) {
+    document.body.classList.remove('cursor-project');
+  }
+}
+
+// Project clicks — gate fires here if locked; otherwise open directly
+document.addEventListener('click', e => {
+  const item = e.target.closest && e.target.closest('.project-item');
+  if (!item || !item.dataset.project) return;
+  const idx = parseInt(item.dataset.project);
+  if (!isUnlocked()) { showGate(idx); } else { openProject(idx); }
+});
+// Keyboard: cards are role="button", so Enter/Space must open them too
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const item = e.target.closest && e.target.closest('.project-item');
+  if (!item || !item.dataset.project) return;
+  e.preventDefault();
+  const idx = parseInt(item.dataset.project);
+  if (!isUnlocked()) { showGate(idx); } else { openProject(idx); }
+});
+// keepHistory=true closes without touching the URL (used by back/forward)
+let _modalReturnFocus = null;
+function closeProjectModal(keepHistory) {
+  const wasActive = modal.classList.contains('active');
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
+  if (isTouchDevice) {
+    document.body.style.position = '';
+    document.body.style.width = '';
+  }
+  if (!keepHistory) clearRoute();
+  if (wasActive && _modalReturnFocus && document.contains(_modalReturnFocus)) {
+    _modalReturnFocus.focus();
+    _modalReturnFocus = null;
+  }
+}
+modalClose.addEventListener('click', () => closeProjectModal());
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    // Lightbox handles its own Escape; don't also close the modal under it
+    if (document.getElementById('modalLightbox')?.classList.contains('open')) return;
+    if (gate.classList.contains('active')) {
+      hideGate(); _pendingProject = null; clearRoute(); return;
+    }
+    closeProjectModal();
+  }
+});
+// Trap Tab inside whichever dialog is topmost (lightbox > gate > modal)
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Tab') return;
+  const lb = document.getElementById('modalLightbox');
+  const dialog = lb && lb.classList.contains('open') ? lb
+    : gate.classList.contains('active') ? gate
+    : modal.classList.contains('active') ? modal : null;
+  if (!dialog) return;
+  const focusables = [...dialog.querySelectorAll(
+    'a[href], button, input, textarea, select, [tabindex]:not([tabindex="-1"])'
+  )].filter(el => el.getClientRects().length > 0 && !el.disabled);
+  if (!focusables.length) return;
+  const first = focusables[0], last = focusables[focusables.length - 1];
+  const inside = dialog.contains(document.activeElement);
+  if (e.shiftKey) {
+    if (!inside || document.activeElement === first) { e.preventDefault(); last.focus(); }
+  } else {
+    if (!inside || document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
+if (!isTouchDevice) {
+  modal.addEventListener('mouseenter', () => document.body.classList.remove('cursor-project'));
+}
+
+// ── PROJECT GRID: render + manifest fetch ──
+const projectsGridEl = document.getElementById('projectsGrid');
+const projectsCountEl = document.getElementById('projectsCount');
+const projectsSourceEl = document.getElementById('projectsSource');
+
+function manifestEntryToProject(m) {
+  return {
+    title: m.title || 'Untitled',
+    subtitle: m.subtitle || '',
+    year: m.year || '',
+    client: m.client || '',
+    type: m.type || '',
+    duration: m.duration || '',
+    role: m.role || '',
+    location: m.role || '',
+    heroWord: (m.title || 'Project').split(/\s+/)[0],
+    tags: (m.tags || []).slice(0, 2),
+    allTags: m.tags || [],
+    oneliner: m.oneliner || '',         // pull-quote under hero
+    summaryLead: m.summary || '',        // lead paragraph
+    summary: m.oneliner || '',           // back-compat: card description
+    body: m.summary || '',               // back-compat: secondary text
+    services: (m.tags || []).slice(0, 6),
+    images: [m.img1, m.img2, m.img3].filter(Boolean),
+    imageData: (m.imageData || []).filter(Boolean),
+    publishedHref: '/case-studies/' + (m.href || ((m.slug || 'project') + '-case-study.html')),
+    slug: m.slug || '',
+    // Section data — empty objects are fine, renderer guards each block
+    sections: {
+      problem: m.problem || {},
+      research: m.research || {},
+      define: m.define || {},
+      ideate: m.ideate || {},
+      design: m.design || {},
+      audit: m.audit || {},
+      test: m.test || {},
+      outcomes: m.outcomes || {},
+      reflections: m.reflections || {}
+    }
+  };
+}
+
+function renderProjectsGrid() {
+  if (!projectsGridEl) return;
+  const tagPalette = ['p1','p2','p3','p4','p5'];
+
+  // Render grid first (fast), then load cover images in background
+  renderGridCards();
+  loadCoverImages();
+}
+
+function renderGridCards() {
+  const tagPalette = ['p1','p2','p3','p4','p5'];
+
+  projectsGridEl.innerHTML = projects.map((p, i) => {
+    const tags = (p.tags && p.tags.length ? p.tags : (p.services || []).slice(0, 2))
+      .map(t => `<span class="project-tag">${t}</span>`).join('');
+    const heroWord = p.heroWord || (p.title || '').split(/\s+/)[0];
+    const idx = String(i + 1).padStart(2, '0');
+    const titleLine = p.subtitle ? `${p.title}<br>${p.subtitle}` : p.title;
+    const desc = p.summary || p.body || '';
+    const delayClass = i % 2 === 1 ? ' reveal-delay-1' : '';
+
+    return `
+    <div class="project-item ${tagPalette[i % 5]} reveal${delayClass}" data-project="${i}" tabindex="0" role="button" aria-label="Open case study: ${p.title}">
+      <div class="project-visual">
+        <div class="project-visual-inner">
+          ${p.imageData && p.imageData[0]
+            ? `<img src="${p.imageData[0] && p.imageData[0].src ? p.imageData[0].src : p.imageData[0]}" alt="${p.title}" class="project-visual-cover">`
+            : `<div class="project-visual-placeholder">${heroWord}</div>`}
+        </div>
+      </div>
+      <div class="project-info">
+        <div class="project-top">
+          <span class="project-index">${idx}</span>
+          <div class="project-tags">${tags}</div>
+        </div>
+        <div>
+          <h2 class="project-title">${titleLine}</h2>
+          <p class="project-desc">${desc}</p>
+        </div>
+        <div class="project-meta">
+          <span class="project-year">${p.year || ''}</span>
+          <div class="project-arrow">↗</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // section count
+  if (projectsCountEl) {
+    const n = String(projects.length).padStart(2, '0');
+    projectsCountEl.textContent = `${n} project${projects.length === 1 ? '' : 's'}`;
+  }
+
+  // source note hidden — internal detail, not shown on public portfolio
+  if (projectsSourceEl) projectsSourceEl.hidden = true;
+
+  // Observe newly rendered reveal elements
+  if (typeof observer !== 'undefined') {
+    projectsGridEl.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  }
+}
+
+// Load cover images from case study JSON files in parallel
+async function loadCoverImages() {
+  projects.forEach(async (p, i) => {
+    // Skip if already has image data
+    if (p.imageData && p.imageData.length > 0) return;
+
+    // Load cover image from case study JSON
+    if (p.caseStudyUrl) {
+      try {
+        const fullUrl = p.caseStudyUrl.startsWith('http') ? p.caseStudyUrl : window.location.origin + p.caseStudyUrl;
+        const res = await fetch(p.caseStudyUrl, { cache: 'no-store' });
+        if (!res.ok) {
+          console.error('[portfolio] Failed to load cover image for ' + p.slug + ': HTTP ' + res.status + ' (' + res.statusText + ')');
+          return;
+        }
+        const data = await res.json();
+        const rawImg = (data.imageData && data.imageData[0]) || null;
+        const coverImage = rawImg && rawImg.src ? rawImg.src : rawImg;
+        if (coverImage) {
+          p.imageData = [rawImg];
+          console.log('[portfolio] Loaded cover image for ' + p.slug);
+          // Update the DOM with the loaded image
+          const cardEl = projectsGridEl.querySelector(`[data-project="${i}"]`);
+          if (cardEl) {
+            const placeholder = cardEl.querySelector('.project-visual-placeholder');
+            const img = cardEl.querySelector('.project-visual-cover');
+            if (placeholder) {
+              placeholder.style.display = 'none';
+              const newImg = document.createElement('img');
+              newImg.src = coverImage;
+              newImg.alt = p.title;
+              newImg.className = 'project-visual-cover';
+              placeholder.parentElement.appendChild(newImg);
+            } else if (img) {
+              img.src = coverImage;
+            }
+          }
+        } else {
+          console.warn('[portfolio] No cover image found in ' + p.slug + ' case study');
+        }
+      } catch (err) {
+        console.error('[portfolio] Failed to load cover image for ' + p.slug + ': ' + err.message);
+      }
+    }
+  });
+}
+
+async function loadProjects() {
+  try {
+    // Try new projects.json first (lightweight, card-level data only)
+    const res = await fetch('/case-studies/published/projects.json', { cache: 'no-store' });
+    if (!res.ok) {
+      // Fallback to old manifest.json for backwards compatibility
+      const fallback = await fetch('/case-studies/published/manifest.json', { cache: 'no-store' });
+      if (!fallback.ok) throw new Error('projects.json and manifest.json not found');
+      const data = await fallback.json();
+      if (!Array.isArray(data) || data.length === 0) throw new Error('manifest empty');
+      const mapped = data.map(manifestEntryToProject);
+      mapped.forEach((p, i) => {
+        const n = mapped[(i + 1) % mapped.length];
+        p.next = { title: n.title + (n.subtitle ? ' ' + n.subtitle : ''), index: (i + 1) % mapped.length };
+      });
+      projects = mapped;
+      console.log('[portfolio] Loaded ' + projects.length + ' project(s) from manifest.json (legacy)');
+    } else {
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) throw new Error('projects.json empty');
+
+      // Transform lightweight project data to full project objects
+      const mapped = data.map(p => ({
+        title: p.title || 'Untitled',
+        subtitle: p.subtitle || '',
+        year: p.year || '',
+        client: p.client || '',
+        type: '',
+        duration: '',
+        role: '',
+        location: '',
+        heroWord: (p.title || 'Project').split(/\s+/)[0],
+        tags: (p.tags || []).slice(0, 2),
+        allTags: p.tags || [],
+        oneliner: p.oneliner || '',
+        summaryLead: p.summary || '',
+        summary: p.oneliner || '',
+        body: p.summary || '',
+        services: (p.tags || []).slice(0, 6),
+        images: [],
+        imageData: p.coverImage ? [{ src: p.coverImage, alt: p.title }] : [],
+        publishedHref: p.slug ? '/case-studies/project-case-study.html?slug=' + p.slug : null,
+        slug: p.slug || '',
+        sections: {},  // Will be lazy-loaded when modal opens
+        caseStudyUrl: p.caseStudyUrl || ('/case-studies/published/case-study-' + (p.slug || 'project') + '.json')
+      }));
+
+      mapped.forEach((p, i) => {
+        const n = mapped[(i + 1) % mapped.length];
+        p.next = { title: n.title + (n.subtitle ? ' ' + n.subtitle : ''), index: (i + 1) % mapped.length };
+      });
+      projects = mapped;
+      usingManifest = true;
+      console.log('[portfolio] Loaded ' + projects.length + ' project(s) from projects.json');
+    }
+  } catch (err) {
+    console.log('[portfolio] Using placeholder projects (' + err.message + ')');
+  }
+  renderProjectsGrid();
+}
+
+loadProjects().then(syncModalToRoute);
+
+// ── EASTER EGGS ── //
+
+// Toast notification helper
+const toast = document.getElementById('easterToast');
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// 1. Dark Mode Toggle (press D)
+let darkMode = false;
+document.addEventListener('keydown', e => {
+  if (e.key.toLowerCase() === 'd' && !e.ctrlKey && !e.metaKey && e.target.tagName !== 'INPUT') {
+    darkMode = !darkMode;
+    document.body.classList.toggle('dark-mode', darkMode);
+    showToast(darkMode ? 'Dark Mode Activated' : 'Light Mode Restored');
+  }
+});
+
+// 2. Konami Code (↑↑↓↓←→←→BA)
+const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+let konamiIndex = 0;
+document.addEventListener('keydown', e => {
+  if (e.key.toLowerCase() === konamiCode[konamiIndex].toLowerCase()) {
+    konamiIndex++;
+    if (konamiIndex === konamiCode.length) {
+      showToast('Konami Code Unlocked! 🎮');
+      document.body.style.animation = 'rainbow 2s ease infinite';
+      setTimeout(() => { document.body.style.animation = ''; konamiIndex = 0; }, 4000);
+    }
+  } else {
+    konamiIndex = 0;
+  }
+});
+
+// Add rainbow animation
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes rainbow {
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+  }
+`;
+document.head.appendChild(style);
+
+// 3. Footer Click Counter (reveals stats)
+const footerCopy = document.querySelector('.footer-copy');
+let clickCount = 0;
+const requiredClicks = 5;
+footerCopy.style.cursor = isTouchDevice ? 'pointer' : 'none';
+footerCopy.addEventListener('click', () => {
+  clickCount++;
+  if (clickCount === requiredClicks) {
+    document.getElementById('statsOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    if (isTouchDevice) {
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    }
+    showToast('Stats Unlocked!');
+    clickCount = 0;
+  } else if (clickCount < requiredClicks) {
+    const remaining = requiredClicks - clickCount;
+    footerCopy.style.opacity = 0.3 + (clickCount * 0.14);
+  }
+});
+
+// Stats close button
+document.getElementById('statsClose').addEventListener('click', () => {
+  document.getElementById('statsOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+  if (isTouchDevice) {
+    document.body.style.position = '';
+    document.body.style.width = '';
+  }
+  footerCopy.style.opacity = '';
+});
+
+// 4. Secret visitor counter (increments on load)
+let visits = parseInt(localStorage.getItem('nat-visits') || '0');
+visits++;
+localStorage.setItem('nat-visits', visits);
+
+// Show visit count in console with ASCII art
+console.log(`
+╔═══════════════════════════════════════╗
+║                                       ║
+║              NATALY · C               ║
+║          Portfolio  ·  V4             ║
+║                                       ║
+║  You are visitor #${visits.toString().padStart(4, '0')}              ║
+║                                       ║
+║  Easter eggs:                         ║
+║  • Press 'D' for dark mode            ║
+║  • Konami code for a surprise         ║
+║  • Click footer copyright 5×          ║
+║                                       ║
+╚═══════════════════════════════════════╝
+`);
+
+// 5. Time-based greeting
+const hour = new Date().getHours();
+let greeting = 'Hello';
+if (hour < 12) greeting = 'Good Morning';
+else if (hour < 18) greeting = 'Good Afternoon';
+else greeting = 'Good Evening';
+console.log(`${greeting}! Thanks for visiting.`);
+
+</script>
+
+<!-- ── Portfolio Modal Lightbox ── -->
+<div id="modalLightbox" role="dialog" aria-modal="true" aria-label="Image viewer" aria-hidden="true">
+  <span class="lb-counter" id="mlbCounter"></span>
+  <button type="button" class="lb-close" id="mlbClose" aria-label="Close image">×</button>
+  <img class="lb-img" id="mlbImg" alt="">
+  <div class="lb-caption" id="mlbCaption"></div>
+</div>
+<script>
+(function(){
+  const lb = document.getElementById('modalLightbox');
+  const lbImg = document.getElementById('mlbImg');
+  const lbCap = document.getElementById('mlbCaption');
+  const lbCount = document.getElementById('mlbCounter');
+  const lbClose = document.getElementById('mlbClose');
+  let lbImgs = [];
+  let currentIdx = -1;
+
+  let lbReturnFocus = null;
+  function openAt(idx) {
+    if (idx < 0 || idx >= lbImgs.length) return;
+    if (!lb.classList.contains('open')) lbReturnFocus = document.activeElement;
+    currentIdx = idx;
+    const img = lbImgs[idx];
+    lbImg.src = img.currentSrc || img.src;
+    lbImg.alt = img.alt || '';
+    lbCap.textContent = img.alt || '';
+    lbCount.textContent = lbImgs.length > 1 ? (idx + 1) + ' / ' + lbImgs.length : '';
+    lb.classList.add('open');
+    lb.setAttribute('aria-hidden', 'false');
+    // Don't fight with modal's overflow hidden — the lightbox is fixed/above it
+    lbClose.focus();
+  }
+  function closeLb() {
+    lb.classList.remove('open');
+    lb.setAttribute('aria-hidden', 'true');
+    setTimeout(function(){ lbImg.src = ''; }, 280);
+    if (lbReturnFocus && document.contains(lbReturnFocus)) lbReturnFocus.focus();
+    lbReturnFocus = null;
+  }
+  function navBy(delta) {
+    if (currentIdx < 0) return;
+    openAt((currentIdx + delta + lbImgs.length) % lbImgs.length);
+  }
+
+  // Rebind photos each time openProject rebuilds modalContent.innerHTML
+  function bindPhotos() {
+    lbImgs = Array.from(document.querySelectorAll('#modalContent .modal-img-photo'));
+    lbImgs.forEach(function(img, i){
+      img.addEventListener('click', function(){ openAt(i); });
+      img.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAt(i); }
+      });
+      img.tabIndex = 0;
+    });
+  }
+
+  // MutationObserver fires every time openProject rewrites the modal content
+  const modalContent = document.getElementById('modalContent');
+  if (modalContent) {
+    new MutationObserver(function(){ bindPhotos(); })
+      .observe(modalContent, { childList: true });
+  }
+
+  // Controls
+  lbClose.addEventListener('click', closeLb);
+  lb.addEventListener('click', function(e){ if (e.target === lb) closeLb(); });
+  document.addEventListener('keydown', function(e){
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLb();
+    if (e.key === 'ArrowRight') navBy(1);
+    if (e.key === 'ArrowLeft') navBy(-1);
+  });
+})();
+</script>
+</body>
+</html>
