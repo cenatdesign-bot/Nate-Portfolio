@@ -2679,6 +2679,11 @@ function applyConfig(c) {
 // ════════════════════════════════════════════════════════════════════════════
 // PASSWORD GATE
 // ════════════════════════════════════════════════════════════════════════════
+// Server-enforced gate. The real protection lives in the server, which locks
+// the case-study JSON files behind CASE_STUDY_PASSWORD. This UI only collects
+// the password, verifies it against the server, and remembers it (session
+// scoped) so case-study fetches can send it. PASS is a last-resort check for
+// when the server is not gating at all (fully public, no password set).
 let PASS = 'NC2026';   // fallback; overwritten by hydrator if config loads
 const gate = document.getElementById('password-gate');
 const gateForm = document.getElementById('gateForm');
@@ -2687,8 +2692,33 @@ const gateError = document.getElementById('gateError');
 
 let _pendingProject = null; // project index to open after unlock
 
+// Gate-mode auto-detection: probe a real case-study file with no credentials.
+//   401 → the server locks case studies → the unlock gate is required
+//   200 → not locked here (whole-site auth already passed, or fully public)
+// Resolved by detectGateMode() once projects have loaded.
+let _gateRequired = false;
+let _resolveGateReady;
+const gateReady = new Promise(r => { _resolveGateReady = r; });
+
+async function detectGateMode() {
+  try {
+    const probe = (projects || []).find(p => p && p.caseStudyUrl);
+    if (probe) {
+      const res = await fetch(probe.caseStudyUrl, { method: 'HEAD', cache: 'no-store' });
+      _gateRequired = (res.status === 401);
+    }
+  } catch (e) { _gateRequired = false; }
+  _resolveGateReady();
+}
+
+// Authorization header for case-study fetches, when a password is needed & known.
+function csAuthHeaders() {
+  const pass = _gateRequired ? sessionStorage.getItem('nc_pass') : null;
+  return pass ? { 'Authorization': 'Basic ' + btoa('nate:' + pass) } : {};
+}
+
 function isUnlocked() {
-  return sessionStorage.getItem('nc_unlocked') === '1';
+  return !_gateRequired || sessionStorage.getItem('nc_unlocked') === '1';
 }
 
 function showGate(pendingProjectIndex) {
@@ -2705,15 +2735,32 @@ function hideGate() {
   gateInput.disabled = false;
 }
 
+// Verify a code against the server by probing a locked case study with it.
+async function verifyCode(code) {
+  const probe = (projects || []).find(p => p && p.caseStudyUrl);
+  if (!probe) return code === PASS;  // nothing to protect / server not gating
+  try {
+    const res = await fetch(probe.caseStudyUrl, {
+      method: 'HEAD', cache: 'no-store',
+      headers: { 'Authorization': 'Basic ' + btoa('nate:' + code) }
+    });
+    return res.status === 200;
+  } catch (e) { return false; }
+}
+
 // Dismiss on backdrop click
 gate.addEventListener('click', e => {
   if (e.target === gate) { hideGate(); _pendingProject = null; clearRoute(); }
 });
 
-gateForm.addEventListener('submit', e => {
+gateForm.addEventListener('submit', async e => {
   e.preventDefault();
-  if (gateInput.value === PASS) {
+  const code = gateInput.value;
+  gateInput.disabled = true;
+  const ok = await verifyCode(code);
+  if (ok) {
     sessionStorage.setItem('nc_unlocked', '1');
+    sessionStorage.setItem('nc_pass', code);
     hideGate();
     if (_pendingProject !== null) {
       const idx = _pendingProject;
@@ -2721,6 +2768,7 @@ gateForm.addEventListener('submit', e => {
       openProject(idx).catch(err => console.log('[portfolio] Error opening project: ' + err.message));
     }
   } else {
+    gateInput.disabled = false;
     gateError.textContent = 'Incorrect access code.';
     gateInput.value = '';
     gateInput.focus();
@@ -2889,7 +2937,7 @@ async function openProject(index) {
     if (p.caseStudyUrl) {
       try {
         console.log('[portfolio] Loading case study from: ' + p.caseStudyUrl);
-        const res = await fetch(p.caseStudyUrl, { cache: 'no-store' });
+        const res = await fetch(p.caseStudyUrl, { cache: 'no-store', headers: csAuthHeaders() });
         if (!res.ok) {
           console.error('[portfolio] Failed to load case study: HTTP ' + res.status + ' (' + res.statusText + ') from ' + p.caseStudyUrl);
           p.sections = { _error: { statement: 'Unable to load case study. Please refresh and try again.' } };
@@ -3089,19 +3137,21 @@ async function openProject(index) {
 }
 
 // Project clicks — gate fires here if locked; otherwise open directly
-document.addEventListener('click', e => {
+document.addEventListener('click', async e => {
   const item = e.target.closest && e.target.closest('.project-item');
   if (!item || !item.dataset.project) return;
   const idx = parseInt(item.dataset.project);
+  await gateReady;
   if (!isUnlocked()) { showGate(idx); } else { openProject(idx); }
 });
 // Keyboard: cards are role="button", so Enter/Space must open them too
-document.addEventListener('keydown', e => {
+document.addEventListener('keydown', async e => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
   const item = e.target.closest && e.target.closest('.project-item');
   if (!item || !item.dataset.project) return;
   e.preventDefault();
   const idx = parseInt(item.dataset.project);
+  await gateReady;
   if (!isUnlocked()) { showGate(idx); } else { openProject(idx); }
 });
 // keepHistory=true closes without touching the URL (used by back/forward)
@@ -3269,7 +3319,7 @@ async function loadCoverImages() {
     if (p.caseStudyUrl) {
       try {
         const fullUrl = p.caseStudyUrl.startsWith('http') ? p.caseStudyUrl : window.location.origin + p.caseStudyUrl;
-        const res = await fetch(p.caseStudyUrl, { cache: 'no-store' });
+        const res = await fetch(p.caseStudyUrl, { cache: 'no-store', headers: csAuthHeaders() });
         if (!res.ok) {
           console.error('[portfolio] Failed to load cover image for ' + p.slug + ': HTTP ' + res.status + ' (' + res.statusText + ')');
           return;
@@ -3367,7 +3417,7 @@ async function loadProjects() {
   renderProjectsGrid();
 }
 
-loadProjects().then(syncModalToRoute);
+loadProjects().then(detectGateMode).then(syncModalToRoute);
 
 // ── EASTER EGGS ── //
 

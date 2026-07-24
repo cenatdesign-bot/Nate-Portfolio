@@ -531,12 +531,49 @@ blockquote {
 
   const url = '/case-studies/published/case-study-' + slug + '.json';
 
-  fetch(url, { cache: 'no-store' })
+  // The server locks this JSON when case studies are private. Send the access
+  // code (shared with the main portfolio via sessionStorage) and, on a 401,
+  // show an inline unlock form.
+  function csHeaders() {
+    var p = sessionStorage.getItem('nc_pass');
+    return p ? { 'Authorization': 'Basic ' + btoa('nate:' + p) } : {};
+  }
+
+  function showUnlock() {
+    document.getElementById('cs-content').innerHTML =
+      '<form id="csGate" style="padding:4rem 0;max-width:320px;">'
+      + '<label style="display:block;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#8a8680;margin-bottom:0.75rem;">This case study is private</label>'
+      + '<input id="csGateInput" type="password" autocomplete="off" placeholder="Access code" style="width:100%;padding:0.6rem 0.75rem;border:1px solid rgba(10,10,10,0.2);background:transparent;font:inherit;margin-bottom:0.5rem;box-sizing:border-box;">'
+      + '<div><button type="submit" style="padding:0.6rem 1rem;font:inherit;cursor:pointer;">Unlock</button>'
+      + '<span id="csGateErr" style="color:#b94a48;font-size:0.75rem;margin-left:0.75rem;"></span></div>'
+      + '</form>';
+    document.getElementById('csGate').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var code = document.getElementById('csGateInput').value;
+      fetch(url, { method: 'HEAD', cache: 'no-store', headers: { 'Authorization': 'Basic ' + btoa('nate:' + code) } })
+        .then(function(r) {
+          if (r.status === 200) {
+            sessionStorage.setItem('nc_pass', code);
+            sessionStorage.setItem('nc_unlocked', '1');
+            document.getElementById('cs-content').innerHTML = '<p style="font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:#8a8680;padding:4rem 0;">Loading…</p>';
+            load();
+          } else {
+            document.getElementById('csGateErr').textContent = 'Incorrect code.';
+          }
+        })
+        .catch(function() { document.getElementById('csGateErr').textContent = 'Error, try again.'; });
+    });
+  }
+
+  function load() {
+  fetch(url, { cache: 'no-store', headers: csHeaders() })
     .then(function(res) {
+      if (res.status === 401) { showUnlock(); return null; }
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.json();
     })
     .then(function(d) {
+      if (!d) return;  // 401 handled by showUnlock()
       document.title = (d.title || 'Case Study') + ' · Nataly C';
 
       const imgSrc = function(img) { return img && img.src ? img.src : img; };
@@ -683,6 +720,9 @@ blockquote {
     .catch(function(err) {
       document.getElementById('cs-content').innerHTML = '<p style="color:#b94a48;padding:4rem 0;">Could not load case study (' + err.message + '). Make sure the server is running.</p>';
     });
+  }
+
+  load();
 })();
 </script>
 
