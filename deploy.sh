@@ -45,6 +45,6 @@ else
 fi
 
 log "Deploying to Railway ..."
-run_railway up --detach
+run_railway up --detach --service nate-portfolio
 
 log "Done. Live at https://nate-portfolio-production.up.railway.app"
