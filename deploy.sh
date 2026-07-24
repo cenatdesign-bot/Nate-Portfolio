@@ -41,14 +41,16 @@ log "Committing changes ..."
        -c user.email="cenatdesign-bot@users.noreply.github.com" \
        commit -q -m "Publish: sync case studies $(date '+%Y-%m-%d %H:%M')"
 
-# Primary deploy path: push to GitHub, which auto-deploys on Railway.
-# Fallback (no remote or push fails): upload directly with `railway up`.
-if "$GIT" remote get-url origin >/dev/null 2>&1 && \
-   GIT_TERMINAL_PROMPT=0 "$GIT" push -q origin main; then
-  log "Pushed to GitHub — Railway is auto-deploying."
-else
-  log "GitHub push unavailable — deploying directly via Railway ..."
-  run_railway up --detach --service nate-portfolio
+# Back up the source to GitHub (best effort — never blocks the deploy).
+if "$GIT" remote get-url origin >/dev/null 2>&1; then
+  log "Backing up to GitHub ..."
+  GIT_TERMINAL_PROMPT=0 "$GIT" push -q origin main 2>/dev/null \
+    || log "  (GitHub push skipped — continuing)"
 fi
+
+# Deploy for real. `railway up` uploads the current files directly and does
+# not depend on any GitHub webhook, so it always works.
+log "Deploying to Railway ..."
+run_railway up --detach --service nate-portfolio
 
 log "Done. Live shortly at https://nate-portfolio-production.up.railway.app"
