@@ -1,17 +1,18 @@
 [
   {
-    "slug": "club-invitation-links",
-    "href": "project-case-study.html?slug=club-invitation-links",
-    "title": "Club Invitation Links",
-    "subtitle": "Self-serve club onboarding via universal shareable links",
+    "slug": "myloyal-activity-feed",
+    "href": "project-case-study.html?slug=myloyal-activity-feed",
+    "title": "MyLoyal Activity Feed",
+    "subtitle": "A persistent engagement surface for the MyLoyal app",
     "year": 2026,
     "tags": [
       "Product Design",
-      "Full-stack",
-      "Growth"
+      "Mobile",
+      "Engagement"
     ],
-    "summary": "Club managers were adding members one at a time by hand. I designed a magic-link invitation flow, so onboarding became a single shareable link, with domain whitelisting and expiration controls managers own themselves.",
-    "caseStudyUrl": "/case-studies/published/case-study-club-invitation-links.json"
+    "summary": "Push notifications die the moment they're swiped away. I'm designing a persistent 13-card activity feed, with carousel mechanics and a state machine, so quests, offers, and notifications have a place users can return to.",
+    "caseStudyUrl": "/case-studies/published/case-study-myloyal-activity-feed.json",
+    "publishedAt": 1784930063095
   },
   {
     "slug": "myloyal-design-system",
@@ -27,5 +28,19 @@
     "summary": "The 50+ component library behind the MyLoyal app, themed across 13+ brands and serving 750k+ users, so features ship to every brand at once instead of brand by brand.",
     "caseStudyUrl": "/case-studies/published/case-study-myloyal-design-system.json",
     "publishedAt": 1783599009146
+  },
+  {
+    "slug": "club-invitation-links",
+    "href": "project-case-study.html?slug=club-invitation-links",
+    "title": "Club Invitation Links",
+    "subtitle": "Self-serve club onboarding via universal shareable links",
+    "year": 2026,
+    "tags": [
+      "Product Design",
+      "Full-stack",
+      "Growth"
+    ],
+    "summary": "Club managers were adding members one at a time by hand. I designed a magic-link invitation flow, so onboarding became a single shareable link, with domain whitelisting and expiration controls managers own themselves.",
+    "caseStudyUrl": "/case-studies/published/case-study-club-invitation-links.json"
   }
 ]
