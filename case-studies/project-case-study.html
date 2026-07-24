@@ -747,8 +747,11 @@ blockquote {
   const lbCap = document.getElementById('lightboxCaption');
   const lbCount = document.getElementById('lightboxCounter');
   const lbClose = document.getElementById('lightboxClose');
-  // Collect all clickable images (from .img-row only — avoids the case-nav logo etc.)
-  const imgs = Array.from(document.querySelectorAll('.img-row img'));
+  // Case-study content (including .img-row images) is injected asynchronously
+  // after the JSON fetch and can be re-rendered by the unlock flow, so (re)bind
+  // the images each time #cs-content changes rather than once at load — a
+  // one-time snapshot runs before any image exists and leaves them untappable.
+  let imgs = [];
   let currentIdx = -1;
 
   function openAt(idx) {
@@ -778,14 +781,25 @@ blockquote {
     openAt(n);
   }
 
-  imgs.forEach(function(img, i){
-    img.style.cursor = 'zoom-in';
-    img.tabIndex = 0;
-    img.addEventListener('click', function(){ openAt(i); });
-    img.addEventListener('keydown', function(e){
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAt(i); }
+  // Rebind every time #cs-content is (re)written (mirrors the portfolio modal).
+  function bindPhotos() {
+    imgs = Array.from(document.querySelectorAll('.img-row img'));
+    imgs.forEach(function(img){
+      if (img.dataset.lbBound) return;   // fresh nodes only; avoid double-binding
+      img.dataset.lbBound = '1';
+      img.tabIndex = 0;                  // cursor:zoom-in comes from CSS
+      img.addEventListener('click', function(){ openAt(imgs.indexOf(img)); });
+      img.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAt(imgs.indexOf(img)); }
+      });
     });
-  });
+  }
+  bindPhotos();
+  const csContent = document.getElementById('cs-content');
+  if (csContent && 'MutationObserver' in window) {
+    new MutationObserver(function(){ bindPhotos(); })
+      .observe(csContent, { childList: true, subtree: true });
+  }
 
   lbClose.addEventListener('click', function(e){ e.stopPropagation(); close(); });
   // Click anywhere in the lightbox except the image closes it
