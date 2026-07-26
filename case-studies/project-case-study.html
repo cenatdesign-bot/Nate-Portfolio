@@ -192,18 +192,60 @@ h1 {
 }
 .img-ph {
   aspect-ratio: 16/10;
-  background: #e8e6e2;
-  border: 1px solid var(--line);
+  background: #e4e1db;
+  border: 1.5px dashed rgba(10,10,10,0.28);
   border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  padding: 1.2rem;
   font-family: 'Syne', sans-serif;
   font-style: italic;
-  font-size: 1rem;
-  font-weight: 300;
-  color: rgba(10,10,10,0.18);
-  letter-spacing: -0.005em;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: rgba(10,10,10,0.5);
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+
+/* ── Hero (visual-forward: the work leads) ── */
+.hero {
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+.hero .hero-media,
+.hero .img-ph {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  display: block;
+  border-radius: 0;
+}
+.hero .img-ph { font-size: 1rem; }
+
+/* ── Gallery (remaining shots) ── */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: clamp(3rem, 6vw, 5rem);
+}
+.gallery img, .gallery .img-ph {
+  aspect-ratio: 16/10;
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Inline section image (craft next to the decision) ── */
+.sec-img {
+  margin: 1.8rem 0 0.4rem;
+}
+.sec-img img, .sec-img .img-ph {
+  width: 100%;
+  aspect-ratio: 16/10;
+  object-fit: cover;
+  display: block;
 }
 
 /* ── Section dividers ── */
@@ -426,11 +468,11 @@ blockquote {
 .case-footer-back:hover { opacity: 0.55; }
 
 /* ── Image lightbox ── */
-.img-row img {
+.img-row img, .hero img, .sec-img img, .gallery img {
   cursor: zoom-in;
   transition: opacity 0.2s ease;
 }
-.img-row img:hover { opacity: 0.88; }
+.img-row img:hover, .hero img:hover, .sec-img img:hover, .gallery img:hover { opacity: 0.88; }
 .lightbox {
   position: fixed; inset: 0;
   background: rgba(10,10,10,0.96);
@@ -577,6 +619,21 @@ blockquote {
       document.title = (d.title || 'Case Study') + ' · Nataly C';
 
       const imgSrc = function(img) { return img && img.src ? img.src : img; };
+      const isReal = function(img) { return img && img.src && !img.placeholder; };
+      // Render a real <img> when a screenshot exists, otherwise an honest
+      // "coming soon" placeholder box (never a stand-in stock photo).
+      const renderImg = function(img, cls) {
+        cls = cls || '';
+        if (isReal(img)) {
+          return '<img class="' + cls + '" src="' + imgSrc(img) + '" alt="'
+            + (img && img.alt ? img.alt : d.title) + '" loading="lazy">';
+        }
+        const label = (img && (img.label || img.alt)) || 'UI coming soon';
+        return '<div class="img-ph ' + cls + '">' + label + '</div>';
+      };
+      const secImg = function(sec) {
+        return sec && sec.image ? '<div class="sec-img">' + renderImg(sec.image, '') + '</div>' : '';
+      };
       const imgs = (d.imageData || []).filter(Boolean);
       const paras = function(txt) {
         return String(txt || '').split(/\n+/).filter(function(t){ return t.trim(); })
@@ -600,12 +657,10 @@ blockquote {
         + '<div class="meta-cell"><div class="meta-key">Status</div><div class="meta-val">' + (d.status || 'Shipped') + '</div></div>'
         + '</div>';
 
-      // Images
+      // Hero: the first image leads, full width, so craft comes before copy.
       let imgsHTML = '';
       if (imgs.length) {
-        imgsHTML = '<div class="img-row">' + imgs.slice(0,3).map(function(img){
-          return '<img src="' + imgSrc(img) + '" alt="' + (img && img.alt ? img.alt : d.title) + '" loading="lazy">';
-        }).join('') + '</div>';
+        imgsHTML = '<div class="hero">' + renderImg(imgs[0], 'hero-media') + '</div>';
       }
 
       // Sections body
@@ -618,6 +673,19 @@ blockquote {
           + (pr.who ? '<h3>Who\'s affected</h3>' + paras(pr.who) : '')
           + (pr.why ? '<h3>Why it matters</h3>' + paras(pr.why) : '')
           + (pr.constraints ? '<h3>Constraints</h3>' + paras(pr.constraints) : '')
+          + secImg(pr)
+          + '</section><hr>';
+      }
+      if (hasContent(s.contribution)) {
+        const cb = s.contribution;
+        bodyHTML += '<section><span class="sec-num">' + numLabel('My Role &amp; Contributions') + '</span>'
+          + (cb.summary ? paras(cb.summary) : '')
+          + ((cb.contributions || []).length ? '<div class="cards">' + cb.contributions.map(function(c,i){
+              return '<div class="card"><div class="card-lbl">C' + String(i+1).padStart(2,'0') + '</div>'
+                + '<p style="margin-bottom:0">' + c + '</p></div>';
+            }).join('') + '</div>' : '')
+          + (cb.collaboration && cb.collaboration.indexOf('[TODO') === -1 ? '<h3>Collaboration</h3>' + paras(cb.collaboration) : '')
+          + secImg(cb)
           + '</section><hr>';
       }
       if (hasContent(s.insight)) {
@@ -668,6 +736,7 @@ blockquote {
         const dg = s.design;
         bodyHTML += '<section><span class="sec-num">' + numLabel('Approach') + '</span>'
           + (dg.solution ? paras(dg.solution) : '')
+          + secImg(dg)
           + (dg.flows ? '<h3>Key flows</h3>' + paras(dg.flows) : '')
           + (dg.annotations ? '<h3>Decisions</h3>' + paras(dg.annotations) : '')
           + '</section><hr>';
@@ -698,13 +767,12 @@ blockquote {
         bodyHTML = paras(d.summary || '');
       }
 
-      // Gallery (images 2+)
+      // Gallery: every image after the hero.
       let galleryHTML = '';
-      if (imgs.length > 3) {
-        galleryHTML = '<div class="img-row" style="margin-top:clamp(3rem,6vw,5rem)">'
-          + imgs.slice(3).map(function(img){
-            return '<img src="' + imgSrc(img) + '" alt="' + (img && img.alt ? img.alt : '') + '" loading="lazy">';
-          }).join('') + '</div>';
+      const rest = imgs.slice(1);
+      if (rest.length) {
+        galleryHTML = '<div class="gallery">'
+          + rest.map(function(img){ return renderImg(img, ''); }).join('') + '</div>';
       }
 
       document.getElementById('cs-content').innerHTML =
@@ -783,7 +851,7 @@ blockquote {
 
   // Rebind every time #cs-content is (re)written (mirrors the portfolio modal).
   function bindPhotos() {
-    imgs = Array.from(document.querySelectorAll('.img-row img'));
+    imgs = Array.from(document.querySelectorAll('.hero img, .sec-img img, .gallery img, .img-row img'));
     imgs.forEach(function(img){
       if (img.dataset.lbBound) return;   // fresh nodes only; avoid double-binding
       img.dataset.lbBound = '1';

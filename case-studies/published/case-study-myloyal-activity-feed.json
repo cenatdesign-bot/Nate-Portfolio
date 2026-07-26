@@ -24,6 +24,17 @@
       "bizCtx": "Push was the only way MyLoyal users learned about offers and quests. Client brands wanted the app to feel alive, giving users a reason to open it beyond reacting to a push.",
       "constraints": "Needed to support 13 distinct card types (notifications, quests, verification, rewards, among others) within a single carousel-based system, backed by a state machine to manage each card's lifecycle."
     },
+    "contribution": {
+      "summary": "I owned the end-to-end design of the activity feed: the single-feed concept, the card system, the state machine, and the carousel interaction that ties them together.",
+      "contributions": [
+        "Defined the single-feed concept: one persistent surface combining notifications, quests, and offers instead of scattered one-off features.",
+        "Designed the 13 card types around one shared card anatomy, so new types reuse the same structure.",
+        "Designed the state machine governing each card's lifecycle, kept deliberately generic with no per-type logic.",
+        "Designed the horizontal carousel interaction so cards surface without displacing the home screen's existing elements."
+      ],
+      "collaboration": "[TODO: name who you partnered with (PM, engineers, other designers) and what each owned, e.g. who built the state machine in code.]",
+      "image": { "placeholder": true, "label": "You in context: annotated screen showing the decisions you drove · UI coming soon" }
+    },
     "insight": {
       "methods": [
         "Internal discussions on push limitations and engagement ideas"
@@ -44,6 +55,7 @@
     },
     "design": {
       "solution": "A carousel-based activity feed supporting 13 card types (including notifications, quests, verification, and rewards), each managed through a shared state machine.",
+      "image": { "placeholder": true, "label": "Card anatomy & shared state machine · UI coming soon" },
       "flows": "Users see active cards in a horizontal carousel, tap into a card to take action or view more detail, and cards update or clear based on the state machine as actions are completed.",
       "annotations": "A horizontal carousel won over other layouts because it surfaces cards without displacing the home screen's existing elements. The state machine is deliberately generic: no one-off logic per card type."
     },
@@ -56,12 +68,16 @@
   "imageData": [
     {
       "src": "/assets/case-studies/myloyal-activity-feed/cover.webp",
-      "alt": "Placeholder cover image for the MyLoyal Activity Feed case study; final UI screenshots coming soon."
+      "placeholder": true,
+      "label": "Activity feed — carousel & card system · UI coming soon",
+      "alt": "Cover image for the MyLoyal Activity Feed case study; final UI screenshots coming soon."
     },
     {
       "src": "/assets/case-studies/myloyal-activity-feed/img-2.webp",
-      "alt": "Placeholder image; final screenshots of the activity feed carousel and card system coming soon."
+      "placeholder": true,
+      "label": "The 13 card types in context · UI coming soon",
+      "alt": "The activity feed's card types and carousel; final screenshots coming soon."
     }
   ],
-  "publishedAt": 1784930063095
+  "publishedAt": 1784930710904
 }

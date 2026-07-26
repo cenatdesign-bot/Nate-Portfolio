@@ -5,9 +5,9 @@
     "initials": "N·C",
     "tagline": "Product Designer",
     "pageTitle": "Nataly C — Product Designer",
-    "metaDescription": "Nataly C — Product designer working at the intersection of research, systems thinking, and interaction design.",
+    "metaDescription": "Nataly C — Product designer in Copenhagen. UX/UI, design systems and visual identity. Visual first, considered always.",
     "ogTitle": "Nataly C — Product Designer",
-    "ogDescription": "Product designer crafting intuitive digital products with research, systems thinking, and interaction design.",
+    "ogDescription": "Product designer in Copenhagen. I design digital products and the identities around them. Visual first, considered always.",
     "email": "natalicetre@gmail.com",
     "dateRange": "2024 — 2026",
     "copyrightOwner": "Nataly C",
@@ -73,12 +73,12 @@
   "hero": {
     "bgWord": "Design",
     "headlineLines": [
-      "Designing",
-      "digital",
-      "experiences"
+      "Visual first.",
+      "Considered",
+      "always."
     ],
     "italicLineIndex": 1,
-    "description": "I design digital products from the inside out: starting in research, ending in shipped interfaces. Currently working with teams who care about the small details as much as the strategic ones.",
+    "description": "I design digital products and the identities around them. I think visually first, I care about type and texture, and I build on systems that hold up in production. Currently at MyLoyal in Copenhagen.",
     "ctaPrimary": {
       "label": "Explore Work",
       "href": "#projects"
@@ -105,14 +105,14 @@
   "about": {
     "label": "About",
     "headlineLines": [
-      "I build",
-      "digital products",
-      "with intent."
+      "I think",
+      "visually",
+      "first."
     ],
     "italicLineIndex": 1,
     "bio": [
-      "My path into product design started in visual and editorial design, and evolved through freelance work and in-house roles into full-scope product design at <strong>MyLoyal</strong> in Copenhagen, where I've spent the last <strong>5+ years</strong> shaping loyalty and engagement experiences for brands across Denmark. That graphic design foundation still shows up in my work today: a stronger-than-average eye for visual craft, typography, and motion, layered on top of research, systems thinking, and interaction design.",
-      "Every project starts with the same question: what's actually happening for the person using this, and why? I work iteratively, sketching, testing, refining, staying close to design trends without chasing them, and I'm most useful in the messy middle of a project, turning ambiguous problems into shipped systems that hold up in production. Calm under pressure, observant, and happiest working closely with a team rather than in isolation."
+      "I started in visual and editorial design, then moved through freelance and in-house roles into full-scope product design at <strong>MyLoyal</strong> in Copenhagen, where I've spent the last <strong>5+ years</strong> building loyalty and engagement products for brands across Denmark. That graphic design foundation never left. It shows up as a stronger-than-average eye for type, colour and motion, sitting on top of research, systems thinking and interaction design.",
+      "I think visually first. I usually understand a problem by making something and looking at it, not by talking around it. Then I test it, cut what isn't working, and document what is. I follow design closely but I'm careful about what makes it into the work, taste before trend. I'm most useful in the messy middle of a project, turning an ambiguous problem into something that ships and holds up. Calm under pressure, observant, and happiest working closely with a team."
     ],
     "stats": [
       {

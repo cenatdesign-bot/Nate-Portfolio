@@ -2962,8 +2962,9 @@ async function openProject(index) {
   const bgColors = ['#dbd8d3','#e2e0db','#d5d2cc','#e8e5df','#d8d5ce'];
   const bg = bgColors[index % bgColors.length];
   const images = (p.images || []).filter(Boolean);
-  // Gallery = all images after the cover (index 1+). Cover is shown in the hero.
-  const galleryData = (p.imageData || []).slice(1).filter(Boolean);
+  // Gallery = all real images after the cover (index 1+). Cover is shown in the hero.
+  // Placeholder ("coming soon") entries are skipped so the modal never shows stand-ins.
+  const galleryData = (p.imageData || []).slice(1).filter(img => realCoverSrc(img));
   const next = p.next || { title: '', index: (index + 1) % projects.length };
   const s = p.sections || {};
 
@@ -3097,8 +3098,8 @@ async function openProject(index) {
         <div class="modal-meta-item"><label>${p.role ? 'Role' : 'Location'}</label><span>${p.role || p.location || '—'}</span></div>
       </div>
     </div>
-    ${p.imageData && p.imageData[0]
-      ? `<div class="modal-hero-image modal-hero-photo"><img src="${p.imageData[0] && p.imageData[0].src ? p.imageData[0].src : p.imageData[0]}" alt="${p.title}" class="modal-hero-img"></div>`
+    ${realCoverSrc(p.imageData && p.imageData[0])
+      ? `<div class="modal-hero-image modal-hero-photo"><img src="${realCoverSrc(p.imageData[0])}" alt="${p.title}" class="modal-hero-img"></div>`
       : `<div class="modal-hero-image" style="background:${bg}"><div class="modal-hero-text">${p.heroWord || (p.title || '').split(/\s+/)[0]}</div></div>`}
     ${p.oneliner ? `<p class="modal-pitch">${p.oneliner}</p>` : ''}
     ${p.summaryLead ? `<p class="modal-lead">${p.summaryLead}</p>` : ''}
@@ -3247,6 +3248,15 @@ function manifestEntryToProject(m) {
   };
 }
 
+// A cover/hero image counts only if it's a real screenshot, not a "coming soon"
+// placeholder. Placeholder entries (placeholder:true) fall back to the hero-word tile.
+function realCoverSrc(img) {
+  if (!img) return null;
+  if (typeof img === 'string') return img;
+  if (img.placeholder) return null;
+  return img.src || null;
+}
+
 function renderProjectsGrid() {
   if (!projectsGridEl) return;
   const tagPalette = ['p1','p2','p3','p4','p5'];
@@ -3272,8 +3282,8 @@ function renderGridCards() {
     <div class="project-item ${tagPalette[i % 5]} reveal${delayClass}" data-project="${i}" tabindex="0" role="button" aria-label="Open case study: ${p.title}">
       <div class="project-visual">
         <div class="project-visual-inner">
-          ${p.imageData && p.imageData[0]
-            ? `<img src="${p.imageData[0] && p.imageData[0].src ? p.imageData[0].src : p.imageData[0]}" alt="${p.title}" class="project-visual-cover">`
+          ${realCoverSrc(p.imageData && p.imageData[0])
+            ? `<img src="${realCoverSrc(p.imageData[0])}" alt="${p.title}" class="project-visual-cover">`
             : `<div class="project-visual-placeholder">${heroWord}</div>`}
         </div>
       </div>
@@ -3326,7 +3336,7 @@ async function loadCoverImages() {
         }
         const data = await res.json();
         const rawImg = (data.imageData && data.imageData[0]) || null;
-        const coverImage = rawImg && rawImg.src ? rawImg.src : rawImg;
+        const coverImage = realCoverSrc(rawImg);
         if (coverImage) {
           p.imageData = [rawImg];
           console.log('[portfolio] Loaded cover image for ' + p.slug);

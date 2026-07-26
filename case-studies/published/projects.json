@@ -11,8 +11,7 @@
     ],
     "summary": "Push notifications die the moment they're swiped away. I'm designing a persistent 13-card activity feed, with carousel mechanics and a state machine, so quests, offers, and notifications have a place users can return to.",
     "caseStudyUrl": "/case-studies/published/case-study-myloyal-activity-feed.json",
-    "coverImage": "/assets/case-studies/myloyal-activity-feed/cover.webp",
-    "publishedAt": 1784930063102
+    "publishedAt": 1784930710912
   },
   {
     "slug": "myloyal-design-system",
@@ -40,7 +39,6 @@
     ],
     "summary": "Club managers were adding members one at a time by hand. I designed a magic-link invitation flow, so onboarding became a single shareable link, with domain whitelisting and expiration controls managers own themselves.",
     "caseStudyUrl": "/case-studies/published/case-study-club-invitation-links.json",
-    "coverImage": "/assets/case-studies/club-invitation-links/cover.webp",
     "publishedAt": 1780065171629
   }
 ]

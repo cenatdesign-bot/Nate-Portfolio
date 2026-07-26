@@ -22,6 +22,17 @@
       "bizCtx": "MyLoyal is a loyalty platform used by brands across Denmark. Each client gets the app in their own brand identity, but the product underneath is the same. The economics only work if one design can serve every brand.",
       "constraints": "Every component had to hold up under any client's brand identity, from colors and typography to imagery, without per-brand redesign. The system covers the member-facing mobile app used by 750k+ users."
     },
+    "contribution": {
+      "summary": "I designed and grew the component library behind the MyLoyal app: 50+ components themed across 13+ brands and serving 750k+ users.",
+      "contributions": [
+        "Designed the shared component library (50+ components) covering the member-facing app.",
+        "Established the theme-don't-fork model: structure and interaction designed once, brand identity applied as a theme layer.",
+        "Grew the library iteratively, letting a pattern earn its way in by recurring across brands rather than designing speculatively.",
+        "Drew the line between what's shared (structure, behavior) and what's themed (identity), so one product can present as 13+ branded apps."
+      ],
+      "collaboration": "[TODO: name the engineers implementing the library, any designers contributing components, and brand/client stakeholders.]",
+      "image": { "placeholder": true, "label": "You in context: annotated component or theming decision you drove · UI coming soon" }
+    },
     "insight": {
       "methods": [
         "Recurring patterns observed designing across brands"
@@ -42,6 +53,7 @@
     },
     "design": {
       "solution": "A library of 50+ components covering the MyLoyal member app, with brand identity applied as a theme layer, so one product can present as 13+ different branded apps. The library grew iteratively: a pattern earned its way in by recurring across brands, rather than being designed speculatively.",
+      "image": { "placeholder": true, "label": "One component, themed across brands · UI coming soon" },
       "flows": "When a new client brand joins, their identity is applied to the existing library rather than designed from scratch. Onboarding a brand becomes a theming exercise instead of a redesign.",
       "annotations": "The tension worth managing: every client wants to feel unique, while the product needs to stay one product. The system draws that line at identity (theirs) versus structure and behavior (shared)."
     },
@@ -51,7 +63,13 @@
       "learnings": "A multi-brand system forces honesty about what a component really is. If a pattern only works under one brand's identity, it isn't a component yet. Designing against the hardest brand first made the whole library sturdier."
     }
   },
-  "imageData": [],
+  "imageData": [
+    {
+      "placeholder": true,
+      "label": "Component library overview · UI coming soon",
+      "alt": "Overview of the MyLoyal component library; final screenshots coming soon."
+    }
+  ],
   "publishedAt": 1783599009146,
   "status": "Shipped",
   "role": "Product Designer"
