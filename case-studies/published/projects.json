@@ -1,8 +1,8 @@
 [
   {
     "slug": "myloyal-activity-feed",
-    "title": "MyLoyal Activity Feed",
-    "subtitle": "A persistent engagement surface for the MyLoyal app",
+    "title": "Activity Feed",
+    "subtitle": "A persistent engagement surface for the app",
     "year": 2026,
     "tags": [
       "Product Design",
@@ -15,7 +15,7 @@
   },
   {
     "slug": "myloyal-design-system",
-    "title": "MyLoyal Design System",
+    "title": "Design System",
     "subtitle": "One library, thirteen brands",
     "year": 2026,
     "tags": [
