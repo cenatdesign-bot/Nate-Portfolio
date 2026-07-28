@@ -1,0 +1,4113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Process Framework (Demo)</title>
+  <meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════════════════
+   FRAMEWORK EDITOR UI — EDITORIAL DARK
+   Matches the published case study + portfolio design language:
+   warm near-black background, cream text, Syne for all type,
+   hairline borders, no purple, no gradients.
+   ════════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* Editorial palette */
+  --black:#0a0a0a;
+  --surface:#131313;
+  --surface2:#1c1c1c;
+  --surface3:#242424;
+  --line:rgba(245,243,239,0.12);
+  --line2:rgba(245,243,239,0.18);
+  --input:#0a0a0a;
+  --text:#f5f3ef;
+  --muted:#9a968f;
+  --dim:#5a5752;
+  /* Status (kept, just desaturated to fit the warm palette) */
+  --green:#5a9a5a;
+  --amber:#c9a850;
+  --red:#b94a48;
+  /* Layout */
+  --sidebar:252px;
+  --header:56px;
+  --r:0;
+  --r-lg:0;
+  --t:0.18s ease;
+  /* Type */
+  --serif:'Syne', sans-serif;
+  --smallcaps:'Syne', sans-serif;
+  --mono:'Syne', sans-serif;
+  /* Backwards-compat aliases (some legacy selectors still reference these) */
+  --bg:var(--black);
+  --border:var(--line);
+  --border2:var(--line2);
+  --accent:var(--text);
+  --accent-soft:rgba(245,243,239,0.08);
+  --accent-dim:rgba(245,243,239,0.04);
+  --accent-border:rgba(245,243,239,0.18);
+}
+html{font-size:16px}
+body{
+  font-family:var(--mono);
+  background:var(--black);color:var(--text);
+  height:100vh;overflow:hidden;
+  line-height:1.7;letter-spacing:0.02em;
+  -webkit-font-smoothing:antialiased;
+  transition:background 0.25s ease, color 0.25s ease
+}
+/* ── Light theme override (toggleable, persisted in localStorage) ── */
+body.theme-light{
+  --black:#f5f3ef;
+  --surface:#efebe5;
+  --surface2:#e8e4dd;
+  --surface3:#ddd9d3;
+  --text:#0a0a0a;
+  --muted:#6b6864;
+  --dim:#a09b95;
+  --line:rgba(10,10,10,0.12);
+  --line2:rgba(10,10,10,0.20);
+  --input:#f5f3ef;
+  --accent-soft:rgba(10,10,10,0.06);
+  --accent-dim:rgba(10,10,10,0.04);
+  --accent-border:rgba(10,10,10,0.18);
+}
+
+/* ── VIEWS ── */
+.view{display:none;height:100vh;flex-direction:column}
+.view.active{display:flex}
+#viewEditor{display:none;height:100vh;
+  grid-template-columns:var(--sidebar) 1fr;
+  grid-template-rows:var(--header) 1fr}
+#viewEditor.active{display:grid}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:0;
+  font-family:var(--mono);font-size:11px;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase;
+  border:1px solid transparent;cursor:pointer;
+  transition:all var(--t);white-space:nowrap;
+  background:transparent;color:var(--text)
+}
+.btn-ghost{border-color:var(--line);color:var(--muted)}
+.btn-ghost:hover{border-color:var(--text);color:var(--text);background:var(--surface)}
+.btn-primary{background:var(--text);color:var(--black);border-color:var(--text)}
+.btn-primary:hover{background:transparent;color:var(--text)}
+.btn-danger{border-color:var(--red);color:var(--red)}
+.btn-danger:hover{background:var(--red);color:var(--text)}
+.btn-publish{background:var(--text);color:var(--black);border-color:var(--text);font-weight:500}
+.btn-publish:hover{background:transparent;color:var(--text)}
+.btn-sm{padding:5px 12px;font-size:10px;letter-spacing:0.16em}
+.btn-icon{
+  padding:7px;background:transparent;border:1px solid var(--line);
+  border-radius:0;color:var(--muted);font-size:13px;line-height:1;
+  cursor:pointer;transition:all var(--t);font-family:inherit
+}
+.btn-icon:hover{background:var(--surface);color:var(--text);border-color:var(--line2)}
+
+/* ── LOCK SCREEN ── */
+#viewLock{align-items:center;justify-content:center;background:var(--black)}
+.lock-card{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:0;padding:48px 40px;width:380px;
+  display:flex;flex-direction:column;align-items:center;gap:0
+}
+.lock-logo{
+  width:auto;height:auto;background:transparent;border-radius:0;
+  font-family:var(--smallcaps);
+  font-size:0.95rem;font-weight:200;
+  letter-spacing:0.28em;text-transform:uppercase;
+  color:var(--text);margin-bottom:32px;padding:0
+}
+.lock-title{
+  font-family:var(--serif);
+  font-size:32px;font-weight:300;letter-spacing:-0.02em;
+  line-height:1.1;margin-bottom:8px;color:var(--text)
+}
+.lock-sub{
+  font-family:var(--mono);font-size:0.62rem;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--muted);text-align:center;margin-bottom:36px
+}
+.pin-dots{display:flex;gap:14px;margin-bottom:28px;height:14px;align-items:center}
+.pin-dot{
+  width:10px;height:10px;border-radius:50%;
+  background:transparent;border:1px solid var(--line2);
+  transition:all .2s
+}
+.pin-dot.filled{background:var(--text);border-color:var(--text)}
+.pin-dot.error{background:var(--red);border-color:var(--red)}
+.pin-pad{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;width:100%;background:var(--line)
+}
+.pin-key{
+  height:54px;background:var(--surface);border:none;border-radius:0;
+  font-family:var(--serif);font-size:22px;font-weight:300;
+  color:var(--text);cursor:pointer;display:flex;
+  align-items:center;justify-content:center;transition:all var(--t)
+}
+.pin-key:hover{background:var(--surface2)}
+.pin-key:active{background:var(--surface3)}
+.pin-key.zero{grid-column:2}
+.pin-key.del{
+  font-family:var(--mono);font-size:0.6rem;
+  letter-spacing:0.18em;text-transform:uppercase;color:var(--muted)
+}
+.lock-error{
+  font-family:var(--mono);font-size:0.55rem;
+  letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--red);min-height:20px;margin-top:8px
+}
+.lock-hint{
+  font-family:var(--mono);font-size:0.58rem;
+  letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--dim);margin-top:24px;text-align:center;line-height:1.8
+}
+.lock-actions{
+  margin-top:20px;padding-top:20px;
+  border-top:1px solid var(--line);width:100%;
+  display:flex;justify-content:center
+}
+.lock-link{
+  background:none;border:none;cursor:pointer;
+  font-family:var(--mono);font-size:0.55rem;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--dim);transition:color var(--t)
+}
+.lock-link:hover{color:var(--text)}
+
+/* ── DASHBOARD ── */
+.dash-shell{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.dash-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;height:var(--header);
+  background:var(--surface);border-bottom:1px solid var(--line);
+  flex-shrink:0;gap:16px;z-index:10
+}
+.dash-brand{display:flex;align-items:center;gap:14px}
+.dash-logo{
+  width:auto;height:auto;background:transparent;border-radius:0;
+  font-family:var(--smallcaps);
+  font-size:0.75rem;font-weight:200;
+  letter-spacing:0.28em;text-transform:uppercase;
+  color:var(--text);padding:0
+}
+.dash-appname{
+  font-family:var(--mono);font-size:0.6rem;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase;color:var(--muted)
+}
+.dash-topbar-right{display:flex;align-items:center;gap:8px}
+
+.dash-nav{
+  display:flex;align-items:center;gap:0;
+  background:transparent;border:1px solid var(--line);
+  border-radius:0;padding:0
+}
+.dash-nav-item{
+  padding:6px 14px;border-radius:0;
+  font-family:var(--mono);font-size:0.55rem;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--muted);cursor:pointer;transition:all var(--t)
+}
+.dash-nav-item.active{background:var(--text);color:var(--black)}
+.dash-nav-item:hover:not(.active){color:var(--text)}
+
+.dash-body{flex:1;overflow-y:auto;padding:48px 36px 100px}
+
+.dash-section-head{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  margin-bottom:36px;padding-bottom:20px;border-bottom:1px solid var(--line)
+}
+.dash-section-title{
+  font-family:var(--serif);
+  font-size:36px;font-weight:300;letter-spacing:-0.02em;line-height:1.1
+}
+.dash-section-sub{
+  font-family:var(--mono);font-size:0.6rem;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--muted);margin-top:8px
+}
+
+/* ── Portfolio Settings Panel ── */
+.settings-group{padding:36px 0;border-bottom:1px solid var(--line)}
+.settings-group:first-child{border-top:1px solid var(--line);margin-top:8px}
+.settings-group-title{
+  font-family:var(--mono);font-size:0.55rem;font-weight:400;
+  letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px
+}
+.settings-group-desc{
+  font-family:var(--mono);font-size:0.6rem;
+  letter-spacing:0.04em;color:var(--dim);margin-bottom:28px;line-height:1.6
+}
+.principle-card{
+  border:1px solid var(--line);padding:24px;margin-bottom:16px;
+  background:var(--surface);position:relative
+}
+.principle-card-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px
+}
+.principle-card-num{
+  font-family:var(--mono);font-size:0.5rem;font-weight:400;
+  letter-spacing:0.22em;text-transform:uppercase;color:var(--muted)
+}
+.principle-card-actions{display:flex;gap:6px;align-items:center}
+.principle-card-actions button{
+  background:transparent;border:1px solid var(--line);
+  color:var(--muted);font-family:var(--mono);font-size:0.5rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  padding:4px 10px;cursor:pointer;transition:all var(--t)
+}
+.principle-card-actions button:hover:not(:disabled){
+  border-color:var(--text);color:var(--text)
+}
+.principle-card-actions button:disabled{opacity:0.25;cursor:default}
+.principle-card-actions .btn-remove{color:var(--red);border-color:var(--red)}
+.principle-card-actions .btn-remove:hover{background:var(--red);color:var(--black)}
+.principle-preview{
+  margin-top:16px;padding-top:16px;border-top:1px solid var(--line);
+  font-family:var(--serif);font-size:1.1rem;font-weight:300;
+  letter-spacing:-0.01em;color:var(--text);line-height:1.3;opacity:0.7
+}
+.principle-preview em{font-style:italic}
+/* ── /Portfolio Settings Panel ── */
+.stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+  margin-bottom:48px;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line)
+}
+.stat-card{
+  background:transparent;border:none;border-right:1px solid var(--line);
+  border-radius:0;padding:24px 28px
+}
+.stat-card:last-child{border-right:none}
+.stat-val{
+  font-family:var(--serif);
+  font-size:42px;font-weight:300;
+  letter-spacing:-0.03em;line-height:1;color:var(--text)
+}
+.stat-lbl{
+  font-family:var(--mono);font-size:0.55rem;font-weight:400;
+  letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--muted);margin-top:10px
+}
+
+.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:0}
+
+.project-card{
+  background:transparent;border:none;border-top:1px solid var(--line);
+  border-radius:0;padding:24px 4px 24px 0;cursor:pointer;
+  transition:padding var(--t);position:relative;
+  display:flex;flex-direction:column;gap:0
+}
+.project-card:hover{padding-left:8px}
+.project-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.project-card-icon{
+  width:auto;height:auto;background:transparent;border:none;border-radius:0;
+  font-family:var(--smallcaps);font-size:0.55rem;font-weight:200;
+  letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);font-style:normal
+}
+.project-card-menu{opacity:0;transition:opacity var(--t);display:flex;gap:4px}
+.project-card:hover .project-card-menu{opacity:1}
+.project-card-title{
+  font-family:var(--serif);
+  font-size:24px;font-weight:300;
+  letter-spacing:-0.01em;line-height:1.15;
+  color:var(--text);margin-bottom:6px
+}
+.project-card-sub{
+  font-family:var(--mono);font-size:0.65rem;
+  letter-spacing:0.04em;line-height:1.7;
+  color:var(--muted);margin-bottom:14px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
+}
+.project-card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.project-card-tag{
+  background:transparent;color:var(--muted);
+  border:1px solid var(--line);border-radius:0;padding:3px 8px;
+  font-family:var(--mono);font-size:0.5rem;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase
+}
+.project-card-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:auto;padding-top:14px;border-top:1px solid var(--line)
+}
+.project-card-date{
+  font-family:var(--mono);font-size:0.5rem;
+  letter-spacing:0.18em;text-transform:uppercase;color:var(--dim)
+}
+.project-card-status{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:0.5rem;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase;
+  padding:3px 8px;border-radius:0;
+  border:1px solid currentColor;background:transparent
+}
+.status-draft{color:var(--amber)}
+.status-published{color:var(--green)}
+.project-progress{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.project-progress-bar{
+  flex:1;height:1px;background:var(--line);border-radius:0;overflow:hidden
+}
+.project-progress-fill{
+  height:100%;border-radius:0;
+  background:var(--text);transition:width .4s
+}
+.project-progress-pct{
+  font-family:var(--mono);font-size:0.5rem;font-weight:400;
+  letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--dim);flex-shrink:0
+}
+
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:96px 40px;text-align:center;grid-column:1/-1
+}
+.empty-icon{font-size:32px;margin-bottom:20px;opacity:0.2;color:var(--text)}
+.empty-title{
+  font-family:var(--serif);
+  font-size:24px;font-weight:300;letter-spacing:-0.01em;margin-bottom:10px
+}
+.empty-desc{
+  font-family:var(--mono);font-size:0.65rem;
+  letter-spacing:0.04em;color:var(--muted);
+  max-width:320px;line-height:1.85;margin-bottom:24px
+}
+
+/* ── EDITOR TOPBAR ── */
+.topbar{
+  grid-column:1/-1;display:flex;align-items:center;
+  justify-content:space-between;padding:0 20px;
+  background:var(--surface);border-bottom:1px solid var(--line);
+  gap:16px;z-index:20
+}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-back{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:0.55rem;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--muted);cursor:pointer;padding:6px 10px;border-radius:0;
+  transition:all var(--t);border:1px solid transparent
+}
+.topbar-back:hover{background:transparent;color:var(--text);border-color:var(--line)}
+.topbar-divider{color:var(--dim);font-size:11px}
+.project-input{
+  font-family:var(--serif);
+  font-size:18px;font-weight:300;letter-spacing:-0.005em;
+  background:transparent;border:none;outline:none;
+  color:var(--text);min-width:160px;padding:3px 0
+}
+.project-input::placeholder{color:var(--dim);font-style:italic}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.save-status{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:0.5rem;
+  letter-spacing:0.18em;text-transform:uppercase;color:var(--dim)
+}
+.save-dot{width:5px;height:5px;border-radius:50%;background:var(--dim);transition:background .3s}
+.save-dot.saved{background:var(--green)}
+.save-dot.unsaved{background:var(--amber)}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  background:var(--surface);border-right:1px solid var(--line);
+  overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column
+}
+.progress-block{padding:18px 20px 16px;border-bottom:1px solid var(--line);flex-shrink:0}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.progress-lbl{
+  font-family:var(--mono);font-size:0.5rem;font-weight:400;
+  letter-spacing:0.22em;text-transform:uppercase;color:var(--dim)
+}
+.progress-pct{
+  font-family:var(--serif);
+  font-size:0.85rem;font-weight:300;color:var(--text)
+}
+.progress-track{height:1px;background:var(--line);border-radius:0;overflow:hidden}
+.progress-fill{
+  height:100%;background:var(--text);border-radius:0;transition:width .4s
+}
+.sidebar-section-lbl{
+  font-family:var(--mono);font-size:0.5rem;font-weight:400;
+  letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--dim);padding:18px 20px 10px
+}
+.nav-items{flex:1}
+.nav-item{
+  display:flex;align-items:center;gap:11px;padding:10px 20px;
+  cursor:pointer;position:relative;user-select:none;
+  transition:background var(--t)
+}
+.nav-item:hover{background:var(--surface2)}
+.nav-item.active{background:var(--surface2)}
+.nav-item.active::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--text);border-radius:0
+}
+.nav-icon{
+  width:auto;height:auto;background:transparent;border-radius:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;flex-shrink:0;color:var(--muted);opacity:0.6
+}
+.nav-item.active .nav-icon{opacity:1;color:var(--text);background:transparent}
+.nav-text{flex:1}
+.nav-name{
+  font-family:var(--mono);font-size:0.65rem;font-weight:400;
+  letter-spacing:0.04em;color:var(--muted);line-height:1.4
+}
+.nav-item.active .nav-name{color:var(--text)}
+.nav-sub{
+  font-family:var(--mono);font-size:0.5rem;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--dim);margin-top:3px
+}
+.nav-dots{display:flex;gap:3px;align-items:center}
+.ndot{width:4px;height:4px;border-radius:50%;background:var(--line2);transition:background .2s}
+.ndot.on{background:var(--text)}
+.sidebar-footer{padding:14px 20px;border-top:1px solid var(--line);flex-shrink:0}
+.sidebar-footer p{
+  font-family:var(--mono);font-size:0.5rem;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--dim);line-height:1.9
+}
+.kbd{
+  display:inline-flex;align-items:center;
+  background:transparent;border:1px solid var(--line);border-radius:0;
+  padding:1px 5px;
+  font-family:var(--mono);font-size:0.5rem;
+  letter-spacing:0.1em;color:var(--muted)
+}
+
+/* ── EDITOR MAIN ── */
+.main{overflow-y:auto;overflow-x:hidden;background:var(--black)}
+/* All sections visible in one continuous document; sidebar acts as a TOC. */
+.section-panel{
+  display:block;padding:72px 60px 80px;max-width:920px;
+  border-top:1px solid var(--line);scroll-margin-top:0
+}
+.section-panel:first-child{border-top:none;padding-top:60px}
+.section-panel.active{display:block} /* legacy class, kept harmless */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.sec-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:0.55rem;font-weight:400;
+  letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--muted);background:transparent;border:none;
+  padding:0;border-radius:0;margin-bottom:18px
+}
+.sec-badge::before{
+  content:'';width:24px;height:1px;background:var(--muted);
+  display:inline-block
+}
+.sec-title{
+  font-family:var(--serif);
+  font-size:48px;font-weight:300;
+  letter-spacing:-0.02em;line-height:1.05;margin-bottom:14px
+}
+.sec-desc{
+  font-family:var(--mono);font-size:0.7rem;
+  letter-spacing:0.04em;color:var(--muted);
+  max-width:560px;line-height:2;margin-bottom:48px
+}
+.sdiv{height:1px;background:var(--line);margin:40px 0}
+.sub-head{
+  font-family:var(--mono);font-size:0.55rem;font-weight:400;
+  letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--muted);
+  display:flex;align-items:center;gap:14px;margin-bottom:18px
+}
+.sub-head::after{content:'';flex:1;height:1px;background:var(--line)}
+.fg{display:grid;gap:18px;margin-bottom:18px}
+.fg-2{grid-template-columns:1fr 1fr}
+.fg-3{grid-template-columns:1fr 1fr 1fr}
+.fg-1{grid-template-columns:1fr}
+.field{display:flex;flex-direction:column;gap:8px}
+.field.span-all{grid-column:1/-1}
+.flabel{
+  font-family:var(--mono);font-size:0.55rem;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--muted);display:flex;align-items:center;gap:8px
+}
+.fhint{
+  font-family:var(--mono);font-size:0.55rem;font-weight:400;
+  letter-spacing:0.04em;text-transform:none;color:var(--dim)
+}
+.fi,.fta{
+  background:transparent;border:none;border-bottom:1px solid var(--line);
+  border-radius:0;color:var(--text);
+  font-family:var(--mono);font-size:0.7rem;letter-spacing:0.04em;
+  line-height:1.7;padding:8px 0;outline:none;width:100%;
+  transition:border-color var(--t)
+}
+.fi:focus,.fta:focus{border-bottom-color:var(--text);box-shadow:none}
+.fi::placeholder,.fta::placeholder{color:var(--dim);font-style:italic}
+.fta{resize:vertical;min-height:80px}
+.fta.lg{min-height:120px}
+.fta.xl{min-height:160px}
+
+.tags-wrap{
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  background:transparent;border:none;border-bottom:1px solid var(--line);
+  border-radius:0;padding:8px 0;cursor:text;min-height:42px;
+  transition:border-color var(--t)
+}
+.tags-wrap:focus-within{border-bottom-color:var(--text);box-shadow:none}
+.tag-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  background:transparent;color:var(--text);
+  border:1px solid var(--line2);border-radius:0;
+  padding:3px 9px;
+  font-family:var(--mono);font-size:0.5rem;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase
+}
+.tag-x{cursor:pointer;opacity:.5;line-height:1;font-size:11px}
+.tag-x:hover{opacity:1}
+.tag-real{
+  flex:1;min-width:80px;background:transparent;border:none;outline:none;
+  color:var(--text);font-family:var(--mono);font-size:0.7rem;letter-spacing:0.04em
+}
+
+.cb-group{display:flex;flex-wrap:wrap;gap:6px}
+.cb-pill{
+  display:flex;align-items:center;gap:6px;
+  background:transparent;border:1px solid var(--line);border-radius:0;
+  padding:6px 12px;cursor:pointer;transition:all var(--t);
+  font-family:var(--mono);font-size:0.55rem;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--muted);user-select:none
+}
+.cb-pill:hover{border-color:var(--line2);color:var(--text)}
+.cb-pill.on{background:var(--text);border-color:var(--text);color:var(--black)}
+.cb-pill input{display:none}
+.cb-icon{font-size:9px;opacity:0.7}
+
+.img-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.img-card{position:relative;aspect-ratio:16/10;border-radius:0;overflow:hidden;cursor:pointer}
+.img-card-cover{grid-column:span 3;aspect-ratio:21/9}
+.img-cover-badge{
+  position:absolute;top:10px;left:10px;z-index:4;
+  font-family:var(--mono);font-size:0.48rem;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase;
+  background:var(--text);color:var(--black);padding:3px 8px;pointer-events:none
+}
+.img-zone{
+  width:100%;height:100%;background:var(--surface);
+  border:1px dashed var(--line2);border-radius:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;transition:all var(--t);position:absolute;inset:0
+}
+.img-zone:hover,.img-zone.drag-over{border-color:var(--text);background:var(--surface2)}
+.img-zone.has-image{border:none;background:transparent}
+.img-zone-icon{font-size:20px;opacity:0.25;pointer-events:none;color:var(--text)}
+.img-zone-label{
+  font-family:var(--mono);font-size:0.5rem;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--dim);pointer-events:none
+}
+.img-preview{width:100%;height:100%;object-fit:cover;border-radius:0;display:none;position:absolute;inset:0}
+.img-preview.visible{display:block}
+.img-overlay{
+  position:absolute;inset:0;background:rgba(10,10,10,0.7);
+  border-radius:0;display:none;
+  align-items:center;justify-content:center;gap:10px;
+  opacity:0;transition:opacity var(--t)
+}
+.img-card:hover .img-overlay.visible{opacity:1}
+.img-overlay.visible{display:flex}
+.img-action{
+  padding:6px 14px;border-radius:0;
+  font-family:var(--mono);font-size:0.5rem;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase;
+  cursor:pointer;border:1px solid currentColor;background:transparent;
+  transition:all var(--t)
+}
+.img-action-replace{color:var(--text)}
+.img-action-replace:hover{background:var(--text);color:var(--black)}
+.img-action-remove{color:var(--red)}
+.img-action-remove:hover{background:var(--red);color:var(--text)}
+.img-caption{
+  position:absolute;bottom:0;left:0;right:0;padding:6px 10px;
+  background:rgba(10,10,10,0.7);
+  font-family:var(--mono);font-size:0.5rem;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:rgba(245,243,239,0.8);text-align:center;border-radius:0;display:none
+}
+.img-card:hover .img-caption{display:block}
+
+.rep-list{display:flex;flex-direction:column;gap:0}
+.rep-item{
+  background:transparent;border:none;border-top:1px solid var(--line);
+  border-radius:0;padding:24px 0
+}
+.rep-item:last-child{border-bottom:1px solid var(--line)}
+.rep-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.rep-label{
+  font-family:var(--mono);font-size:0.5rem;font-weight:400;
+  letter-spacing:0.22em;text-transform:uppercase;color:var(--dim)
+}
+.rep-remove{
+  background:none;border:none;color:var(--dim);cursor:pointer;
+  font-size:18px;line-height:1;padding:2px 6px;border-radius:0;
+  font-family:inherit;transition:all var(--t)
+}
+.rep-remove:hover{background:transparent;color:var(--red)}
+.add-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;padding:14px;margin-top:0;
+  background:transparent;border:1px dashed var(--line);border-radius:0;
+  color:var(--muted);
+  font-family:var(--mono);font-size:0.55rem;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase;
+  cursor:pointer;transition:all var(--t)
+}
+.add-btn:hover{border-color:var(--text);color:var(--text);border-style:solid;background:transparent}
+
+.sev-select{
+  background:transparent;border:none;border-bottom:1px solid var(--line);border-radius:0;
+  color:var(--text);font-family:var(--mono);font-size:0.65rem;
+  letter-spacing:0.06em;padding:4px 18px 4px 0;outline:none;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%239a968f' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right center
+}
+
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px;background:transparent;
+  border:none;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  border-radius:0;margin-bottom:24px
+}
+.toggle-lbl{
+  font-family:var(--serif);
+  font-size:18px;font-weight:300;
+  letter-spacing:-0.005em;margin-bottom:4px
+}
+.toggle-desc{
+  font-family:var(--mono);font-size:0.6rem;
+  letter-spacing:0.04em;color:var(--muted);line-height:1.7
+}
+.t-switch{position:relative;width:36px;height:20px;flex-shrink:0}
+.t-switch input{display:none}
+.t-slider{
+  position:absolute;inset:0;background:transparent;border:1px solid var(--line2);
+  border-radius:99px;cursor:pointer;transition:all .2s
+}
+.t-slider::before{
+  content:'';position:absolute;width:12px;height:12px;left:3px;top:3px;
+  background:var(--muted);border-radius:50%;transition:transform .2s,background .2s
+}
+.t-switch input:checked+.t-slider{background:var(--text);border-color:var(--text)}
+.t-switch input:checked+.t-slider::before{transform:translateX(16px);background:var(--black)}
+.sec-nav{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:64px;padding-top:32px;border-top:1px solid var(--line)
+}
+.tip-box{
+  background:transparent;border:none;border-left:1px solid var(--text);border-radius:0;
+  padding:8px 18px;
+  font-family:var(--serif);font-style:italic;
+  font-size:14px;font-weight:300;
+  color:var(--muted);line-height:1.65;margin-bottom:24px
+}
+.tip-box strong{
+  color:var(--text);font-weight:400;font-style:normal;
+  font-family:var(--mono);font-size:0.55rem;
+  letter-spacing:0.18em;text-transform:uppercase;
+  display:block;margin-bottom:6px
+}
+
+/* ── MODAL ── */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(10,10,10,0.85);z-index:200;
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)
+}
+.modal-bg.open{display:flex}
+.modal{
+  background:var(--surface);border:1px solid var(--line);border-radius:0;
+  padding:36px;width:440px
+}
+.modal-title{
+  font-family:var(--serif);
+  font-size:28px;font-weight:300;letter-spacing:-0.015em;
+  margin-bottom:12px;line-height:1.15
+}
+.modal-desc{
+  font-family:var(--mono);font-size:0.7rem;
+  letter-spacing:0.04em;color:var(--muted);
+  margin-bottom:28px;line-height:1.85
+}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:28px;left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:var(--surface);border:1px solid var(--line);border-radius:0;
+  padding:14px 20px;display:flex;align-items:center;gap:14px;
+  z-index:999;min-width:340px;max-width:520px;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;opacity:0
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast-icon{font-size:18px;flex-shrink:0;opacity:0.85}
+.toast-body{flex:1}
+.toast-title{
+  font-family:var(--mono);font-size:0.55rem;font-weight:400;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--text);margin-bottom:4px
+}
+.toast-desc{
+  font-family:var(--mono);font-size:0.6rem;
+  letter-spacing:0.04em;color:var(--muted);line-height:1.7
+}
+.toast-actions{display:flex;gap:6px;flex-shrink:0}
+.toast-close{
+  background:none;border:none;color:var(--dim);cursor:pointer;
+  font-size:16px;padding:2px 5px;border-radius:0;
+  font-family:inherit;transition:color var(--t)
+}
+.toast-close:hover{color:var(--text)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:0}
+::-webkit-scrollbar-thumb:hover{background:var(--line2)}
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOCK SCREEN ══════════ -->
+<div id="viewLock" class="view active">
+  <div class="lock-card">
+    <div class="lock-logo">D</div>
+    <div class="lock-title" id="lockTitle">Design Process Framework</div>
+    <div class="lock-sub" id="lockSub">Your work is encrypted. Enter your PIN to continue.</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="lock-error" id="lockError"></div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pinInput('1')">1</button>
+      <button class="pin-key" onclick="pinInput('2')">2</button>
+      <button class="pin-key" onclick="pinInput('3')">3</button>
+      <button class="pin-key" onclick="pinInput('4')">4</button>
+      <button class="pin-key" onclick="pinInput('5')">5</button>
+      <button class="pin-key" onclick="pinInput('6')">6</button>
+      <button class="pin-key" onclick="pinInput('7')">7</button>
+      <button class="pin-key" onclick="pinInput('8')">8</button>
+      <button class="pin-key" onclick="pinInput('9')">9</button>
+      <button class="pin-key zero" onclick="pinInput('0')">0</button>
+      <button class="pin-key del" onclick="pinDelete()">⌫</button>
+    </div>
+    <div class="lock-hint" id="lockHint"></div>
+    <div class="lock-actions">
+      <button type="button" class="lock-link" onclick="importBackup()">Restore from backup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div id="viewDash" class="view">
+  <div class="dash-shell">
+    <header class="dash-topbar">
+      <div class="dash-brand">
+        <div class="dash-logo">D</div>
+        <span class="dash-appname">Design Process Framework</span>
+        <div class="dash-nav" style="margin-left:12px">
+          <div class="dash-nav-item active" onclick="showDash('all')">All Projects</div>
+          <div class="dash-nav-item" onclick="showDash('drafts')">Drafts</div>
+          <div class="dash-nav-item" onclick="showDash('published')">Published</div>
+          <div class="dash-nav-item" onclick="showDash('case-studies')" style="margin-left:8px;border-left:1px solid var(--line);padding-left:12px">📖 Case Studies</div>
+          <div class="dash-nav-item" onclick="showDash('settings')">⚙ Portfolio</div>
+        </div>
+      </div>
+      <div class="dash-topbar-right">
+        <button class="btn btn-ghost btn-sm" data-theme-toggle onclick="toggleTheme()" title="Switch between light and dark theme">☀ Light</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportBackup()" title="Download an encrypted backup of all your projects">↓ Backup</button>
+        <button class="btn btn-ghost btn-sm" onclick="importBackup()" title="Restore from a backup file">↑ Restore</button>
+        <button class="btn btn-ghost btn-sm" onclick="importCaseStudyJson()" title="Import published case-study JSON files back into the editor">⇪ Import CS</button>
+        <button class="btn btn-ghost btn-sm" onclick="showChangePIN()">🔑 Change PIN</button>
+        <button class="btn btn-ghost btn-sm" onclick="lockApp()">🔒 Lock</button>
+        <button class="btn btn-primary btn-sm" onclick="createProject()">＋ New Project</button>
+      </div>
+    </header>
+    <div class="dash-body" id="dashBody"></div>
+  </div>
+</div>
+
+<!-- ══════════ EDITOR ══════════ -->
+<div id="viewEditor">
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-back" onclick="backToDash()">← Dashboard</div>
+      <span class="topbar-divider">/</span>
+      <input class="project-input" id="topTitle" type="text" placeholder="Project name…" autocomplete="off">
+      <span id="statusBadge"></span>
+    </div>
+    <div class="topbar-right">
+      <div class="save-status">
+        <span class="save-dot" id="saveDot"></span>
+        <span id="saveLabel">Saved</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" data-theme-toggle onclick="toggleTheme()" title="Switch between light and dark theme">☀ Light</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportJSON()">↓ JSON</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportCaseStudy()">Export HTML</button>
+      <button class="btn btn-publish btn-sm" onclick="publishCaseStudy()">🌐 Publish</button>
+    </div>
+  </header>
+  <nav class="sidebar">
+    <div class="progress-block">
+      <div class="progress-header">
+        <span class="progress-lbl">Documentation progress</span>
+        <span class="progress-pct" id="pctLabel">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="pctFill"></div></div>
+    </div>
+    <div class="sidebar-section-lbl">Sections</div>
+    <div class="nav-items" id="navItems"></div>
+    <div class="sidebar-footer">
+      <p>Auto-saved & encrypted.<br><span class="kbd">⌘S</span> to save manually.</p>
+    </div>
+  </nav>
+  <main class="main" id="main"></main>
+</div>
+
+<!-- ══════════ MODALS ══════════ -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-desc" id="modalDesc"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<!-- ══════════ TOAST ══════════ -->
+<div class="toast" id="toast">
+  <div class="toast-icon" id="toastIcon">✅</div>
+  <div class="toast-body">
+    <div class="toast-title" id="toastTitle"></div>
+    <div class="toast-desc" id="toastDesc"></div>
+  </div>
+  <div class="toast-actions">
+    <button class="btn btn-ghost btn-sm" id="toastOpenBtn" style="display:none">Open ↗</button>
+    <button class="toast-close" onclick="closeToast()">×</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   DESIGN PROCESS FRAMEWORK — PUBLIC DEMO SHIM (pre-app)
+   Generated by Portfolio_2026/_internal/build-framework-demo.py.
+   Do not edit this file by hand; edit the builder and regenerate.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  /* Start every visit clean. The real editor keeps PIN-encrypted work in
+     localStorage; the demo should never read a visitor's own data, nor
+     leave any of its own behind. */
+  try {
+    Object.keys(localStorage)
+      .filter(function (k) { return k.indexOf('dpf_') === 0; })
+      .forEach(function (k) { localStorage.removeItem(k); });
+  } catch (_) {}
+
+  /* Seed the dashboard with two dummy case studies. */
+  window.__DPF_DEMO_SEED__ = {"projects":{},"settings":{"demo":true},"caseStudies":{"cs_demo_ds":{"id":"cs_demo_ds","status":"published","createdAt":1777493530196,"updatedAt":1785010330196,"publishedAt":1784232730196,"data":{"title":"Consolidating Three Design Systems Into One","subtitle":"How a 40-brand platform stopped shipping four versions of the same button","slug":"design-system-consolidation","year":"2025","role":"Lead Product Designer","summary":"Three product teams had each grown their own component library. Same button, three behaviours, three sets of bugs. We merged them into one governed system and moved the argument from 'which blue' to 'what should this component do'.","services":["Design systems","Component architecture","Design tokens","Governance & documentation"],"sections":{"problem":{"statement":"Three teams, three component libraries, one product surface. A change to the primary button meant three tickets, three reviews and three chances to drift. Designers were rebuilding the same input field rather than solving the problem in front of them.","bizCtx":"The platform served 40+ brands and was about to add a fourth product line. Every additional library made that launch slower and the QA surface wider.","constraints":"No feature freeze. Teams had to keep shipping while the system was replaced under them, so everything had to migrate incrementally rather than in a big-bang release."},"contribution":{"summary":"I led the design side end to end: the audit, the token architecture, the component API, and the governance model that kept it from fragmenting again.","contributions":["Ran the three-library audit and the component consolidation map","Designed the token architecture (primitive, semantic, component tiers)","Wrote the contribution model and review path for new components","Paired with engineering on the Storybook build and Dev Mode handoff","Ran fortnightly system office hours across the three teams"],"collaboration":"Worked alongside two front-end engineers who owned the component build, a content designer on naming and UX copy, and the three product leads who had to agree to give up their own libraries."},"insight":{"methods":["Component audit across all three libraries","Interviews with 9 designers and engineers","Analysis of six months of design-system support tickets","Token round-trip testing between Figma and code"],"findings":[{"finding":"The libraries were 80% identical","evidence":"62 of 78 components differed only in spacing or naming","implication":"This was a naming and governance problem, not a design problem"},{"finding":"Nobody trusted the shared library","evidence":"7 of 9 interviewees kept a local detached copy 'just in case'","implication":"Adoption needed a contribution path, not a mandate"},{"finding":"Tokens drifted silently","evidence":"Figma and code disagreed on 14 spacing values with no failing check","implication":"The pipeline needed a test, not more documentation"}],"decision":"Consolidate to one library with a three-tier token architecture, and treat contribution as the product. If contributing is harder than detaching, people detach."},"design":{"solution":"One component library with primitive, semantic and component-level tokens. Semantic tokens meant a brand could restyle without forking, which removed the reason the three libraries existed in the first place.","flows":"Two flows mattered: the consumer flow (find a component, understand its states, use it) and the contributor flow (propose a change, get it reviewed, ship it). The second one had never been designed before.","annotations":"Every component shipped with its states, its accessibility notes and a 'when not to use this' section. The last one cut misuse more than any amount of usage documentation."},"outcome":{"shipped":"One library, 54 components, adopted by all three teams over two quarters with no feature freeze. The fourth product line launched on it rather than starting a fourth library.","measures":"Design-system support tickets fell by roughly two thirds. Time from component request to merged contribution went from weeks to days. Detached local copies dropped to near zero across the three files.","learnings":"The technical merge was the easy half. The system only held because contributing to it became genuinely faster than working around it. Governance is a design problem."}}}},"cs_demo_onboarding":{"id":"cs_demo_onboarding","status":"draft","createdAt":1777493530196,"updatedAt":1785010330196,"publishedAt":null,"data":{"title":"Rebuilding First-Run Onboarding","subtitle":"Work in progress — currently in the research phase","slug":"first-run-onboarding","year":"2026","role":"Product Designer","summary":"New accounts were reaching their first real action days after signup, if at all. This is the live write-up of the work to shorten that gap. Still a draft, which is why it is not published yet.","services":["User research","Interaction design","Prototyping"],"sections":{"problem":{"statement":"Signup completes, then nothing happens. A meaningful share of new accounts never reach the moment where the product actually does something useful for them.","bizCtx":"Acquisition spend is working; activation is where the funnel leaks. Fixing activation is cheaper than buying more of the same traffic.","constraints":"Cannot change the signup form itself this quarter — it is mid-migration and owned by another team."},"contribution":{"summary":"Sole designer on this one so far. Research is mine, and the concept work is in progress.","contributions":["Recruited and ran the first 6 of 12 planned interviews","Built the current-state journey map","Drafted three concept directions for review"],"collaboration":"TODO — engineering pairing starts once a direction is chosen."},"insight":{"methods":["Interviews with new accounts (6 of 12 done)","Funnel analysis from signup to first action","Support ticket review, first 14 days"],"findings":[{"finding":"People do not know what the first step is","evidence":"5 of 6 interviewees described the empty state as 'a dead end'","implication":"The empty state is the onboarding, and it is currently blank"},{"finding":"The setup checklist is being ignored","evidence":"Under a fifth of new accounts open it at all","implication":"A checklist nobody opens is not an onboarding strategy"}],"decision":"Still open. Leaning towards doing the first useful action with real data rather than explaining it first, but that needs testing against the remaining six interviews."},"design":{"solution":"TODO — three concepts drafted, none chosen yet.","flows":"In progress.","annotations":""},"outcome":{"shipped":"Nothing yet — this is a draft.","measures":"Target is time-to-first-action and 14-day activation. Baselines captured, no result to report.","learnings":""}}}}}};
+
+  /* Publishing writes real files to a folder the visitor picks. Removing the
+     API makes every publish path take its existing "not supported in this
+     browser" branch, so nobody is ever shown a filesystem prompt. */
+  try { delete window.showDirectoryPicker; } catch (_) {
+    try { window.showDirectoryPicker = undefined; } catch (_) {}
+  }
+})();
+</script>
+<script>
+'use strict';
+
+// ════════════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════════════
+const STORE_KEY = 'dpf_secure_v3';
+const SALT_KEY  = 'dpf_salt_v3';
+const AUTO_LOCK_MS = 20 * 60 * 1000; // 20 min
+
+const SECTIONS = [
+  {id:'overview',icon:'📋',name:'Project Overview',sub:'Metadata & pitch'},
+  {id:'problem',icon:'🎯',name:'Problem & Context',sub:'Challenge & constraints'},
+  {id:'insight',icon:'🔍',name:'Insight',sub:'Research, framing & audit'},
+  {id:'design',icon:'🎨',name:'Design',sub:'Concepts, solution & testing'},
+  {id:'outcome',icon:'📈',name:'Outcome',sub:'Impact & reflections'},
+];
+
+const RESEARCH_METHODS = [
+  'User Interviews','Surveys','Analytics Review','Competitive Analysis',
+  'Heuristic Evaluation','Usability Testing','Field Study','Desk Research',
+  'Card Sorting','Tree Testing','A/B Testing','Diary Study',
+];
+
+// ════════════════════════════════════════════════
+// APP STATE
+// ════════════════════════════════════════════════
+let cryptoKey = null;          // CryptoKey — in memory only
+let appData = window.__DPF_DEMO_SEED__ || { projects: {}, settings: {}, caseStudies: {} }; // decrypted payload
+let currentProjectId = null;
+let currentCaseStudyId = null;
+let currentSection = 'overview';
+let editMode = 'projects'; // 'projects' | 'case-studies'
+let dirty = false;
+let savedAt = null;
+let saveTimer = null;
+let lockTimer = null;
+let pinBuffer = '';
+let pinMode = 'unlock'; // 'setup1' | 'setup2' | 'unlock' | 'change1' | 'change2' | 'change3'
+let pinSetup1 = '';
+let changePin1 = '';
+let changePin2 = '';
+let dashFilter = 'all';
+
+// ════════════════════════════════════════════════
+// SHARED CONFIG (single source of truth for identity)
+// Loaded from /config.json so the published case study HTML
+// can use the same name / copyright / nav values as portfolio.html.
+// Falls back to baked-in defaults if the fetch fails.
+// ════════════════════════════════════════════════
+let NC_CFG = null;
+const NC_CFG_DEFAULTS = {
+  identity: {
+    name: 'Nataly C',
+    nameSpaced: 'Nataly · C',
+    copyrightOwner: 'Nataly C',
+    copyrightYear: new Date().getFullYear(),
+  },
+  nav: { caseStudyBack: '← Portfolio' },
+};
+function cfg(path, fallback) {
+  const root = NC_CFG || NC_CFG_DEFAULTS;
+  const v = path.split('.').reduce((o, k) => (o && o[k] != null ? o[k] : undefined), root);
+  if (v != null && v !== '') return v;
+  const def = path.split('.').reduce((o, k) => (o && o[k] != null ? o[k] : undefined), NC_CFG_DEFAULTS);
+  return def != null ? def : fallback;
+}
+(async function loadNCConfig() {
+  try {
+    const res = await fetch('config.json', { cache: 'no-store' });
+    if (res.ok) NC_CFG = await res.json();
+  } catch (e) { /* silent — fall back to NC_CFG_DEFAULTS */ }
+})();
+
+// ════════════════════════════════════════════════
+// THEME (dark ↔ light, persisted in localStorage)
+// Apply BEFORE first paint to avoid a flash.
+// ════════════════════════════════════════════════
+const THEME_KEY = 'dpf_theme';
+function applyTheme(theme) {
+  const isLight = theme === 'light';
+  document.body.classList.toggle('theme-light', isLight);
+  // Refresh any toggle button labels currently in the DOM
+  document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
+    btn.textContent = isLight ? '🌙 Dark' : '☀ Light';
+  });
+}
+function toggleTheme() {
+  const next = document.body.classList.contains('theme-light') ? 'dark' : 'light';
+  try { localStorage.setItem(THEME_KEY, next); } catch(e) {}
+  applyTheme(next);
+}
+(function initTheme() {
+  let saved = 'dark';
+  try { saved = localStorage.getItem(THEME_KEY) || 'dark'; } catch(e) {}
+  // body may not exist yet if script is in <head>; queue if so
+  if (document.body) {
+    applyTheme(saved);
+  } else {
+    document.addEventListener('DOMContentLoaded', () => applyTheme(saved), { once: true });
+  }
+})();
+
+// ════════════════════════════════════════════════
+// CRYPTO
+// ════════════════════════════════════════════════
+async function deriveCryptoKey(pin, salt) {
+  const enc = new TextEncoder();
+  const raw = await crypto.subtle.importKey('raw', enc.encode(pin), {name:'PBKDF2'}, false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt, iterations:200000, hash:'SHA-256'},
+    raw,
+    {name:'AES-GCM', length:256},
+    false,
+    ['encrypt','decrypt']
+  );
+}
+
+async function encryptPayload(key, obj) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const data = new TextEncoder().encode(JSON.stringify(obj));
+  const buf = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, data);
+  return { iv: b64(iv), ct: b64(new Uint8Array(buf)) };
+}
+
+async function decryptPayload(key, {iv, ct}) {
+  const dec = await crypto.subtle.decrypt(
+    {name:'AES-GCM', iv: ub64(iv)},
+    key,
+    ub64(ct)
+  );
+  return JSON.parse(new TextDecoder().decode(dec));
+}
+
+function b64(u8) { return btoa(String.fromCharCode(...u8)); }
+function ub64(s) { return Uint8Array.from(atob(s), c => c.charCodeAt(0)); }
+
+// ════════════════════════════════════════════════
+// STORAGE
+// ════════════════════════════════════════════════
+async function saveEncrypted() {
+  if (!cryptoKey) return;
+  try {
+    const enc = await encryptPayload(cryptoKey, appData);
+    localStorage.setItem(STORE_KEY, JSON.stringify(enc));
+    savedAt = new Date();
+    dirty = false;
+    updateSaveUI(true);
+  } catch(e) { console.error('Save failed:', e); }
+}
+
+async function loadEncrypted(key) {
+  const raw = localStorage.getItem(STORE_KEY);
+  if (!raw) return { projects:{}, settings:{}, caseStudies:{} };
+  try {
+    const data = await decryptPayload(key, JSON.parse(raw));
+    if (!data.caseStudies) data.caseStudies = {};
+    return data;
+  } catch(e) { throw new Error('wrong_pin'); }
+}
+
+function markDirty() {
+  dirty = true;
+  updateSaveUI(false);
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveEncrypted, 1800);
+}
+
+function updateSaveUI(saved) {
+  const dot = document.getElementById('saveDot');
+  const lbl = document.getElementById('saveLabel');
+  if (!dot) return;
+  if (saved && savedAt) {
+    dot.className = 'save-dot saved';
+    lbl.textContent = 'Saved ' + savedAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  } else {
+    dot.className = 'save-dot unsaved';
+    lbl.textContent = 'Unsaved changes';
+  }
+}
+
+// ════════════════════════════════════════════════
+// VIEWS
+// ════════════════════════════════════════════════
+function showView(name) {
+  document.getElementById('viewLock').classList.toggle('active', name==='lock');
+  document.getElementById('viewDash').classList.toggle('active', name==='dash');
+  document.getElementById('viewEditor').classList.toggle('active', name==='editor');
+}
+
+// ════════════════════════════════════════════════
+// PIN LOCK
+// ════════════════════════════════════════════════
+function initLockScreen() {
+  const hasSalt = !!localStorage.getItem(SALT_KEY);
+  const hasData = !!localStorage.getItem(STORE_KEY);
+  if (!hasSalt || !hasData) {
+    pinMode = 'setup1';
+    document.getElementById('lockTitle').textContent = 'Set Your PIN';
+    document.getElementById('lockSub').textContent = 'Create a 4-digit PIN to encrypt and protect your portfolio data.';
+    document.getElementById('lockHint').textContent = '⚠️ If you forget your PIN, your data cannot be recovered. Store it somewhere safe.';
+  } else {
+    pinMode = 'unlock';
+    document.getElementById('lockTitle').textContent = 'Design Process Framework';
+    document.getElementById('lockSub').textContent = 'Your data is encrypted. Enter your PIN to continue.';
+    document.getElementById('lockHint').textContent = '';
+  }
+  pinBuffer = '';
+  updatePinDots();
+  showView('lock');
+}
+
+function pinInput(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  document.getElementById('lockError').textContent = '';
+  if (pinBuffer.length === 4) setTimeout(() => handlePinComplete(), 200);
+}
+
+function pinDelete() {
+  pinBuffer = pinBuffer.slice(0,-1);
+  updatePinDots();
+  document.getElementById('lockError').textContent = '';
+}
+
+function updatePinDots() {
+  for (let i=0;i<4;i++) {
+    const d = document.getElementById('d'+i);
+    d.classList.toggle('filled', i < pinBuffer.length);
+    d.classList.remove('error');
+  }
+}
+
+function pinError(msg) {
+  document.getElementById('lockError').textContent = msg;
+  for (let i=0;i<4;i++) document.getElementById('d'+i).classList.add('error');
+  setTimeout(() => { pinBuffer=''; updatePinDots(); }, 600);
+}
+
+async function handlePinComplete() {
+  const pin = pinBuffer;
+  pinBuffer = '';
+  updatePinDots();
+
+  if (pinMode === 'setup1') {
+    pinSetup1 = pin;
+    pinMode = 'setup2';
+    document.getElementById('lockSub').textContent = 'Confirm your PIN to proceed.';
+    return;
+  }
+
+  if (pinMode === 'setup2') {
+    if (pin !== pinSetup1) { pinError('PINs do not match. Try again.'); pinMode='setup1'; pinSetup1=''; document.getElementById('lockSub').textContent='Create a 4-digit PIN to encrypt and protect your portfolio data.'; return; }
+    await setupNewPIN(pin);
+    return;
+  }
+
+  if (pinMode === 'change1') {
+    // Verify current PIN
+    try {
+      const saltArr = ub64(localStorage.getItem(SALT_KEY));
+      const testKey = await deriveCryptoKey(pin, saltArr);
+      await loadEncrypted(testKey);
+      changePin1 = pin;
+      pinMode = 'change2';
+      document.getElementById('lockSub').textContent = 'Enter your new PIN.';
+    } catch(e) { pinError('Incorrect PIN.'); }
+    return;
+  }
+
+  if (pinMode === 'change2') {
+    changePin2 = pin;
+    pinMode = 'change3';
+    document.getElementById('lockSub').textContent = 'Confirm your new PIN.';
+    return;
+  }
+
+  if (pinMode === 'change3') {
+    if (pin !== changePin2) { pinError('PINs do not match.'); pinMode='change2'; changePin2=''; document.getElementById('lockSub').textContent='Enter your new PIN.'; return; }
+    await changePIN(changePin2);
+    return;
+  }
+
+  // Normal unlock
+  await attemptUnlock(pin);
+}
+
+async function setupNewPIN(pin) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  localStorage.setItem(SALT_KEY, b64(salt));
+  cryptoKey = await deriveCryptoKey(pin, salt);
+  appData = { projects: {}, settings: {}, caseStudies: {} };
+  await saveEncrypted();
+  resetLockTimer();
+  showView('dash');
+  renderDashboard();
+  showToast({icon:'🔐',title:'PIN set — you\'re all set!',desc:'Your portfolio data is now AES-256 encrypted.'});
+}
+
+async function attemptUnlock(pin) {
+  try {
+    const saltArr = ub64(localStorage.getItem(SALT_KEY));
+    const key = await deriveCryptoKey(pin, saltArr);
+    const payload = await loadEncrypted(key);
+    cryptoKey = key;
+    appData = payload || { projects:{}, settings:{} };
+    if (!appData.settings) appData.settings = {};
+    savedAt = new Date();
+    resetLockTimer();
+    showView('dash');
+    renderDashboard();
+  } catch(e) {
+    pinError('Incorrect PIN.');
+  }
+}
+
+async function changePIN(newPin) {
+  const newSalt = crypto.getRandomValues(new Uint8Array(16));
+  localStorage.setItem(SALT_KEY, b64(newSalt));
+  cryptoKey = await deriveCryptoKey(newPin, newSalt);
+  await saveEncrypted();
+  showView('dash');
+  renderDashboard();
+  showToast({icon:'🔐',title:'PIN changed successfully',desc:'Your data has been re-encrypted with the new PIN.'});
+}
+
+function lockApp() {
+  cryptoKey = null;
+  appData = { projects:{}, settings:{}, caseStudies:{} };
+  currentProjectId = null;
+  clearTimeout(lockTimer);
+  pinMode = 'unlock';
+  document.getElementById('lockTitle').textContent = 'Design Process Framework';
+  document.getElementById('lockSub').textContent = 'Your data is encrypted. Enter your PIN to continue.';
+  document.getElementById('lockHint').textContent = '';
+  document.getElementById('lockError').textContent = '';
+  pinBuffer = '';
+  updatePinDots();
+  showView('lock');
+}
+
+function resetLockTimer() {
+  clearTimeout(lockTimer);
+  lockTimer = setTimeout(lockApp, AUTO_LOCK_MS);
+}
+
+// ════════════════════════════════════════════════
+// BACKUP / RESTORE
+// One-click migration: same browser/origin → another
+// (e.g. file:// → http://localhost), or an offsite copy.
+// The backup file holds the encrypted store + salt — without
+// the PIN it's unreadable.
+// ════════════════════════════════════════════════
+let _pendingRestore = null;
+
+function exportBackup() {
+  const store = localStorage.getItem(STORE_KEY);
+  const salt  = localStorage.getItem(SALT_KEY);
+  if (!store || !salt) {
+    showToast({icon:'⚠️', title:'Nothing to back up', desc:'No encrypted data found in this browser yet.'});
+    return;
+  }
+  const data = {
+    type: 'dpf-backup',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    store, salt
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const stamp = new Date().toISOString().slice(0,10);
+  a.download = `dpf-backup-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast({
+    icon:'💾',
+    title:'Backup downloaded',
+    desc:`dpf-backup-${stamp}.json — keep it safe. You'll need your PIN to restore it.`
+  });
+}
+
+function importBackup() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.style.display = 'none';
+  document.body.appendChild(input);
+  input.onchange = async () => {
+    const file = input.files && input.files[0];
+    document.body.removeChild(input);
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if (data.type !== 'dpf-backup' || !data.store || !data.salt) {
+        showToast({
+          icon:'⚠️',
+          title:'Invalid backup file',
+          desc:'Expected a Design Process Framework backup (.json).'
+        });
+        return;
+      }
+      _pendingRestore = data;
+      const hasExisting = !!localStorage.getItem(STORE_KEY);
+      const exportedDate = data.exportedAt
+        ? new Date(data.exportedAt).toLocaleString()
+        : 'unknown';
+      if (hasExisting) {
+        showModal({
+          title: 'Restore from backup?',
+          desc: `This will REPLACE all data currently in this browser with the backup. Backup created: ${exportedDate}. You'll unlock with the PIN that was active when this backup was made.`,
+          actions: [
+            { label: 'Cancel',           cls: 'btn-ghost',  fn: 'cancelRestore()' },
+            { label: 'Replace & Restore', cls: 'btn-danger', fn: 'doRestore()' }
+          ]
+        });
+      } else {
+        // No existing data — go straight in
+        doRestore();
+      }
+    } catch (e) {
+      showToast({
+        icon:'⚠️',
+        title:'Import failed',
+        desc: e.message || 'Could not read the file.'
+      });
+    }
+  };
+  input.click();
+}
+
+function doRestore() {
+  if (!_pendingRestore) return;
+  closeModal();
+  localStorage.setItem(STORE_KEY, _pendingRestore.store);
+  localStorage.setItem(SALT_KEY,  _pendingRestore.salt);
+  _pendingRestore = null;
+  showToast({icon:'✅', title:'Restored', desc:'Reloading…'});
+  setTimeout(() => location.reload(), 800);
+}
+
+function cancelRestore() {
+  _pendingRestore = null;
+  closeModal();
+}
+
+// Import published case-study JSON files (case-study-<slug>.json) back into the editor.
+// This is the recovery path when browser data is gone but the published files survive.
+function importCaseStudyJson() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.multiple = true;
+  input.style.display = 'none';
+  document.body.appendChild(input);
+  input.onchange = async () => {
+    const files = [...(input.files || [])];
+    document.body.removeChild(input);
+    if (!files.length) return;
+    if (!appData.caseStudies) appData.caseStudies = {};
+    let ok = 0, skipped = 0;
+    for (const file of files) {
+      try {
+        const d = JSON.parse(await file.text());
+        if (!d.title || !d.sections) { skipped++; continue; }
+        const id = 'cs_' + (d.slug || Math.random().toString(36).slice(2,10));
+        appData.caseStudies[id] = {
+          id,
+          status: d.status && String(d.status).toLowerCase().includes('dev') ? 'draft' : 'published',
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          publishedAt: d.publishedAt || null,
+          data: d
+        };
+        ok++;
+      } catch (e) { skipped++; }
+    }
+    if (ok) { markDirty(); await saveEncrypted(); showDash('case-studies'); }
+    else { renderDashboard(); }
+    showToast({
+      icon: '⇪',
+      title: 'Import complete',
+      desc: `${ok} case stud${ok===1?'y':'ies'} imported${skipped ? `, ${skipped} file(s) skipped` : ''}.`
+    });
+  };
+  input.click();
+}
+
+function showChangePIN() {
+  pinMode = 'change1';
+  changePin1=''; changePin2='';
+  document.getElementById('lockTitle').textContent = 'Change PIN';
+  document.getElementById('lockSub').textContent = 'Enter your current PIN to verify.';
+  document.getElementById('lockHint').textContent = '';
+  document.getElementById('lockError').textContent = '';
+  pinBuffer = '';
+  updatePinDots();
+  showView('lock');
+}
+
+document.addEventListener('mousemove', () => { if (cryptoKey) resetLockTimer(); });
+document.addEventListener('keydown', () => { if (cryptoKey) resetLockTimer(); });
+
+// ════════════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════════════
+function showDash(filter) {
+  dashFilter = filter;
+  document.querySelectorAll('.dash-nav-item').forEach((el,i) => {
+    el.classList.toggle('active', ['all','drafts','published','case-studies','settings'][i] === filter);
+  });
+  renderDashboard();
+}
+
+function renderDashboard() {
+  const body = document.getElementById('dashBody');
+  if (dashFilter === 'settings') { renderSettingsPanel(body); return; }
+  if (dashFilter === 'case-studies') { renderCaseStudiesPanel(body); return; }
+
+  const projects = Object.values(appData.projects || {});
+  const all = projects.length;
+  const drafts = projects.filter(p=>p.status==='draft').length;
+  const published = projects.filter(p=>p.status==='published').length;
+
+  let filtered = projects;
+  if (dashFilter==='drafts') filtered = projects.filter(p=>p.status==='draft');
+  if (dashFilter==='published') filtered = projects.filter(p=>p.status==='published');
+
+  filtered.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+
+  const title = dashFilter==='all' ? 'All Projects' : dashFilter==='drafts' ? 'Drafts' : 'Published';
+  const sub = dashFilter==='all' ? `${all} project${all===1?'':'s'} total`
+            : dashFilter==='drafts' ? `${drafts} draft${drafts===1?'':''}`
+            : `${published} published`;
+
+  body.innerHTML = `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val">${all}</div><div class="stat-lbl">Total Projects</div></div>
+      <div class="stat-card"><div class="stat-val">${drafts}</div><div class="stat-lbl">Drafts</div></div>
+      <div class="stat-card"><div class="stat-val">${published}</div><div class="stat-lbl">Published</div></div>
+    </div>
+    <div class="dash-section-head">
+      <div>
+        <div class="dash-section-title">${title}</div>
+        <div class="dash-section-sub">${sub}</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="createProject()">＋ New Project</button>
+    </div>
+    <div class="project-grid" id="projectGrid">
+      ${filtered.length===0 ? renderEmptyState() : filtered.map(renderProjectCard).join('')}
+    </div>`;
+}
+
+function renderEmptyState() {
+  if (dashFilter==='drafts') return `<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-title">No drafts</div><div class="empty-desc">Projects you're working on will appear here. Start a new one!</div><button class="btn btn-primary btn-sm" onclick="createProject()">＋ New Project</button></div>`;
+  if (dashFilter==='published') return `<div class="empty-state"><div class="empty-icon">🌐</div><div class="empty-title">No published projects</div><div class="empty-desc">Once you publish a case study, it'll show up here.</div></div>`;
+  return `<div class="empty-state"><div class="empty-icon">✨</div><div class="empty-title">No projects yet</div><div class="empty-desc">Create your first case study to start documenting your design process.</div><button class="btn btn-primary btn-sm" onclick="createProject()">＋ Create first project</button></div>`;
+}
+
+function renderProjectCard(p) {
+  const d = p.data || {};
+  const m = d.meta || {};
+  const title = m.title || 'Untitled Project';
+  const sub = m.subtitle || m.oneliner || '';
+  const tags = (m.tags||[]).slice(0,3);
+  const pct = getProjectProgress(p);
+  const date = p.updatedAt ? relativeDate(p.updatedAt) : 'Just now';
+  const icon = p.status==='published' ? '🌐' : '📝';
+  return `
+    <div class="project-card" onclick="openProject('${p.id}')">
+      <div class="project-card-top">
+        <div class="project-card-icon">${icon}</div>
+        <div class="project-card-menu">
+          <button class="btn-icon" title="Edit" onclick="event.stopPropagation();openProject('${p.id}')">✏️</button>
+          <button class="btn-icon" title="${p.status==='draft'?'Mark published':'Mark draft'}" onclick="event.stopPropagation();toggleProjectStatus('${p.id}')">${p.status==='draft'?'🌐':'📝'}</button>
+          <button class="btn-icon" title="Delete" onclick="event.stopPropagation();confirmDelete('${p.id}')">🗑️</button>
+        </div>
+      </div>
+      <div class="project-card-title">${esc(title)}</div>
+      ${sub?`<div class="project-card-sub">${esc(sub)}</div>`:'<div class="project-card-sub" style="color:var(--dim);font-style:italic">No description yet</div>'}
+      ${tags.length?`<div class="project-card-tags">${tags.map(t=>`<span class="project-card-tag">${esc(t)}</span>`).join('')}</div>`:''}
+      <div class="project-progress">
+        <div class="project-progress-bar"><div class="project-progress-fill" style="width:${pct}%"></div></div>
+        <span class="project-progress-pct">${pct}%</span>
+      </div>
+      <div class="project-card-footer">
+        <span class="project-card-date">${date}</span>
+        <span class="project-card-status status-${p.status}">${p.status==='published'?'✓ Published':'◦ Draft'}</span>
+      </div>
+    </div>`;
+}
+
+function getProjectProgress(p) {
+  const d = p.data || {};
+  const fields = [
+    d.meta?.title, d.meta?.subtitle, d.meta?.year, d.meta?.client,
+    d.meta?.oneliner, d.meta?.summary,
+    d.problem?.bizCtx, d.problem?.statement, d.problem?.who,
+    d.research?.goals, d.research?.synthesis,
+    d.define?.hmw, d.define?.coreNeed,
+    d.ideate?.concepts,
+    d.design?.solution, d.design?.flows,
+    d.test?.insights, d.test?.iterations,
+    d.outcomes?.shipped, d.outcomes?.metrics,
+    d.reflections?.learnings, d.reflections?.next,
+  ];
+  const filled = fields.filter(v=>v&&String(v).trim()).length;
+  return Math.round(filled / fields.length * 100);
+}
+
+function relativeDate(ts) {
+  const diff = Date.now() - ts;
+  if (diff < 60000) return 'Just now';
+  if (diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff/3600000)}h ago`;
+  if (diff < 604800000) return `${Math.floor(diff/86400000)}d ago`;
+  return new Date(ts).toLocaleDateString([],{month:'short',day:'numeric'});
+}
+
+// ════════════════════════════════════════════════
+// PROJECT CRUD
+// ════════════════════════════════════════════════
+function createProject() {
+  const id = 'proj_' + Math.random().toString(36).slice(2,10);
+  appData.projects[id] = {
+    id, status:'draft',
+    createdAt: Date.now(), updatedAt: Date.now(),
+    publishedAt: null, data: {}
+  };
+  markDirty();
+  openProject(id);
+}
+
+async function openProject(id) {
+  currentProjectId = id;
+  currentSection = 'overview';
+  const proj = appData.projects[id];
+  if (!proj) return;
+  showView('editor');
+  buildEditor();
+  updateStatusBadge();
+  await loadImagesForProject(id);
+}
+
+function backToDash() {
+  saveEncrypted();
+  currentProjectId = null;
+  showView('dash');
+  renderDashboard();
+}
+
+async function toggleProjectStatus(id) {
+  const p = appData.projects[id];
+  if (!p) return;
+  const wasPublished = p.status==='published';
+  p.status = wasPublished ? 'draft' : 'published';
+  if (p.status==='published') p.publishedAt = Date.now();
+  p.updatedAt = Date.now();
+  markDirty();
+  renderDashboard();
+
+  const filename = (p.data?.meta?.title || 'project').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-case-study.html';
+
+  // Keep the exported index.html + manifest.json (the portfolio's fallback
+  // source) in sync. Mirrors publishCaseStudy(): rebuild both derived files,
+  // and on unpublish also remove the per-project case-study HTML.
+  if (!('showDirectoryPicker' in window)) {
+    showToast({icon: p.status==='published'?'🌐':'📝', title:`Marked as ${p.status}`, desc:'Re-sync from Chrome/Edge to update the live portfolio files.'});
+    return;
+  }
+  try {
+    const dir = await getCaseStudiesDir();
+    await saveEncrypted(); // flush status before rebuilding derived files
+    if (wasPublished) {
+      try { await dir.removeEntry(filename); } catch(e) { /* already gone */ }
+    }
+    const indexHtml = buildIndexHTML();
+    await writeToCaseStudiesDir(dir, 'index.html', indexHtml);
+    const manifestJson = JSON.stringify(await buildManifest(), null, 2);
+    await writeToCaseStudiesDir(dir, 'manifest.json', manifestJson);
+    showToast({icon: p.status==='published'?'🌐':'📝', title: wasPublished?'Unpublished':'Published', desc:`"${p.data?.meta?.title||'Project'}" ${wasPublished?'removed from':'added to'} the live portfolio.`});
+  } catch(e) {
+    if (e.name !== 'AbortError') showToast({icon:'⚠️', title:'Status set, file sync failed', desc:e.message});
+  }
+}
+
+function confirmDelete(id) {
+  const p = appData.projects[id];
+  const title = p?.data?.meta?.title || 'this project';
+  showModal({
+    title: 'Delete project?',
+    desc: `"${esc(title)}" will be permanently deleted. This cannot be undone.`,
+    actions: [
+      {label:'Cancel', cls:'btn-ghost', fn:'closeModal()'},
+      {label:'Delete', cls:'btn-danger', fn:`deleteProject('${id}')`},
+    ]
+  });
+}
+
+function deleteProject(id) {
+  delete appData.projects[id];
+  markDirty();
+  closeModal();
+  renderDashboard();
+  showToast({icon:'🗑️', title:'Project deleted', desc:'The case study has been permanently removed.'});
+}
+
+function updateStatusBadge() {
+  const p = appData.projects[currentProjectId];
+  const el = document.getElementById('statusBadge');
+  if (!el||!p) return;
+  el.innerHTML = `<span style="font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:4px;margin-left:4px;${p.status==='published'?'background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.2)':'background:rgba(251,191,36,.1);color:var(--amber);border:1px solid rgba(251,191,36,.2)'}">${p.status==='published'?'✓ Published':'◦ Draft'}</span>`;
+}
+
+// ════════════════════════════════════════════════
+// CASE STUDIES DASHBOARD
+// ════════════════════════════════════════════════
+function renderCaseStudiesPanel(body) {
+  const caseStudies = Object.values(appData.caseStudies || {});
+  const all = caseStudies.length;
+  const drafts = caseStudies.filter(cs=>cs.status==='draft').length;
+  const published = caseStudies.filter(cs=>cs.status==='published').length;
+
+  body.innerHTML = `
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val">${all}</div><div class="stat-lbl">Total Case Studies</div></div>
+      <div class="stat-card"><div class="stat-val">${drafts}</div><div class="stat-lbl">Drafts</div></div>
+      <div class="stat-card"><div class="stat-val">${published}</div><div class="stat-lbl">Published</div></div>
+    </div>
+    <div class="dash-section-head">
+      <div>
+        <div class="dash-section-title">📖 Case Studies</div>
+        <div class="dash-section-sub">${all} case study${all===1?'':'s'} total</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="importCaseStudyJson()">↓ Import JSON</button>
+        <button class="btn btn-primary btn-sm" onclick="createCaseStudy()">＋ New Case Study</button>
+      </div>
+    </div>
+    <div class="project-grid" id="caseStudyGrid">
+      ${caseStudies.length===0 ? `<div class="empty-state"><div class="empty-icon">📖</div><div class="empty-title">No case studies yet</div><div class="empty-desc">Create your first case study to add to your portfolio.</div><button class="btn btn-primary btn-sm" onclick="createCaseStudy()">＋ Create First</button></div>` : caseStudies.map(renderCaseStudyCard).join('')}
+    </div>`;
+}
+
+function renderCaseStudyCard(cs) {
+  const d = cs.data || {};
+  const title = d.title || 'Untitled Case Study';
+  const sub = d.subtitle || '';
+  const tags = (d.tags||[]).slice(0,3);
+  const date = cs.updatedAt ? relativeDate(cs.updatedAt) : 'Just now';
+  const icon = cs.status==='published' ? '🌐' : '📝';
+  return `
+    <div class="project-card" onclick="openCaseStudy('${cs.id}')">
+      <div class="project-card-top">
+        <div class="project-card-icon">${icon}</div>
+        <div class="project-card-menu">
+          <button class="btn-icon" title="Edit" onclick="event.stopPropagation();openCaseStudy('${cs.id}')">✏️</button>
+          <button class="btn-icon" title="${cs.status==='draft'?'Publish':'Unpublish'}" onclick="event.stopPropagation();toggleCaseStudyStatus('${cs.id}')">${cs.status==='draft'?'🌐':'📝'}</button>
+          <button class="btn-icon" title="Delete" onclick="event.stopPropagation();confirmDeleteCaseStudy('${cs.id}')">🗑️</button>
+        </div>
+      </div>
+      <div class="project-card-title">${esc(title)}</div>
+      ${sub?`<div class="project-card-sub">${esc(sub)}</div>`:'<div class="project-card-sub" style="color:var(--dim);font-style:italic">No description yet</div>'}
+      ${tags.length?`<div class="project-card-tags">${tags.map(t=>`<span class="project-card-tag">${esc(t)}</span>`).join('')}</div>`:''}
+      <div class="project-card-footer">
+        <span class="project-card-date">${date}</span>
+        <span class="project-card-status status-${cs.status}">${cs.status==='published'?'✓ Published':'◦ Draft'}</span>
+      </div>
+    </div>`;
+}
+
+function createCaseStudy() {
+  const id = 'cs_' + Math.random().toString(36).slice(2,10);
+  appData.caseStudies[id] = {
+    id, status:'draft',
+    createdAt: Date.now(), updatedAt: Date.now(),
+    publishedAt: null, data: {}
+  };
+  markDirty();
+  openCaseStudy(id);
+}
+
+function openCaseStudy(id) {
+  currentCaseStudyId = id;
+  currentProjectId = null;
+  editMode = 'case-studies';
+  currentSection = 'cs-overview'; /* demo fix: render branches expect the cs- prefix */
+  const cs = appData.caseStudies[id];
+  if (!cs) return;
+  showView('editor');
+  buildCaseStudyEditor();
+}
+
+function closeCaseStudyEditor() {
+  saveEncrypted();
+  currentCaseStudyId = null;
+  editMode = 'projects';
+  showView('dash');
+  renderDashboard();
+}
+
+async function toggleCaseStudyStatus(id) {
+  const cs = appData.caseStudies[id];
+  if (!cs) return;
+  const wasPublished = cs.status==='published';
+  cs.status = wasPublished ? 'draft' : 'published';
+  if (cs.status==='published') cs.publishedAt = Date.now();
+  cs.updatedAt = Date.now();
+  markDirty();
+  renderDashboard();
+
+  const slug = cs.data?.slug || (cs.data?.title || 'case-study').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+  // Keep the exported snapshot the live portfolio reads (projects.json + the
+  // per-study JSON) in sync with this status change. Publish already writes the
+  // files; unpublish must retract them, or the portfolio keeps showing the study.
+  if (!('showDirectoryPicker' in window)) {
+    showToast({icon: cs.status==='published'?'🌐':'📝', title:`Marked as ${cs.status}`, desc:'Re-sync from Chrome/Edge to update the live portfolio files.'});
+    return;
+  }
+  try {
+    const dir = await getCaseStudiesDir();
+    if (wasPublished) {
+      // Unpublish → remove the study JSON and rebuild projects.json.
+      try { await dir.removeEntry(`case-study-${slug}.json`); } catch(e) { /* already gone */ }
+      await generateProjectsJson(dir);
+      showToast({icon:'📝', title:'Unpublished', desc:`"${cs.data?.title||'Case Study'}" removed from the live portfolio.`});
+    } else {
+      // Re-publish → only safe once its content file exists on disk; otherwise
+      // prompt a full Publish so the card's "read full case study" link works.
+      let hasFile = true;
+      try { await dir.getFileHandle(`case-study-${slug}.json`); } catch(e) { hasFile = false; }
+      if (hasFile) {
+        await generateProjectsJson(dir);
+        showToast({icon:'🌐', title:'Published', desc:`"${cs.data?.title||'Case Study'}" is back on the live portfolio.`});
+      } else {
+        showToast({icon:'🌐', title:'Marked published', desc:'Open it and hit Publish to write its content live.'});
+      }
+    }
+  } catch(e) {
+    if (e.name !== 'AbortError') showToast({icon:'⚠️', title:'Status set, file sync failed', desc:e.message});
+  }
+}
+
+function confirmDeleteCaseStudy(id) {
+  const cs = appData.caseStudies[id];
+  const title = cs?.data?.title || 'this case study';
+  showModal({
+    title: 'Delete case study?',
+    desc: `"${esc(title)}" will be permanently deleted. This cannot be undone.`,
+    actions: [
+      {label:'Cancel', cls:'btn-ghost', fn:'closeModal()'},
+      {label:'Delete', cls:'btn-danger', fn:`deleteCaseStudy('${id}')`},
+    ]
+  });
+}
+
+function deleteCaseStudy(id) {
+  delete appData.caseStudies[id];
+  markDirty();
+  closeModal();
+  renderDashboard();
+  showToast({icon:'🗑️', title:'Case study deleted', desc:'The case study has been permanently removed.'});
+}
+
+// ════════════════════════════════════════════════
+// DATA HELPERS (project-scoped)
+// ════════════════════════════════════════════════
+function g(path, fb='') {
+  const proj = appData.projects[currentProjectId];
+  if (!proj) return fb;
+  const obj = proj.data || {};
+  return path.split('.').reduce((o,k)=>(o&&o[k]!==undefined?o[k]:null), obj) ?? fb;
+}
+function s(path, val) {
+  const proj = appData.projects[currentProjectId];
+  if (!proj) return;
+  if (!proj.data) proj.data = {};
+  const parts = path.split('.');
+  let cur = proj.data;
+  for (let i=0;i<parts.length-1;i++) {
+    if (typeof cur[parts[i]]!=='object'||cur[parts[i]]===null) cur[parts[i]]={};
+    cur=cur[parts[i]];
+  }
+  cur[parts[parts.length-1]] = val;
+  proj.updatedAt = Date.now();
+  markDirty();
+}
+function esc(str){return String(str==null?'':str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function nl2br(str){return(str||'').replace(/\n/g,'<br>')}
+
+// ════════════════════════════════════════════════
+// EDITOR BUILD
+// ════════════════════════════════════════════════
+function buildEditor() {
+  renderNav();
+  buildSections();
+  bindAll();
+  renderRepeatables();
+  refreshDots();
+  setupSectionObserver();
+}
+
+function goTo(id) {
+  currentSection = id;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.id===id));
+  const panel = document.getElementById('panel_'+id);
+  if (panel) panel.scrollIntoView({behavior:'smooth', block:'start'});
+  refreshDots();
+}
+
+// Track which section is currently in view → highlights the matching sidebar item
+let _sectionObserver = null;
+function setupSectionObserver() {
+  if (_sectionObserver) _sectionObserver.disconnect();
+  const root = document.getElementById('main');
+  if (!root) return;
+  _sectionObserver = new IntersectionObserver((entries) => {
+    const visible = entries.filter(e => e.isIntersecting);
+    if (!visible.length) return;
+    visible.sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+    const id = visible[0].target.id.replace(/^panel_/, '');
+    if (id === currentSection) return;
+    currentSection = id;
+    document.querySelectorAll('.nav-item').forEach(el =>
+      el.classList.toggle('active', el.dataset.id === id)
+    );
+  }, {
+    root,
+    rootMargin: '-12% 0px -70% 0px',
+    threshold: [0, 0.1, 0.3, 0.6, 1]
+  });
+  document.querySelectorAll('.section-panel').forEach(p => _sectionObserver.observe(p));
+}
+
+function renderNav() {
+  document.getElementById('navItems').innerHTML = SECTIONS.map(sec=>`
+    <div class="nav-item${sec.id===currentSection?' active':''}" data-id="${sec.id}" onclick="goTo('${sec.id}')">
+      <div class="nav-icon">${sec.icon}</div>
+      <div class="nav-text"><div class="nav-name">${sec.name}</div><div class="nav-sub">${sec.sub}</div></div>
+      <div class="nav-dots" id="dots_${sec.id}">
+        <div class="ndot"></div><div class="ndot"></div><div class="ndot"></div>
+      </div>
+    </div>`).join('');
+}
+
+function refreshDots() {
+  SECTIONS.forEach(sec=>{
+    const panel=document.getElementById('panel_'+sec.id);
+    if(!panel)return;
+    const inputs=[...panel.querySelectorAll('.fi,.fta')];
+    const pct=inputs.length?inputs.filter(el=>el.value.trim()).length/inputs.length:0;
+    const container=document.getElementById('dots_'+sec.id);
+    if(!container)return;
+    [...container.querySelectorAll('.ndot')].forEach((d,i)=>d.classList.toggle('on',pct>i/3));
+  });
+  updateProgress();
+  // Update dashboard progress in background
+  const proj = appData.projects[currentProjectId];
+  if (proj) proj.updatedAt = Date.now();
+}
+
+function updateProgress() {
+  const all=[...document.querySelectorAll('.fi,.fta')];
+  const filled=all.filter(el=>el.value.trim()).length;
+  const pct=all.length?Math.round(filled/all.length*100):0;
+  document.getElementById('pctLabel').textContent=pct+'%';
+  document.getElementById('pctFill').style.width=pct+'%';
+}
+
+// ── Field helpers ──
+function fi(id,ph='',extra=''){return`<input class="fi" id="${id}" placeholder="${esc(ph)}" autocomplete="off" ${extra}>`}
+function fta(id,ph='',cls=''){return`<textarea class="fta ${cls}" id="${id}" placeholder="${esc(ph)}"></textarea>`}
+function field(label,hint,inputHtml,cls=''){return`<div class="field ${cls}"><label class="flabel">${label}${hint?`<span class="fhint">${hint}</span>`:''}</label>${inputHtml}</div>`}
+function navBtns(prev,next){return`<div class="sec-nav">${prev?`<button class="btn btn-ghost" onclick="goTo('${prev}')">← Back</button>`:'<span></span>'}${next?`<button class="btn btn-primary" onclick="goTo('${next}')">Next →</button>`:`<button class="btn btn-publish" onclick="publishCaseStudy()">🌐 Publish Case Study</button>`}</div>`}
+
+function buildSections() {
+  const methods=g('research.methods',[]);
+  document.getElementById('main').innerHTML=[
+  // 01 OVERVIEW
+  `<div class="section-panel${currentSection==='overview'?' active':''}" id="panel_overview">
+    <div class="sec-badge">📋 01 / Overview</div><h1 class="sec-title">Project Overview</h1>
+    <p class="sec-desc">The metadata layer — what this project is, what you did, and how you'd pitch it in a room.</p>
+    <div class="tip-box"><strong>Tip:</strong> Fill "What it is" and "What you did" first — they're the most-read parts of any portfolio piece.</div>
+    <div class="fg fg-2">
+      ${field('Project Title','',fi('f_title','e.g. Banzo'))}
+      ${field('Subtitle','',fi('f_subtitle','e.g. Mobile App Audit & Redesign'))}
+      ${field('Year','',fi('f_year','e.g. 2025'))}
+      ${field('Duration','',fi('f_duration','e.g. 7 months'))}
+      ${field('Client / Org','',fi('f_client','e.g. Banzo Inc.'))}
+      ${field('Project Type','',fi('f_type','e.g. Mobile UX & Product Design'))}
+      ${field('Your Role','',fi('f_role','e.g. Lead Product Designer'))}
+      ${field('Location','',fi('f_location','e.g. Remote'))}
+    </div>
+    <div class="fg fg-1">${field('Tags','— 2–4 keywords',`<div class="tags-wrap" onclick="document.getElementById('tagsReal').focus()"><input class="tag-real" id="tagsReal" placeholder="Type a tag, press Enter…"></div>`)}</div>
+    <div class="sdiv"></div><div class="sub-head">Project Pitch</div>
+    <div class="fg fg-1">
+      ${field('What it is — one sentence','',fi('f_oneliner','e.g. A mobile banking app that makes saving feel effortless for first-time earners.'))}
+      ${field('What you actually did','— 2–3 sentences, your specific contribution',fta('f_summary','Describe what problems you tackled, what you designed, and what changed…','lg'))}
+    </div>
+    <div class="sdiv"></div><div class="sub-head">Key Visuals</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px"><strong style="color:var(--text)">Image 1 is the Cover</strong> — it appears as the hero in your portfolio card and at the top of the published case study. Add up to ${MAX_IMAGES} images total.</p>
+    <div class="img-grid" id="imgGrid">
+      ${(()=>{const count=Math.max(1,appData.projects[currentProjectId]?.data?.meta?.imageCount||3);return Array.from({length:count},(_,i)=>i+1).map(n=>imgCardHTML(n)).join('');})()}
+    </div>
+    <button class="btn btn-ghost btn-sm" style="margin-top:14px;width:100%" onclick="addImageSlot()">＋ Add image</button>
+    ${navBtns(null,'problem')}</div>`,
+
+  // 02 PROBLEM
+  `<div class="section-panel${currentSection==='problem'?' active':''}" id="panel_problem">
+    <div class="sec-badge">🎯 02 / Problem</div><h1 class="sec-title">Problem & Context</h1>
+    <p class="sec-desc">Define the challenge clearly before any design work begins. Good problem framing is half the solution.</p>
+    <div class="fg fg-1">
+      ${field('Business / Product Context','— What is the product? What stage?',fta('f_bizCtx','Give the reader enough to understand why this project existed…','lg'))}
+      ${field('Problem Statement','— "We noticed [observation]. This means [implication]. Which causes [impact]."',fta('f_problem','We noticed that… which means… which causes…','lg'))}
+    </div>
+    <div class="fg fg-2">
+      ${field('Who is affected?','— Users, segments, stakeholders',fta('f_who','e.g. First-time users (18–30) who struggle to set up direct debit…'))}
+      ${field('Why does it matter?','— Business & user stakes',fta('f_why','e.g. High drop-off at onboarding step 3 means lower activation…'))}
+    </div>
+    <div class="fg fg-1">${field('Constraints & Assumptions','',fta('f_constraints','e.g. Must stay within existing design system. 6-week timeline…'))}</div>
+    ${navBtns('overview','insight')}</div>`,
+
+  // 03 INSIGHT (research + define + audit)
+  `<div class="section-panel${currentSection==='insight'?' active':''}" id="panel_insight">
+    <div class="sec-badge">🔍 03 / Insight</div><h1 class="sec-title">Insight</h1>
+    <p class="sec-desc">What you investigated, what you learned, and the decision it drove. Evidence over assumption.</p>
+    <div class="sub-head">Methods Used</div>
+    <div class="cb-group" id="methodsGroup">
+      ${RESEARCH_METHODS.map(m=>`<label class="cb-pill${(methods||[]).includes(m)?' on':''}"><input type="checkbox" value="${m}"${(methods||[]).includes(m)?' checked':''} onchange="toggleMethod(this)"><span class="cb-icon">${(methods||[]).includes(m)?'✓':'+'}</span>${m}</label>`).join('')}
+    </div>
+    <div class="sdiv"></div>
+    <div class="fg fg-1">${field('Research Goals','— What were you trying to learn?',fta('f_rGoals','e.g. Understand why users abandon onboarding at step 3…'))}</div>
+    <div class="sdiv"></div>
+    <div class="sub-head">Key Findings</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Document each insight with evidence and design implication.</p>
+    <div class="rep-list" id="findingsList"></div>
+    <button class="add-btn" onclick="addItem('findings')">＋ Add Finding</button>
+    <div class="sdiv"></div>
+    <div class="fg fg-1">${field('Synthesis & Themes','— Patterns that emerged',fta('f_synthesis','e.g. Three distinct mental models emerged…','lg'))}</div>
+    <div class="sdiv"></div><div class="sub-head">Frame the Brief</div>
+    <div class="fg fg-1">
+      ${field('How Might We…','— The reframed opportunity statement',fi('f_hmw','e.g. How might we help first-time savers build a habit without feeling overwhelmed?'))}
+      ${field('Core User Need','— "Users need a way to [X] so they can [Y], without [Z]."',fta('f_coreNeed','Users need a way to…'))}
+    </div>
+    <div class="sdiv"></div>
+    <div class="sub-head">Design Principles</div>
+    <div class="rep-list" id="principlesList"></div>
+    <button class="add-btn" onclick="addItem('principles')">＋ Add Principle</button>
+    <div class="sdiv"></div>
+    <div class="fg fg-2">
+      ${field('Success Metrics','',fta('f_successMetrics','e.g.\nOnboarding completion ↑ 20%\nDrop-off at step 3 ↓ 40%'))}
+      ${field('Out of Scope','',fta('f_outOfScope','e.g.\nFull app redesign\nBackend payment flows'))}
+    </div>
+    <div class="sdiv"></div>
+    <div class="sub-head">Audit <span style="font-weight:400;color:var(--muted)">(optional, for existing products)</span></div>
+    <div class="toggle-row">
+      <div><div class="toggle-lbl">Enable Audit section</div><div class="toggle-desc">Turn on for projects evaluating an existing product</div></div>
+      <label class="t-switch"><input type="checkbox" id="auditToggle" onchange="toggleAudit(this)"><span class="t-slider"></span></label>
+    </div>
+    <div id="auditBody" style="display:none">
+      <div class="fg fg-1">${field('Audit Scope & Approach','',fta('f_auditScope','e.g. Heuristic evaluation across 5 core flows using Nielsen\'s 10 principles.'))}</div>
+      <div class="sdiv"></div>
+      <div class="sub-head">Findings</div>
+      <div class="rep-list" id="auditFindingsList"></div>
+      <button class="add-btn" onclick="addItem('auditFindings')">＋ Add Finding</button>
+      <div class="sdiv"></div>
+      <div class="fg fg-1">${field('Before → After Summary','',fta('f_beforeAfter','Before: 12-step onboarding with no progress indication.\nAfter: 4 steps, clearer copy, immediate value demonstration.','lg'))}</div>
+    </div>
+    ${navBtns('problem','design')}</div>`,
+
+  // 04 DESIGN (ideate + design + test)
+  `<div class="section-panel${currentSection==='design'?' active':''}" id="panel_design">
+    <div class="sec-badge">🎨 04 / Design</div><h1 class="sec-title">Design</h1>
+    <p class="sec-desc">Show your thinking and the solution — what you explored, what you built, and how you validated it.</p>
+    <div class="fg fg-1">${field('Concepts Explored','',fta('f_concepts','Concept A: Progressive onboarding with micro-milestones…\nConcept B: Game-like savings challenges…','xl'))}</div>
+    <div class="sdiv"></div>
+    <div class="sub-head">Key Design Decisions</div>
+    <div class="rep-list" id="decisionsList"></div>
+    <button class="add-btn" onclick="addItem('decisions')">＋ Add Decision</button>
+    <div class="sdiv"></div>
+    <div class="fg fg-1">${field('Design System Considerations','',fta('f_dsNotes','e.g. Extended component library with a new "Goal Card" pattern…'))}</div>
+    <div class="sdiv"></div><div class="sub-head">The Solution</div>
+    <div class="fg fg-1">
+      ${field('Solution Overview','— 2–4 sentences on the end result',fta('f_solution','The redesigned onboarding introduces a three-step "goal-first" flow…','lg'))}
+      ${field('Key User Flows','',fta('f_flows','Flow 1: Onboarding → Goal Setup → First Deposit\nFlow 2: Goal Progress → Celebration'))}
+      ${field('Design Decisions & Annotations','— Explain specific UI choices',fta('f_annotations','Progress ring: chosen over a bar because…','lg'))}
+      ${field('Prototype Notes','',fta('f_protoNotes','e.g. High-fidelity in Figma. Core onboarding + 3 error states.'))}
+    </div>
+    <div class="sdiv"></div><div class="sub-head">Test & Validate</div>
+    <div class="fg fg-2">
+      ${field('Testing Methodology','',fta('f_testMethod','e.g. 6 moderated usability tests via Maze. Task-based. 45-min sessions.'))}
+      ${field('Participants','',fta('f_participants','e.g. 6 participants: 3 existing users, 3 new. Ages 22–35.'))}
+    </div>
+    <div class="fg fg-1">
+      ${field('Key Insights from Testing','',fta('f_testInsights','Insight 1: Users understood the goal metaphor immediately (5/6).\nInsight 2: Progress ring at 0% looked like a loading spinner.','lg'))}
+      ${field('Iterations Made','',fta('f_iterations','Change 1: Added empty-state animation to progress ring.\nChange 2: Revised CTA copy "Start saving" → "Set a goal".'))}
+    </div>
+    ${navBtns('insight','outcome')}</div>`,
+
+  // 05 OUTCOME (outcomes + reflections)
+  `<div class="section-panel${currentSection==='outcome'?' active':''}" id="panel_outcome">
+    <div class="sec-badge">📈 05 / Outcome</div><h1 class="sec-title">Outcome</h1>
+    <p class="sec-desc">What shipped, what changed, and what you learned. Use real numbers wherever you have them.</p>
+    <div class="fg fg-1">${field('What Shipped','',fta('f_shipped','Shipped: Redesigned onboarding flow (v2), new Goal Card component.\nDescoped: Gamification layer — moved to Q2.'))}</div>
+    <div class="fg fg-2">
+      ${field('Quantitative Metrics','',fta('f_metrics','Onboarding completion: 34% → 61% (+79%)\nStep 3 drop-off: 52% → 18%'))}
+      ${field('Qualitative Feedback','',fta('f_qualFeedback','"It finally feels like something built for me." — User, Session 4'))}
+    </div>
+    <div class="fg fg-1">${field('Timeline','',fta('f_timeline','Wk 1–2: Discovery\nWk 3–4: Define + ideation\nWk 5–6: Design\nWk 7: Testing\nWk 8: Handoff'))}</div>
+    <div class="sdiv"></div><div class="sub-head">Reflections</div>
+    <div class="fg fg-2">
+      ${field('What worked well','',fta('f_worked','e.g. Early alignment on success metrics kept the team focused.'))}
+      ${field('What I\'d do differently','',fta('f_diff','e.g. Involve engineering earlier to surface tech constraints.'))}
+    </div>
+    <div class="fg fg-1">
+      ${field('Key Learnings','',fta('f_learnings','1. Empty states are the most overlooked but highest-impact surface in onboarding.','lg'))}
+      ${field('Next Steps & Open Questions','',fta('f_next','If I had more time: A/B test goal-setting copy variants.'))}
+    </div>
+    ${navBtns('design',null)}</div>`,
+  ].join('\n');
+}
+
+// ── BIND ALL SIMPLE INPUTS ──
+const BINDINGS=[
+  ['f_title','meta.title'],['f_subtitle','meta.subtitle'],['f_year','meta.year'],
+  ['f_duration','meta.duration'],['f_client','meta.client'],['f_type','meta.type'],
+  ['f_role','meta.role'],['f_location','meta.location'],['f_oneliner','meta.oneliner'],
+  ['f_summary','meta.summary'],
+  ['f_bizCtx','problem.bizCtx'],['f_problem','problem.statement'],['f_who','problem.who'],
+  ['f_why','problem.why'],['f_constraints','problem.constraints'],
+  ['f_rGoals','research.goals'],['f_synthesis','research.synthesis'],
+  ['f_hmw','define.hmw'],['f_coreNeed','define.coreNeed'],
+  ['f_successMetrics','define.successMetrics'],['f_outOfScope','define.outOfScope'],
+  ['f_concepts','ideate.concepts'],['f_dsNotes','ideate.dsNotes'],
+  ['f_solution','design.solution'],['f_flows','design.flows'],
+  ['f_annotations','design.annotations'],['f_protoNotes','design.protoNotes'],
+  ['f_auditScope','audit.scope'],['f_beforeAfter','audit.beforeAfter'],
+  ['f_testMethod','test.method'],['f_participants','test.participants'],
+  ['f_testInsights','test.insights'],['f_iterations','test.iterations'],
+  ['f_shipped','outcomes.shipped'],['f_metrics','outcomes.metrics'],
+  ['f_qualFeedback','outcomes.qualFeedback'],['f_timeline','outcomes.timeline'],
+  ['f_worked','reflections.worked'],['f_diff','reflections.diff'],
+  ['f_learnings','reflections.learnings'],['f_next','reflections.next'],
+];
+
+// ════════════════════════════════════════════════
+// CASE STUDY EDITOR
+// ════════════════════════════════════════════════
+const CASE_STUDY_SECTIONS = [
+  {id:'cs-overview',icon:'📋',name:'Overview',sub:'Metadata'},
+  {id:'cs-problem',icon:'🎯',name:'Problem',sub:'Challenge & constraints'},
+  {id:'cs-contribution',icon:'🙋',name:'Role',sub:'Your contributions'},
+  {id:'cs-insight',icon:'🔍',name:'Insight',sub:'Findings & the decision'},
+  {id:'cs-design',icon:'🎨',name:'Design',sub:'Solution & key calls'},
+  {id:'cs-outcome',icon:'📈',name:'Outcome',sub:'Impact & learnings'},
+];
+
+function buildCaseStudyEditor() {
+  const cs = appData.caseStudies[currentCaseStudyId];
+  if (!cs) return;
+  const d = cs.data || {};
+
+  const topbar = document.querySelector('.topbar');
+  topbar.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 24px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="btn btn-ghost" onclick="closeCaseStudyEditor()">← Back</button>
+        <div style="border-left:1px solid var(--line);padding-left:12px">
+          <div style="font-weight:600;color:var(--text)">${esc(d.title||'Untitled')}</div>
+          <div style="font-size:12px;color:var(--muted)">${cs.id}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span id="csSaveBadge" style="font-size:12px;color:var(--muted)">Saved</span>
+        <button class="btn btn-primary btn-sm" onclick="publishCaseStudyAsJson()">🌐 Publish</button>
+      </div>
+    </div>`;
+
+  const main = document.getElementById('main');
+  main.innerHTML = `
+    <div style="display:grid;grid-template-columns:280px 1fr;height:100%">
+      <aside style="border-right:1px solid var(--line);overflow-y:auto;background:var(--bg-secondary)">
+        <div id="caseStudyNav" style="padding:12px"></div>
+      </aside>
+      <div id="caseStudyContent" style="overflow-y:auto"></div>
+    </div>`;
+
+  renderCaseStudyNav();
+  renderCaseStudyContent();
+  bindCaseStudyFields();
+}
+
+function renderCaseStudyNav() {
+  const navEl = document.getElementById('caseStudyNav');
+  navEl.innerHTML = CASE_STUDY_SECTIONS.map(sec => `
+    <div class="nav-item${sec.id==='cs-overview'?' active':''}" data-id="${sec.id}" onclick="goToCaseStudySection('${sec.id}')">
+      <div class="nav-icon">${sec.icon}</div>
+      <div class="nav-text"><div class="nav-name">${sec.name}</div><div class="nav-sub">${sec.sub}</div></div>
+    </div>`).join('');
+}
+
+function goToCaseStudySection(id) {
+  currentSection = id;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.id===id));
+  renderCaseStudyContent();
+  bindCaseStudyFields();  // re-bind: only the freshly-rendered section's fields exist in the DOM
+}
+
+function renderCaseStudyContent() {
+  const cs = appData.caseStudies[currentCaseStudyId];
+  const d = cs?.data || {};
+  const content = document.getElementById('caseStudyContent');
+
+  let html = '';
+
+  if (currentSection === 'cs-overview') {
+    // Create inputs with actual values (not just placeholders)
+    const titleInput = `<input class="fi" id="cs_title" value="${esc(d.title||'')}" placeholder="e.g. Push Notification Consolidation">`;
+    const subtitleInput = `<input class="fi" id="cs_subtitle" value="${esc(d.subtitle||'')}" placeholder="e.g. Unifying scattered campaigns…">`;
+    const yearInput = `<input class="fi" id="cs_year" value="${esc(d.year||'')}" placeholder="e.g. 2026">`;
+    const roleInput = `<input class="fi" id="cs_role" value="${esc(d.role||'')}" placeholder="e.g. Product Designer">`;
+    const summaryInput = `<textarea class="fta lg" id="cs_summary" placeholder="Describe the project in 2-3 sentences…">${esc(d.summary||'')}</textarea>`;
+    const servicesInput = `<textarea class="fta lg" id="cs_services" placeholder="Product Strategy&#10;UX Design&#10;...">${esc(d.services?.join('\n')||'')}</textarea>`;
+
+    html = `
+      <div style="padding:24px;max-width:800px">
+        <h1 style="margin-bottom:24px">📋 Overview</h1>
+        <div class="fg fg-1">${field('Title','',titleInput)}</div>
+        <div class="fg fg-1">${field('Subtitle','',subtitleInput)}</div>
+        <div class="fg fg-2">
+          ${field('Year','',yearInput)}
+          ${field('Role','',roleInput)}
+        </div>
+        <div class="fg fg-1">${field('Summary','',summaryInput)}</div>
+        <div class="fg fg-1">${field('Tags','— 2–4 keywords',`<div class="tags-wrap" onclick="document.getElementById('csTagsReal').focus()"><input class="tag-real" id="csTagsReal" placeholder="Type a tag, press Enter…" value="${esc((d.tags||[]).join(', '))}"></div>`)}</div>
+        <div class="sdiv"></div><div class="sub-head">Services</div>
+        <div class="fg fg-1">${field('Services','— List of service areas',servicesInput)}</div>
+        <div class="sdiv"></div><div class="sub-head">Images</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Upload up to 5 images (PNG, JPG, SVG). Image 1 is the cover.</p>
+        <div id="imageUploadArea" class="fg fg-1"></div>
+      </div>`;
+  } else if (currentSection === 'cs-problem') {
+    html = `
+      <div style="padding:24px;max-width:800px">
+        <h1 style="margin-bottom:24px">🎯 Problem</h1>
+        <div class="fg fg-1">${field('Statement','— what was broken, framed as before/after where possible',fta('cs_problem',d.sections?.problem?.statement||'The challenge or problem statement…','lg'))}</div>
+        <div class="fg fg-1">${field('Context','— business & product context, no restating the statement',fta('cs_bizCtx',d.sections?.problem?.bizCtx||'Business & product context…','lg'))}</div>
+        <div class="fg fg-1">${field('Constraints','— what the design had to respect',fta('cs_constraints',d.sections?.problem?.constraints||'Technical, business, or legal constraints…','lg'))}</div>
+      </div>`;
+  } else if (currentSection === 'cs-contribution') {
+    html = `
+      <div style="padding:24px;max-width:800px">
+        <h1 style="margin-bottom:24px">🙋 My Role & Contributions</h1>
+        <div class="fg fg-1">${field('Summary','— one or two lines on what you owned end to end',fta('cs_contribSummary',d.sections?.contribution?.summary||'What you owned across this project…','lg'))}</div>
+        <div class="fg fg-1">${field('Contributions','— one per line: the specific things you did',fta('cs_contributions',d.sections?.contribution?.contributions||'Defined the concept…\nDesigned the system…\nDrove the key decision…','lg'))}</div>
+        <div class="fg fg-1">${field('Collaboration','— who you partnered with and what they owned',fta('cs_collaboration',d.sections?.contribution?.collaboration||'Partnered with PM on…, engineers built…','lg'))}</div>
+      </div>`;
+  } else if (currentSection === 'cs-insight') {
+    html = `
+      <div style="padding:24px;max-width:800px">
+        <h1 style="margin-bottom:24px">🔍 Insight</h1>
+        <div class="fg fg-1">${field('Methods','— one per line',fta('cs_methods',d.sections?.insight?.methods||'Research methods used, one per line…','lg'))}</div>
+        <div class="fg fg-1">${field('Findings','— one per line: Finding :: Evidence :: Implication',fta('cs_findings',d.sections?.insight?.findings||'Finding :: Evidence :: Implication…','lg'))}</div>
+        <div class="fg fg-1">${field('The decision','— the one call the findings drove',fta('cs_decision',d.sections?.insight?.decision||'What the findings made you decide…','lg'))}</div>
+      </div>`;
+  } else if (currentSection === 'cs-design') {
+    html = `
+      <div style="padding:24px;max-width:800px">
+        <h1 style="margin-bottom:24px">🎨 Design</h1>
+        <div class="fg fg-1">${field('Solution','— the single canonical description',fta('cs_solution',d.sections?.design?.solution||'Design solution…','lg'))}</div>
+        <div class="fg fg-1">${field('Flows','',fta('cs_flows',d.sections?.design?.flows||'User flows & interactions…','lg'))}</div>
+        <div class="fg fg-1">${field('Decisions','— tricky calls and trade-offs worth showing',fta('cs_annotations',d.sections?.design?.annotations||'Notable decisions & trade-offs…','lg'))}</div>
+      </div>`;
+  } else if (currentSection === 'cs-outcome') {
+    html = `
+      <div style="padding:24px;max-width:800px">
+        <h1 style="margin-bottom:24px">📈 Outcome</h1>
+        <div class="fg fg-1">${field('Shipped','— what went live (or current state)',fta('cs_shipped',d.sections?.outcome?.shipped||'What shipped…','lg'))}</div>
+        <div class="fg fg-1">${field('Measures that matter','— stated once: what changed, or what to hold the design against',fta('cs_measures',d.sections?.outcome?.measures||'What changed in practice, and the measures that matter…','lg'))}</div>
+        <div class="fg fg-1">${field('Learnings','',fta('cs_learnings',d.sections?.outcome?.learnings||'What you learned…','lg'))}</div>
+      </div>`;
+  }
+
+  content.innerHTML = html;
+
+  // Render image upload area if in Overview section
+  if (currentSection === 'cs-overview') {
+    renderImageUploadArea();
+  }
+}
+
+function viewImage(idx) {
+  const cs = appData.caseStudies[currentCaseStudyId];
+  if (!cs || !cs.data.imageData || !cs.data.imageData[idx]) return;
+
+  const images = cs.data.imageData;
+  const img = images[idx];
+  const src = typeof img === 'string' ? img : img.src;
+
+  // Create lightbox overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,0.9);
+    display:flex;align-items:center;justify-content:center;
+    z-index:9999;cursor:pointer;
+    padding:20px;
+  `;
+
+  overlay.onclick = () => overlay.remove();
+
+  // Create image container
+  const container = document.createElement('div');
+  container.style.cssText = `
+    position:relative;
+    max-width:90vw;max-height:90vh;
+    display:flex;flex-direction:column;
+    align-items:center;
+    background:transparent;
+  `;
+  container.onclick = (e) => e.stopPropagation();
+
+  // Close button
+  const closeBtn = document.createElement('button');
+  closeBtn.innerHTML = '✕';
+  closeBtn.style.cssText = `
+    position:absolute;top:-40px;right:0;
+    background:rgba(255,255,255,0.2);color:white;
+    border:none;padding:8px 12px;border-radius:4px;
+    font-size:20px;cursor:pointer;font-weight:bold;
+  `;
+  closeBtn.onclick = () => overlay.remove();
+
+  // Image element
+  const imgEl = document.createElement('img');
+  imgEl.src = src;
+  imgEl.style.cssText = `
+    max-width:100%;max-height:80vh;
+    border-radius:8px;
+    object-fit:contain;
+  `;
+
+  // Navigation
+  let navHtml = '';
+  if (images.length > 1) {
+    navHtml = `
+      <div style="margin-top:20px;display:flex;gap:12px;justify-content:center;color:white">
+        ${idx > 0 ? `<button class="btn btn-primary btn-sm" onclick="viewImage(${idx-1})">← Previous</button>` : ''}
+        <span style="padding:8px 12px;color:var(--muted)">${idx + 1} / ${images.length}</span>
+        ${idx < images.length - 1 ? `<button class="btn btn-primary btn-sm" onclick="viewImage(${idx+1})">Next →</button>` : ''}
+      </div>`;
+  }
+
+  container.innerHTML = `${navHtml}`;
+  container.insertBefore(imgEl, container.firstChild);
+  container.appendChild(closeBtn);
+
+  overlay.appendChild(container);
+  document.body.appendChild(overlay);
+}
+
+function renderImageUploadArea() {
+  const cs = appData.caseStudies[currentCaseStudyId];
+  if (!cs) return;
+
+  const uploadArea = document.getElementById('imageUploadArea');
+  if (!uploadArea) return;
+
+  const images = cs.data.imageData || [];
+  const emptySlots = 5 - images.length;
+
+  // Render existing images as thumbnails
+  let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-bottom:16px">';
+
+  images.forEach((img, idx) => {
+    const src = typeof img === 'string' ? img : img.src;
+    html += `
+      <div style="position:relative;border-radius:8px;overflow:hidden;background:var(--surface);aspect-ratio:1;border:1px solid var(--line);cursor:pointer;transition:transform 0.2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" onclick="viewImage(${idx})">
+        <img src="${esc(src)}" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none">
+        <button class="btn-icon" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:white;border:none;padding:4px;width:24px;height:24px;border-radius:4px;font-size:12px;z-index:10" onclick="event.stopPropagation();removeImage(${idx})" title="Remove image">✕</button>
+      </div>`;
+  });
+
+  html += '</div>';
+
+  // Render drop zone if space available
+  if (emptySlots > 0) {
+    html += `
+      <div id="dropZone" style="border:2px dashed var(--line);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--bg-secondary)">
+        <div style="font-size:32px;margin-bottom:8px">📸</div>
+        <div style="font-weight:500;color:var(--text);margin-bottom:4px">Upload ${emptySlots} more image${emptySlots===1?'':'s'}</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Drag and drop or click to select</div>
+        <input type="file" id="imageFileInput" accept="image/*" style="display:none">
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('imageFileInput').click()" style="width:100%">Choose File</button>
+      </div>`;
+  }
+
+  uploadArea.innerHTML = html;
+
+  // Bind file input
+  const fileInput = document.getElementById('imageFileInput');
+  if (fileInput) {
+    fileInput.addEventListener('change', (e) => handleImageUpload(e.target.files[0]));
+  }
+
+  // Bind drop zone
+  const dropZone = document.getElementById('dropZone');
+  if (dropZone) {
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = 'var(--text)';
+      dropZone.style.background = 'var(--surface)';
+    });
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.style.borderColor = 'var(--line)';
+      dropZone.style.background = 'var(--bg-secondary)';
+    });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = 'var(--line)';
+      dropZone.style.background = 'var(--bg-secondary)';
+      if (e.dataTransfer.files[0]) {
+        handleImageUpload(e.dataTransfer.files[0]);
+      }
+    });
+  }
+}
+
+function handleImageUpload(file) {
+  if (!file) return;
+
+  const cs = appData.caseStudies[currentCaseStudyId];
+  if (!cs) return;
+
+  if (!file.type.startsWith('image/')) {
+    showToast({icon:'⚠️',title:'Invalid file',desc:'Please upload an image (PNG, JPG, SVG, etc)'});
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    if (!cs.data.imageData) cs.data.imageData = [];
+    if (cs.data.imageData.length >= 5) {
+      showToast({icon:'ℹ️',title:'Max images reached',desc:'You can upload up to 5 images'});
+      return;
+    }
+    cs.data.imageData.push({src: event.target.result, alt: `Image ${cs.data.imageData.length + 1}`});
+    cs.updatedAt = Date.now();
+    markDirty();
+    renderImageUploadArea();
+    showToast({icon:'📸',title:'Image added!',desc:`${cs.data.imageData.length} of 5 images`});
+  };
+  reader.onerror = () => {
+    showToast({icon:'⚠️',title:'Upload failed',desc:'Could not read file'});
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeImage(idx) {
+  const cs = appData.caseStudies[currentCaseStudyId];
+  if (!cs) return;
+  cs.data.imageData?.splice(idx, 1);
+  cs.updatedAt = Date.now();
+  markDirty();
+  renderImageUploadArea();
+  showToast({icon:'🗑️',title:'Image removed',desc:'The image has been deleted'});
+}
+
+function bindCaseStudyFields() {
+  const cs = appData.caseStudies[currentCaseStudyId];
+  if (!cs) return;
+
+  const fieldMap = {
+    'cs_title': 'title',
+    'cs_subtitle': 'subtitle',
+    'cs_year': 'year',
+    'cs_role': 'role',
+    'cs_summary': 'summary',
+    'cs_services': 'services',
+    'cs_img1': 'imageData.0',
+    'cs_img2': 'imageData.1',
+    'cs_problem': 'sections.problem.statement',
+    'cs_bizCtx': 'sections.problem.bizCtx',
+    'cs_constraints': 'sections.problem.constraints',
+    'cs_contribSummary': 'sections.contribution.summary',
+    'cs_contributions': 'sections.contribution.contributions',
+    'cs_collaboration': 'sections.contribution.collaboration',
+    'cs_methods': 'sections.insight.methods',
+    'cs_findings': 'sections.insight.findings',
+    'cs_decision': 'sections.insight.decision',
+    'cs_solution': 'sections.design.solution',
+    'cs_flows': 'sections.design.flows',
+    'cs_annotations': 'sections.design.annotations',
+    'cs_shipped': 'sections.outcome.shipped',
+    'cs_measures': 'sections.outcome.measures',
+    'cs_learnings': 'sections.outcome.learnings',
+  };
+
+  // Findings are stored as [{finding, evidence, implication}]; edited as
+  // "Finding :: Evidence :: Implication" lines. Methods/services as one-per-line.
+  const FINDINGS_PATH = 'sections.insight.findings';
+  const LINE_ARRAY_PATHS = ['services', 'sections.insight.methods', 'sections.contribution.contributions'];
+
+  Object.entries(fieldMap).forEach(([fieldId, path]) => {
+    const el = document.getElementById(fieldId);
+    if (!el) return;
+
+    // Load current value
+    let val = getNestedValue(cs.data, path);
+
+    if (path === FINDINGS_PATH && Array.isArray(val)) {
+      val = val.map(f => typeof f === 'string' ? f
+        : [f.finding, f.evidence, f.implication].filter(Boolean).join(' :: ')).join('\n');
+    } else if (Array.isArray(val)) {
+      val = val.join('\n');
+    }
+
+    el.value = val || '';
+
+    // Save on change
+    el.addEventListener('input', () => {
+      let saveVal = el.value;
+
+      if (path === FINDINGS_PATH) {
+        saveVal = saveVal.split('\n').map(s=>s.trim()).filter(Boolean).map(line => {
+          const parts = line.split('::').map(p=>p.trim());
+          return { finding: parts[0]||'', evidence: parts[1]||'', implication: parts[2]||'' };
+        });
+      } else if (LINE_ARRAY_PATHS.includes(path)) {
+        saveVal = saveVal.split('\n').map(s=>s.trim()).filter(Boolean);
+      }
+
+      setNestedValue(cs.data, path, saveVal);
+      cs.updatedAt = Date.now();
+      markDirty();
+      document.getElementById('csSaveBadge').textContent = 'Saving…';
+      setTimeout(() => document.getElementById('csSaveBadge').textContent = 'Saved', 1000);
+    });
+  });
+
+  // Handle tags
+  const tagsInput = document.getElementById('csTagsReal');
+  if (tagsInput) {
+    tagsInput.value = (cs.data?.tags||[]).join(', ');
+    tagsInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const tags = tagsInput.value.split(',').map(t=>t.trim()).filter(Boolean);
+        cs.data.tags = tags;
+        tagsInput.value = tags.join(', ');
+        cs.updatedAt = Date.now();
+        markDirty();
+      }
+    });
+  }
+
+}
+
+function getNestedValue(obj, path) {
+  return path.split('.').reduce((o,k) => o?.[k], obj);
+}
+
+function setNestedValue(obj, path, val) {
+  const parts = path.split('.');
+  let cur = obj;
+  for (let i=0;i<parts.length-1;i++) {
+    if (typeof cur[parts[i]]!=='object'||cur[parts[i]]===null) cur[parts[i]]={};
+    cur = cur[parts[i]];
+  }
+  cur[parts[parts.length-1]] = val;
+}
+
+function bindAll() {
+  BINDINGS.forEach(([id,path])=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.value=g(path);
+    if(el.tagName==='TEXTAREA'){
+      autoResize(el);
+      el.addEventListener('input',()=>{s(path,el.value);autoResize(el);refreshDots()});
+    } else {
+      el.addEventListener('input',()=>{s(path,el.value);refreshDots()});
+    }
+  });
+  // Topbar title sync
+  const top=document.getElementById('topTitle');
+  const tf=document.getElementById('f_title');
+  top.value=g('meta.title');
+  top.addEventListener('input',()=>{s('meta.title',top.value);if(tf)tf.value=top.value;refreshDots()});
+  if(tf)tf.addEventListener('input',()=>{top.value=tf.value});
+  // Tags
+  renderTags();
+  // Audit toggle
+  const at=document.getElementById('auditToggle');
+  if(at){const en=g('audit.enabled',false);at.checked=en;document.getElementById('auditBody').style.display=en?'block':'none';}
+}
+
+function autoResize(el){el.style.height='auto';el.style.height=Math.max(el.scrollHeight,76)+'px'}
+
+// ── TAGS ──
+function renderTags(){
+  const wrap=document.getElementById('tagsReal')?.parentElement;
+  if(!wrap)return;
+  const real=document.getElementById('tagsReal');
+  const tags=g('meta.tags',[]);
+  wrap.querySelectorAll('.tag-chip').forEach(c=>c.remove());
+  tags.forEach(tag=>{
+    const chip=document.createElement('span');
+    chip.className='tag-chip';
+    chip.innerHTML=`${esc(tag)}<span class="tag-x" onclick="removeTag('${esc(tag)}')">×</span>`;
+    wrap.insertBefore(chip,real);
+  });
+  real.onkeydown=e=>{
+    if((e.key==='Enter'||e.key===',')&&real.value.trim()){
+      e.preventDefault();const tags=g('meta.tags',[]);const val=real.value.trim();
+      if(tags.length<6&&!tags.includes(val)){tags.push(val);s('meta.tags',tags);}
+      real.value='';renderTags();
+    } else if(e.key==='Backspace'&&!real.value){
+      const tags=g('meta.tags',[]);tags.pop();s('meta.tags',tags);renderTags();
+    }
+  };
+}
+function removeTag(tag){s('meta.tags',g('meta.tags',[]).filter(t=>t!==tag));renderTags()}
+
+// ── RESEARCH METHODS ──
+function toggleMethod(el){
+  const methods=g('research.methods',[]);
+  const pill=el.closest('.cb-pill');
+  if(el.checked){if(!methods.includes(el.value))methods.push(el.value);pill.classList.add('on');pill.querySelector('.cb-icon').textContent='✓';}
+  else{const idx=methods.indexOf(el.value);if(idx>-1)methods.splice(idx,1);pill.classList.remove('on');pill.querySelector('.cb-icon').textContent='+';}
+  s('research.methods',methods);
+}
+
+// ── REPEATABLES ──
+function addItem(type){
+  const cfg={
+    findings:{path:'research.findings',def:{finding:'',evidence:'',implication:''}},
+    principles:{path:'define.principles',def:{name:'',desc:''}},
+    decisions:{path:'ideate.decisions',def:{decision:'',rationale:'',alternative:''}},
+    auditFindings:{path:'audit.findings',def:{heuristic:'',severity:'',finding:'',rec:''}},
+  }[type];
+  const items=g(cfg.path,[]);items.push({...cfg.def});s(cfg.path,items);renderRepeatables();
+}
+function removeItem(type,idx){
+  const paths={findings:'research.findings',principles:'define.principles',decisions:'ideate.decisions',auditFindings:'audit.findings'};
+  const items=g(paths[type],[]);items.splice(idx,1);s(paths[type],items);renderRepeatables();
+}
+function updateItem(type,idx,key,val){
+  const paths={findings:'research.findings',principles:'define.principles',decisions:'ideate.decisions',auditFindings:'audit.findings'};
+  const items=g(paths[type],[]);if(items[idx])items[idx][key]=val;s(paths[type],items);
+}
+function renderRepeatables(){renderFindings();renderPrinciples();renderDecisions();renderAuditFindings()}
+
+function renderFindings(){
+  const el=document.getElementById('findingsList');if(!el)return;
+  el.innerHTML=g('research.findings',[]).map((item,i)=>`
+    <div class="rep-item"><div class="rep-header"><span class="rep-label">Finding ${i+1}</span><button class="rep-remove" onclick="removeItem('findings',${i})">×</button></div>
+    <div class="fg fg-1">
+      ${field('Finding','',`<input class="fi" value="${esc(item.finding)}" placeholder="e.g. Users don't understand what 'auto-save' means" oninput="updateItem('findings',${i},'finding',this.value)">`)}
+      ${field('Supporting Evidence','',`<textarea class="fta" placeholder="e.g. 4/6 users misidentified the toggle…" oninput="updateItem('findings',${i},'evidence',this.value)">${esc(item.evidence)}</textarea>`)}
+      ${field('Design Implication','',`<input class="fi" value="${esc(item.implication)}" placeholder="e.g. Rename to 'Save automatically each week'" oninput="updateItem('findings',${i},'implication',this.value)">`)}
+    </div></div>`).join('');
+}
+function renderPrinciples(){
+  const el=document.getElementById('principlesList');if(!el)return;
+  el.innerHTML=g('define.principles',[]).map((item,i)=>`
+    <div class="rep-item"><div class="rep-header"><span class="rep-label">Principle ${i+1}</span><button class="rep-remove" onclick="removeItem('principles',${i})">×</button></div>
+    <div class="fg fg-2">
+      ${field('Principle name','',`<input class="fi" value="${esc(item.name)}" placeholder="e.g. Calm over clever" oninput="updateItem('principles',${i},'name',this.value)">`)}
+      ${field('What this means in practice','',`<input class="fi" value="${esc(item.desc)}" placeholder="e.g. Prioritise clarity over impressive UI" oninput="updateItem('principles',${i},'desc',this.value)">`)}
+    </div></div>`).join('');
+}
+function renderDecisions(){
+  const el=document.getElementById('decisionsList');if(!el)return;
+  el.innerHTML=g('ideate.decisions',[]).map((item,i)=>`
+    <div class="rep-item"><div class="rep-header"><span class="rep-label">Decision ${i+1}</span><button class="rep-remove" onclick="removeItem('decisions',${i})">×</button></div>
+    <div class="fg fg-1">${field('Decision','',`<input class="fi" value="${esc(item.decision)}" placeholder="e.g. Goal-first onboarding instead of account-first" oninput="updateItem('decisions',${i},'decision',this.value)">`)}
+    </div>
+    <div class="fg fg-2">
+      ${field('Rationale','',`<textarea class="fta" placeholder="Why this approach?" oninput="updateItem('decisions',${i},'rationale',this.value)">${esc(item.rationale)}</textarea>`)}
+      ${field('Alternative Considered','',`<textarea class="fta" placeholder="What did you consider instead?" oninput="updateItem('decisions',${i},'alternative',this.value)">${esc(item.alternative)}</textarea>`)}
+    </div></div>`).join('');
+}
+function renderAuditFindings(){
+  const el=document.getElementById('auditFindingsList');if(!el)return;
+  el.innerHTML=g('audit.findings',[]).map((item,i)=>`
+    <div class="rep-item"><div class="rep-header"><span class="rep-label">Finding ${i+1}</span><button class="rep-remove" onclick="removeItem('auditFindings',${i})">×</button></div>
+    <div class="fg fg-2">
+      ${field('Heuristic / Category','',`<input class="fi" value="${esc(item.heuristic)}" placeholder="e.g. Error Prevention" oninput="updateItem('auditFindings',${i},'heuristic',this.value)">`)}
+      <div class="field"><label class="flabel">Severity</label>
+        <select class="sev-select" onchange="updateItem('auditFindings',${i},'severity',this.value)">
+          <option value=""${!item.severity?' selected':''}>— Select —</option>
+          <option value="Critical"${item.severity==='Critical'?' selected':''}>🔴 Critical</option>
+          <option value="High"${item.severity==='High'?' selected':''}>🟠 High</option>
+          <option value="Medium"${item.severity==='Medium'?' selected':''}>🟡 Medium</option>
+          <option value="Low"${item.severity==='Low'?' selected':''}>🟢 Low</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg fg-1">
+      ${field('Finding','',`<textarea class="fta" placeholder="Describe the issue…" oninput="updateItem('auditFindings',${i},'finding',this.value)">${esc(item.finding)}</textarea>`)}
+      ${field('Recommendation','',`<input class="fi" value="${esc(item.rec)}" placeholder="e.g. Replace modal confirm with inline validation" oninput="updateItem('auditFindings',${i},'rec',this.value)">`)}
+    </div></div>`).join('');
+}
+function toggleAudit(el){s('audit.enabled',el.checked);document.getElementById('auditBody').style.display=el.checked?'block':'none'}
+
+// ════════════════════════════════════════════════
+// EXPORT & PUBLISH
+// ════════════════════════════════════════════════
+async function buildCaseStudyHTML(projectId) {
+  projectId=projectId||currentProjectId;
+  const proj=appData.projects[projectId];
+  const d=proj?.data||{};
+  const m=d.meta||{},p=d.problem||{},r=d.research||{},def=d.define||{},
+        ide=d.ideate||{},des=d.design||{},aud=d.audit||{},
+        t=d.test||{},out=d.outcomes||{},ref=d.reflections||{};
+  const imgs=await getProjectImages(projectId);
+
+  function sec(num,title,body){if(!body.trim())return'';return`<section><div class="sec-num">${num}</div><h2>${title}</h2>${body}</section><hr>`}
+  function cards(items,fn){if(!items?.length)return'';return`<div class="cards">${items.map(fn).join('')}</div>`}
+
+  return`<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(m.title||'Case Study')}${m.subtitle?' — '+esc(m.subtitle):''} · ${esc(cfg('identity.name'))}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black: #0a0a0a;
+  --white: #f5f3ef;
+  --mid: #8a8680;
+  --line: rgba(10,10,10,0.12);
+  --pad: clamp(1.5rem, 5vw, 3.5rem);
+}
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--white);
+  color: var(--black);
+  line-height: 2;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle grain overlay (matches portfolio) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.038;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px;
+  mix-blend-mode: multiply;
+}
+
+.wrap {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 6vw, 5rem) var(--pad) clamp(4rem, 8vw, 7rem);
+}
+
+/* ── Top nav (back to portfolio) ── */
+.case-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: clamp(2.5rem, 5vw, 4rem);
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  border-bottom: 1px solid var(--line);
+}
+.case-nav-logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 200;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--black);
+  text-decoration: none;
+}
+.case-nav-back {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--black);
+  opacity: 0.55;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+.case-nav-back:hover { opacity: 1; }
+
+/* ── Cover tags ── */
+.cover-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+.ctag {
+  font-size: 0.55rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mid);
+  border: 1px solid var(--line);
+  padding: 0.3rem 0.7rem;
+  background: transparent;
+}
+
+/* ── Title + subtitle ── */
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(48px, 7vw, 96px);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  margin-bottom: 0.6rem;
+  color: var(--black);
+}
+.subtitle {
+  font-family: 'Syne', sans-serif;
+  font-style: italic;
+  font-size: clamp(22px, 3vw, 36px);
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--mid);
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+/* ── Meta grid ── */
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  background: transparent;
+  border-radius: 0;
+  overflow: visible;
+  gap: 0;
+}
+.meta-cell {
+  background: transparent;
+  padding: 1.2rem 1.4rem 1.2rem 0;
+  border-right: 1px solid var(--line);
+}
+.meta-cell:last-child { border-right: none; padding-right: 0; }
+.meta-cell:not(:first-child) { padding-left: 1.4rem; }
+.meta-key {
+  font-size: 0.55rem;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 0.5rem;
+}
+.meta-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--black);
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+}
+
+/* ── Pitch + summary lead ── */
+.pitch {
+  font-family: 'Syne', sans-serif;
+  font-style: italic;
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 300;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  text-align: center;
+  color: var(--black);
+  max-width: 720px;
+  margin: 0 auto 2rem;
+  padding: 0 0.5rem;
+}
+.summary {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  line-height: 2;
+  color: var(--mid);
+  max-width: 720px;
+  margin: 0 auto clamp(3rem, 6vw, 4rem);
+  text-align: center;
+  padding: 0 0.5rem;
+}
+
+/* ── Image row ── */
+.img-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+}
+.img-row img {
+  aspect-ratio: 16/10;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  display: block;
+}
+.img-ph {
+  aspect-ratio: 16/10;
+  background: #e8e6e2;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-style: italic;
+  font-size: 1rem;
+  font-weight: 300;
+  color: rgba(10,10,10,0.18);
+  letter-spacing: -0.005em;
+}
+
+/* ── Section dividers ── */
+hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: clamp(3rem, 6vw, 5rem) 0;
+}
+section {
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+/* ── Section labels + headlines ── */
+.sec-num {
+  font-size: 0.55rem;
+  font-weight: 400;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.sec-num::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--mid);
+}
+h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(32px, 4.5vw, 56px);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: clamp(1.6rem, 3vw, 2.4rem);
+  color: var(--black);
+}
+h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--black);
+  margin: 2.5rem 0 0.8rem;
+  opacity: 0.75;
+}
+section > h3:first-of-type,
+section > .chips:first-child + h3,
+section .card + h3 { margin-top: 2.4rem; }
+section > *:first-child + h3,
+section > h3:first-child { margin-top: 0; }
+
+p {
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  line-height: 2;
+  color: var(--mid);
+  margin-bottom: 1rem;
+  max-width: 680px;
+}
+
+/* ── Method chips ── */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.6rem;
+}
+.chip {
+  font-size: 0.55rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mid);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  padding: 0.3rem 0.7rem;
+}
+
+/* ── Cards (findings, decisions, audit) ── */
+.cards {
+  display: flex;
+  flex-direction: column;
+  margin: 1.5rem 0 1.8rem;
+  gap: 0;
+}
+.card {
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  padding: 1.4rem 0;
+}
+.cards .card:last-child { border-bottom: 1px solid var(--line); }
+.card-lbl {
+  font-size: 0.5rem;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mid);
+  opacity: 0.6;
+  margin-bottom: 0.5rem;
+}
+.card strong {
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(18px, 1.8vw, 22px);
+  font-weight: 300;
+  letter-spacing: -0.005em;
+  color: var(--black);
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+.card p {
+  font-size: 0.65rem;
+  line-height: 1.85;
+  margin-bottom: 0.4rem;
+}
+.card em {
+  font-style: italic;
+  font-size: 0.65rem;
+  color: var(--mid);
+  letter-spacing: 0.04em;
+}
+
+/* ── Severity badges ── */
+.sev {
+  display: inline-block;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  margin-left: 0.6rem;
+  border: 1px solid currentColor;
+  border-radius: 0;
+  background: transparent;
+  vertical-align: middle;
+}
+.sev-c { color: #b94a48; }
+.sev-h { color: #c97a36; }
+.sev-m { color: #a18a2a; }
+.sev-l { color: #5a8a5a; }
+
+/* ── Principle list ── */
+.principle-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 0;
+}
+.principle-row:first-of-type { border-top: 1px solid var(--line); }
+.p-name {
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--black);
+}
+.p-desc {
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  color: var(--mid);
+  line-height: 1.7;
+}
+
+/* ── Quotes ── */
+blockquote {
+  font-family: 'Syne', sans-serif;
+  font-style: italic;
+  font-size: clamp(16px, 1.5vw, 20px);
+  font-weight: 300;
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+  color: var(--black);
+  padding: 0.6rem 0 0.6rem 1.4rem;
+  margin: 1.2rem 0;
+  border-left: 1px solid var(--mid);
+  border-radius: 0;
+  background: transparent;
+  max-width: 680px;
+}
+
+/* ── Footer ── */
+.case-footer {
+  margin-top: clamp(4rem, 8vw, 6rem);
+  padding-top: clamp(2.5rem, 5vw, 4rem);
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.case-footer-copy {
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mid);
+  opacity: 0.55;
+}
+.case-footer-back {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--black);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s ease;
+}
+.case-footer-back:hover { opacity: 0.55; }
+
+/* ── Image lightbox ── */
+.img-row img {
+  cursor: zoom-in;
+  transition: opacity 0.2s ease;
+}
+.img-row img:hover { opacity: 0.88; }
+.lightbox {
+  position: fixed; inset: 0;
+  background: rgba(10,10,10,0.96);
+  z-index: 1000; display: none;
+  align-items: center; justify-content: center;
+  padding: clamp(2rem, 5vw, 4rem);
+  cursor: zoom-out;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.lightbox.open { display: flex; }
+.lightbox-img {
+  max-width: 100%; max-height: 88vh;
+  object-fit: contain;
+  cursor: default;
+  animation: lbZoom 0.28s ease;
+  display: block;
+}
+@keyframes lbZoom {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.lightbox-close {
+  position: absolute;
+  top: clamp(1.2rem, 3vw, 2.2rem);
+  right: clamp(1.2rem, 3vw, 2.2rem);
+  width: 44px; height: 44px;
+  background: transparent;
+  border: 1px solid rgba(245,243,239,0.35);
+  color: #f5f3ef;
+  font-size: 22px; line-height: 1;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 0;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.lightbox-close:hover {
+  background: #f5f3ef;
+  color: #0a0a0a;
+  border-color: #f5f3ef;
+}
+.lightbox-caption {
+  position: absolute;
+  bottom: clamp(1.2rem, 3vw, 2.2rem);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(245,243,239,0.7);
+  text-align: center;
+  max-width: 80vw;
+}
+.lightbox-counter {
+  position: absolute;
+  top: clamp(1.2rem, 3vw, 2.2rem);
+  left: clamp(1.2rem, 3vw, 2.2rem);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(245,243,239,0.55);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .meta-grid { grid-template-columns: 1fr 1fr; }
+  .meta-cell { padding: 1rem 1rem 1rem 0; }
+  .meta-cell:nth-child(2) { border-right: none; padding-right: 0; }
+  .meta-cell:nth-child(3),
+  .meta-cell:nth-child(4) {
+    border-top: 1px solid var(--line);
+    padding-top: 1rem;
+  }
+  .meta-cell:nth-child(3) { padding-left: 0; }
+  .img-row { grid-template-columns: 1fr; gap: 0.6rem; }
+  .pitch, .summary { text-align: left; padding: 0; }
+  h1 { font-size: clamp(36px, 9vw, 56px); }
+  .subtitle { font-size: clamp(18px, 5vw, 24px); }
+  h2 { font-size: clamp(26px, 6vw, 38px); }
+  .case-footer { flex-direction: column; align-items: flex-start; }
+}
+</style></head><body><div class="wrap">
+<div class="case-nav">
+  <a class="case-nav-logo" href="../portfolio.html">${esc(cfg('identity.nameSpaced'))}</a>
+  <a class="case-nav-back" href="../portfolio.html">${esc(cfg('nav.caseStudyBack'))}</a>
+</div>
+<div class="cover-tags">${(m.tags||[]).map(t=>`<span class="ctag">${esc(t)}</span>`).join('')}${m.year?`<span class="ctag">${esc(m.year)}</span>`:''}</div>
+<h1>${esc(m.title||'Project Title')}</h1>
+${m.subtitle?`<div class="subtitle">${esc(m.subtitle)}</div>`:''}
+<div class="meta-grid">
+  <div class="meta-cell"><div class="meta-key">Client</div><div class="meta-val">${esc(m.client||'—')}</div></div>
+  <div class="meta-cell"><div class="meta-key">Type</div><div class="meta-val">${esc(m.type||'—')}</div></div>
+  <div class="meta-cell"><div class="meta-key">Duration</div><div class="meta-val">${esc(m.duration||'—')}</div></div>
+  <div class="meta-cell"><div class="meta-key">Role</div><div class="meta-val">${esc(m.role||'—')}</div></div>
+</div>
+${m.oneliner?`<p class="pitch">${esc(m.oneliner)}</p>`:''}
+${m.summary?`<p class="summary">${nl2br(esc(m.summary))}</p>`:''}
+${(()=>{const keys=Object.keys(imgs).map(Number).sort((a,b)=>a-b);return keys.length?`<div class="img-row">${keys.map(n=>`<img src="${imgs[n]}" alt="Key visual ${n}" style="aspect-ratio:16/10;object-fit:cover;border-radius:10px;width:100%">`).join('')}</div><hr>`:'';})()}
+${sec('01','Problem & Context',`${p.bizCtx?`<h3>Context</h3><p>${nl2br(esc(p.bizCtx))}</p>`:''}${p.statement?`<h3>Problem Statement</h3><p>${nl2br(esc(p.statement))}</p>`:''}${p.who?`<h3>Who Is Affected</h3><p>${nl2br(esc(p.who))}</p>`:''}${p.why?`<h3>Why It Matters</h3><p>${nl2br(esc(p.why))}</p>`:''}${p.constraints?`<h3>Constraints</h3><p>${nl2br(esc(p.constraints))}</p>`:''}`)}
+${sec('02','Research & Discovery',`${r.methods?.length?`<div class="chips">${r.methods.map(m=>`<span class="chip">${esc(m)}</span>`).join('')}</div>`:''}${r.goals?`<h3>Research Goals</h3><p>${nl2br(esc(r.goals))}</p>`:''}${cards(r.findings,(f,i)=>`<div class="card"><div class="card-lbl">Finding ${i+1}</div><strong>${esc(f.finding)}</strong>${f.evidence?`<p>${nl2br(esc(f.evidence))}</p>`:''}${f.implication?`<em>→ ${esc(f.implication)}</em>`:''}</div>`)}${r.synthesis?`<h3>Synthesis</h3><p>${nl2br(esc(r.synthesis))}</p>`:''}`)}
+${sec('03','Define & Frame',`${def.hmw?`<div class="card"><div class="card-lbl">How Might We…</div><strong style="font-size:18px">${esc(def.hmw)}</strong></div>`:''}${def.coreNeed?`<h3>Core User Need</h3><p>${nl2br(esc(def.coreNeed))}</p>`:''}${def.principles?.length?`<h3>Design Principles</h3>${def.principles.map(pp=>`<div class="principle-row"><span class="p-name">${esc(pp.name)}</span>${pp.desc?`<span class="p-desc">— ${esc(pp.desc)}</span>`:''}</div>`).join('')}`:''}${def.successMetrics?`<h3>Success Metrics</h3><p>${nl2br(esc(def.successMetrics))}</p>`:''}${def.outOfScope?`<h3>Out of Scope</h3><p>${nl2br(esc(def.outOfScope))}</p>`:''}`)}
+${sec('04','Ideate & Explore',`${ide.concepts?`<h3>Concepts Explored</h3><p>${nl2br(esc(ide.concepts))}</p>`:''}${cards(ide.decisions,(dd,i)=>`<div class="card"><div class="card-lbl">Decision ${i+1}</div><strong>${esc(dd.decision)}</strong>${dd.rationale?`<p>${nl2br(esc(dd.rationale))}</p>`:''}${dd.alternative?`<em>Alternative: ${esc(dd.alternative)}</em>`:''}</div>`)}`)}
+${sec('05','Design & Prototype',`${des.solution?`<h3>Solution Overview</h3><p>${nl2br(esc(des.solution))}</p>`:''}${des.flows?`<h3>Key User Flows</h3><p>${nl2br(esc(des.flows))}</p>`:''}${des.annotations?`<h3>Design Decisions</h3><p>${nl2br(esc(des.annotations))}</p>`:''}${des.protoNotes?`<h3>Prototype Notes</h3><p>${nl2br(esc(des.protoNotes))}</p>`:''}`)}
+${aud.enabled?sec('06','Audit',`${aud.scope?`<h3>Scope</h3><p>${nl2br(esc(aud.scope))}</p>`:''}${cards(aud.findings,(f,i)=>{const sm={'Critical':'sev-c','High':'sev-h','Medium':'sev-m','Low':'sev-l'};return`<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><strong style="display:inline">${esc(f.heuristic||'Finding '+(i+1))}</strong>${f.severity?`<span class="sev ${sm[f.severity]||''}">${esc(f.severity)}</span>`:''}</div>${f.finding?`<p>${nl2br(esc(f.finding))}</p>`:''}${f.rec?`<em>Rec: ${esc(f.rec)}</em>`:''}</div>`})}${aud.beforeAfter?`<h3>Before → After</h3><p>${nl2br(esc(aud.beforeAfter))}</p>`:''}`): ''}
+${sec('07','Test & Validate',`${t.method?`<h3>Methodology</h3><p>${nl2br(esc(t.method))}</p>`:''}${t.participants?`<h3>Participants</h3><p>${nl2br(esc(t.participants))}</p>`:''}${t.insights?`<h3>Key Insights</h3><p>${nl2br(esc(t.insights))}</p>`:''}${t.iterations?`<h3>Iterations Made</h3><p>${nl2br(esc(t.iterations))}</p>`:''}`)}
+${sec('08','Outcomes & Impact',`${out.shipped?`<h3>What Shipped</h3><p>${nl2br(esc(out.shipped))}</p>`:''}${out.metrics?`<h3>Metrics</h3><p>${nl2br(esc(out.metrics))}</p>`:''}${out.qualFeedback?`<h3>Qualitative Feedback</h3>${out.qualFeedback.split('\n').filter(l=>l.trim()).map(l=>`<blockquote>${esc(l)}</blockquote>`).join('')}`:''}${out.timeline?`<h3>Timeline</h3><p>${nl2br(esc(out.timeline))}</p>`:''}`)}
+${sec('09','Reflections',`${ref.worked?`<h3>What Worked Well</h3><p>${nl2br(esc(ref.worked))}</p>`:''}${ref.diff?`<h3>What I'd Do Differently</h3><p>${nl2br(esc(ref.diff))}</p>`:''}${ref.learnings?`<h3>Key Learnings</h3><p>${nl2br(esc(ref.learnings))}</p>`:''}${ref.next?`<h3>Next Steps</h3><p>${nl2br(esc(ref.next))}</p>`:''}`)}
+<div class="case-footer">
+  <span class="case-footer-copy">© ${esc(cfg('identity.copyrightYear'))} ${esc(cfg('identity.copyrightOwner'))} · Case study</span>
+  <a class="case-footer-back" href="../portfolio.html">← Back to portfolio</a>
+</div>
+</div>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer" aria-hidden="true">
+  <span class="lightbox-counter" id="lightboxCounter"></span>
+  <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Close image">×</button>
+  <img class="lightbox-img" id="lightboxImg" alt="">
+  <div class="lightbox-caption" id="lightboxCaption"></div>
+</div>
+<script>
+(function(){
+  const lb = document.getElementById('lightbox');
+  if (!lb) return;
+  const lbImg = document.getElementById('lightboxImg');
+  const lbCap = document.getElementById('lightboxCaption');
+  const lbCount = document.getElementById('lightboxCounter');
+  const lbClose = document.getElementById('lightboxClose');
+  // Collect all clickable images (from .img-row only — avoids the case-nav logo etc.)
+  const imgs = Array.from(document.querySelectorAll('.img-row img'));
+  let currentIdx = -1;
+
+  function openAt(idx) {
+    if (idx < 0 || idx >= imgs.length) return;
+    currentIdx = idx;
+    const img = imgs[idx];
+    lbImg.src = img.currentSrc || img.src;
+    lbImg.alt = img.alt || '';
+    lbCap.textContent = img.alt || '';
+    lbCount.textContent = imgs.length > 1 ? (idx + 1) + ' / ' + imgs.length : '';
+    lb.classList.add('open');
+    lb.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    lbClose.focus();
+  }
+  function close() {
+    lb.classList.remove('open');
+    lb.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    // Restore focus to the image we opened from
+    if (currentIdx > -1 && imgs[currentIdx]) imgs[currentIdx].focus();
+    setTimeout(function(){ lbImg.src = ''; }, 280);
+  }
+  function next(delta) {
+    if (currentIdx < 0) return;
+    const n = (currentIdx + delta + imgs.length) % imgs.length;
+    openAt(n);
+  }
+
+  imgs.forEach(function(img, i){
+    img.style.cursor = 'zoom-in';
+    img.tabIndex = 0;
+    img.addEventListener('click', function(){ openAt(i); });
+    img.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAt(i); }
+    });
+  });
+
+  lbClose.addEventListener('click', function(e){ e.stopPropagation(); close(); });
+  // Click anywhere in the lightbox except the image closes it
+  lb.addEventListener('click', function(e){
+    if (e.target !== lbImg) close();
+  });
+  document.addEventListener('keydown', function(e){
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowRight') next(1);
+    else if (e.key === 'ArrowLeft')  next(-1);
+  });
+})();
+<\/script>
+</body></html>`;
+}
+
+function exportJSON() {
+  const proj=appData.projects[currentProjectId];
+  const blob=new Blob([JSON.stringify(proj?.data||{},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=(g('meta.title','project')||'project').toLowerCase().replace(/\s+/g,'-')+'-design-doc.json';
+  a.click();URL.revokeObjectURL(url);
+}
+async function exportCaseStudy(){
+  const html=await buildCaseStudyHTML();
+  const m=appData.projects[currentProjectId]?.data?.meta||{};
+  const filename=(m.title||'project').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-case-study.html';
+  try{
+    if('showDirectoryPicker' in window){
+      const dir=await getCaseStudiesDir();
+      await writeToCaseStudiesDir(dir,filename,html);
+      showToast({icon:'💾',title:'Saved to case-studies folder',desc:filename});
+    } else {
+      // Fallback for browsers without File System Access API
+      const blob=new Blob([html],{type:'text/html'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url;a.download=filename;
+      a.click();URL.revokeObjectURL(url);
+    }
+  } catch(e){
+    if(e.name!=='AbortError') showToast({icon:'⚠️',title:'Save failed',desc:e.message||'Could not save file.'});
+  }
+}
+// ── Image upload & IDB storage ──
+const MAX_IMAGES = 8;
+
+function imgCardHTML(n){
+  const isCover = n === 1;
+  return `<div class="img-card${isCover?' img-card-cover':''}" id="imgCard${n}"
+    onclick="document.getElementById('imgFile${n}').click()"
+    ondragover="dragOver(event,${n})" ondragleave="dragLeave(event,${n})" ondrop="dropImage(event,${n})">
+    ${isCover?'<div class="img-cover-badge">★ Cover</div>':''}
+    <img class="img-preview" id="imgPreview${n}" alt="">
+    <div class="img-zone" id="imgZone${n}">
+      <div class="img-zone-icon">🖼</div>
+      <div class="img-zone-label">${isCover?'Cover Image':'Image '+n}</div>
+    </div>
+    <div class="img-overlay" id="imgOverlay${n}" onclick="event.stopPropagation()">
+      <button class="img-action img-action-replace" onclick="document.getElementById('imgFile${n}').click()">Replace</button>
+      <button class="img-action img-action-remove" onclick="removeImage(${n})">Remove</button>
+    </div>
+    <div class="img-caption" id="imgCaption${n}">${isCover?'Cover Image':'Image '+n}</div>
+    <input type="file" id="imgFile${n}" accept="image/*" style="display:none" onchange="handleImageFile(${n},this)">
+  </div>`;
+}
+
+function addImageSlot(){
+  const proj=appData.projects[currentProjectId];
+  if(!proj)return;
+  if(!proj.data)proj.data={};
+  if(!proj.data.meta)proj.data.meta={};
+  const current=proj.data.meta.imageCount||3;
+  if(current>=MAX_IMAGES){showToast({icon:'ℹ️',title:'Max images reached',desc:'You can upload up to '+MAX_IMAGES+' images per project.'});return;}
+  const n=current+1;
+  proj.data.meta.imageCount=n;
+  markDirty();
+  const grid=document.getElementById('imgGrid');
+  if(grid){
+    const tmp=document.createElement('div');
+    tmp.innerHTML=imgCardHTML(n).trim();
+    grid.appendChild(tmp.firstElementChild);
+  }
+  idbGet('img_'+currentProjectId+'_'+n).then(rec=>{
+    if(rec?.dataUrl)renderImageSlot(n,rec.dataUrl,rec.name||'Image '+n);
+  }).catch(()=>{});
+}
+
+function compressImage(file,maxW,quality){
+  return new Promise((res,rej)=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        let w=img.width,h=img.height;
+        if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
+        const c=document.createElement('canvas');c.width=w;c.height=h;
+        const ctx=c.getContext('2d');ctx.drawImage(img,0,0,w,h);
+        res(c.toDataURL('image/jpeg',quality));
+      };
+      img.onerror=rej;
+      img.src=e.target.result;
+    };
+    reader.onerror=rej;
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderImageSlot(n,dataUrl,caption){
+  const preview=document.getElementById('imgPreview'+n);
+  const zone=document.getElementById('imgZone'+n);
+  const overlay=document.getElementById('imgOverlay'+n);
+  const cap=document.getElementById('imgCaption'+n);
+  if(!preview)return;
+  preview.src=dataUrl;
+  preview.classList.add('visible');
+  zone.classList.add('has-image');
+  overlay.classList.add('visible');
+  if(cap){cap.textContent=caption||'Image '+n;}
+}
+
+function clearImageSlot(n){
+  const preview=document.getElementById('imgPreview'+n);
+  const zone=document.getElementById('imgZone'+n);
+  const overlay=document.getElementById('imgOverlay'+n);
+  const cap=document.getElementById('imgCaption'+n);
+  if(!preview)return;
+  preview.src='';preview.classList.remove('visible');
+  zone.classList.remove('has-image');
+  overlay.classList.remove('visible');
+  if(cap){cap.textContent='Image '+n;}
+}
+
+async function handleImageFile(n,input){
+  const file=input.files?.[0];if(!file)return;
+  try{
+    const dataUrl=await compressImage(file,1600,0.82);
+    await idbPut('img_'+currentProjectId+'_'+n,{dataUrl,name:file.name});
+    renderImageSlot(n,dataUrl,file.name);
+    input.value='';
+    showToast({icon:'🖼',title:'Image '+n+' uploaded',desc:file.name});
+  }catch(e){showToast({icon:'⚠️',title:'Upload failed',desc:e.message||'Could not process image.'});}
+}
+
+async function removeImageFromDB(n){
+  await idbPut('img_'+currentProjectId+'_'+n,null);
+  clearImageSlot(n);
+}
+
+function dragOver(e,n){
+  e.preventDefault();e.stopPropagation();
+  document.getElementById('imgZone'+n)?.classList.add('drag-over');
+}
+function dragLeave(e,n){
+  e.preventDefault();e.stopPropagation();
+  document.getElementById('imgZone'+n)?.classList.remove('drag-over');
+}
+async function dropImage(e,n){
+  e.preventDefault();e.stopPropagation();
+  document.getElementById('imgZone'+n)?.classList.remove('drag-over');
+  const file=e.dataTransfer?.files?.[0];
+  if(!file||!file.type.startsWith('image/'))return;
+  try{
+    const dataUrl=await compressImage(file,1600,0.82);
+    await idbPut('img_'+currentProjectId+'_'+n,{dataUrl,name:file.name});
+    renderImageSlot(n,dataUrl,file.name);
+    showToast({icon:'🖼',title:'Image '+n+' added',desc:file.name});
+  }catch(e){showToast({icon:'⚠️',title:'Upload failed',desc:e.message||'Could not process image.'});}
+}
+
+async function loadImagesForProject(projectId){
+  const pid=projectId||currentProjectId;
+  const count=Math.max(3, appData.projects[pid]?.data?.meta?.imageCount||3);
+  for(let n=1;n<=count;n++){
+    clearImageSlot(n);
+    const rec=await idbGet('img_'+pid+'_'+n).catch(()=>null);
+    if(rec?.dataUrl)renderImageSlot(n,rec.dataUrl,rec.name||('Image '+n));
+  }
+}
+
+async function getProjectImages(projectId){
+  const imgs={};
+  for(let n=1;n<=MAX_IMAGES;n++){
+    const rec=await idbGet('img_'+(projectId||currentProjectId)+'_'+n).catch(()=>null);
+    if(rec?.dataUrl)imgs[n]=rec.dataUrl;
+  }
+  return imgs;
+}
+
+// ── IndexedDB helpers (stores the case-studies directory handle) ──
+const IDB_NAME='dpf_idb_v1', IDB_STORE='handles';
+function openIDB(){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open(IDB_NAME,1);
+    r.onupgradeneeded=e=>e.target.result.createObjectStore(IDB_STORE);
+    r.onsuccess=e=>res(e.target.result);
+    r.onerror=rej;
+  });
+}
+async function idbPut(key,val){const db=await openIDB();return new Promise((res,rej)=>{const tx=db.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).put(val,key);tx.oncomplete=res;tx.onerror=rej})}
+async function idbGet(key){const db=await openIDB();return new Promise((res,rej)=>{const tx=db.transaction(IDB_STORE,'readonly');const r=tx.objectStore(IDB_STORE).get(key);r.onsuccess=e=>res(e.target.result);r.onerror=rej})}
+
+// ── Get (or prompt for) the case-studies directory ──
+async function getCaseStudiesDir(){
+  let dir=await idbGet('caseStudiesDir').catch(()=>null);
+  if(!dir){
+    // First time — guide user to pick the case-studies folder
+    showToast({icon:'📁',title:'Select your case-studies folder',desc:'Pick Portfolio_2026 → case-studies in the dialog that opens.'});
+    await new Promise(r=>setTimeout(r,1200));
+    dir=await window.showDirectoryPicker({mode:'readwrite',startIn:'documents',id:'caseStudies'});
+    await idbPut('caseStudiesDir',dir);
+  } else {
+    const perm=await dir.queryPermission({mode:'readwrite'});
+    if(perm!=='granted'){
+      const req=await dir.requestPermission({mode:'readwrite'});
+      if(req!=='granted') throw new Error('Permission to write to the case-studies folder was denied.');
+    }
+  }
+  // Publish target is the 'published' folder the portfolio actually reads from.
+  // Be tolerant of which folder was picked/remembered: if the handle already IS
+  // the published folder, use it as-is; otherwise descend into published/. This
+  // prevents a doubly-nested published/published/ when 'published' was selected.
+  if (dir.name === 'published') return dir;
+  return await dir.getDirectoryHandle('published',{create:true});
+}
+
+// ── Write a file into the directory ──
+async function writeToCaseStudiesDir(dir,filename,content){
+  const fh=await dir.getFileHandle(filename,{create:true});
+  const w=await fh.createWritable();
+  await w.write(content);
+  await w.close();
+}
+
+// ── Build the portfolio index page ──
+function buildIndexHTML(){
+  const published=Object.values(appData.projects||{})
+    .filter(p=>p.status==='published')
+    .sort((a,b)=>(b.publishedAt||b.updatedAt||0)-(a.publishedAt||a.updatedAt||0));
+
+  const cards=published.map(p=>{
+    const m=p.data?.meta||{};
+    const fn=(m.title||'project').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-case-study.html';
+    const tags=(m.tags||[]).slice(0,3);
+    return `
+    <a class="card" href="${esc(fn)}">
+      <div class="card-top">
+        <div class="card-year">${esc(m.year||'')}</div>
+        <div class="card-tags">${tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
+      </div>
+      <div class="card-title">${esc(m.title||'Untitled')}</div>
+      ${m.subtitle?`<div class="card-sub">${esc(m.subtitle)}</div>`:''}
+      ${m.oneliner?`<div class="card-pitch">${esc(m.oneliner)}</div>`:''}
+      <div class="card-meta">
+        <span>${esc(m.type||m.role||'')}</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>`}).join('');
+
+  const empty=`<div class="empty"><div class="empty-icon">✦</div><p>No case studies published yet.</p></div>`;
+
+  return`<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(cfg('identity.name'))} — Case Studies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--black:#0a0a0a;--white:#f5f3ef;--mid:#8a8680;--line:rgba(10,10,10,0.12)}
+body{font-family:'Syne', sans-serif;background:var(--white);color:var(--black);line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh;letter-spacing:0.02em}
+body::before{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0.038;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:256px;mix-blend-mode:multiply}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1.5rem,5vw,3.5rem)}
+.site-header{padding:clamp(2.5rem,6vw,4rem) 0 clamp(2rem,4vw,3rem);border-bottom:1px solid var(--line);margin-bottom:clamp(3rem,5vw,4.5rem)}
+.site-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:clamp(2rem,4vw,3rem)}
+.site-logo{font-family:'Syne', sans-serif;font-size:0.85rem;font-weight:200;letter-spacing:0.22em;text-transform:uppercase;color:var(--black);text-decoration:none}
+.site-back{font-family:'Syne', sans-serif;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--black);opacity:0.55;text-decoration:none;transition:opacity 0.2s ease}
+.site-back:hover{opacity:1}
+.header-inner{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
+.header-label{font-family:'Syne', sans-serif;font-size:0.55rem;font-weight:400;letter-spacing:0.25em;text-transform:uppercase;color:var(--mid);margin-bottom:0.8rem;display:flex;align-items:center;gap:0.7rem}
+.header-label::before{content:'';width:24px;height:1px;background:var(--mid)}
+h1{font-family:'Syne', sans-serif;font-size:clamp(40px,6vw,72px);font-weight:300;letter-spacing:-0.02em;line-height:1.05;color:var(--black)}
+.header-count{font-family:'Syne', sans-serif;font-size:0.55rem;font-weight:400;letter-spacing:0.22em;text-transform:uppercase;color:var(--mid)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:0;padding-bottom:80px}
+.card{background:transparent;border:none;border-top:1px solid var(--line);padding:clamp(1.6rem,3vw,2.4rem) 4px clamp(1.6rem,3vw,2.4rem) 0;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:0;transition:padding-left 0.2s ease;cursor:pointer;position:relative}
+.card:hover{padding-left:0.6rem}
+.card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.card-year{font-family:'Syne', sans-serif;font-size:0.5rem;font-weight:400;letter-spacing:0.22em;text-transform:uppercase;color:var(--mid)}
+.card-tags{display:flex;gap:0.4rem;flex-wrap:wrap;justify-content:flex-end}
+.tag{background:transparent;color:var(--mid);border:1px solid var(--line);border-radius:0;padding:3px 8px;font-family:'Syne', sans-serif;font-size:0.5rem;font-weight:400;letter-spacing:0.18em;text-transform:uppercase}
+.card-title{font-family:'Syne', sans-serif;font-size:clamp(24px,2.5vw,32px);font-weight:300;color:var(--black);letter-spacing:-0.01em;margin-bottom:0.4rem;line-height:1.15}
+.card-sub{font-family:'Syne', sans-serif;font-style:italic;font-size:1.1rem;font-weight:300;color:var(--mid);margin-bottom:1rem;letter-spacing:-0.005em}
+.card-pitch{font-family:'Syne', sans-serif;font-size:0.65rem;letter-spacing:0.04em;color:var(--mid);line-height:1.85;margin-bottom:1.4rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-meta{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:1.2rem;border-top:1px solid var(--line);font-family:'Syne', sans-serif;font-size:0.5rem;font-weight:400;letter-spacing:0.18em;text-transform:uppercase;color:var(--mid)}
+.card-arrow{font-size:14px;color:var(--black);transition:transform 0.2s ease}
+.card:hover .card-arrow{transform:translateX(4px)}
+.empty{grid-column:1/-1;text-align:center;padding:96px 20px;color:var(--mid)}
+.empty-icon{font-size:32px;margin-bottom:1rem;opacity:0.25;color:var(--black)}
+.empty p{font-family:'Syne', sans-serif;font-style:italic;font-size:1.2rem;font-weight:300;color:var(--mid);max-width:420px;margin:0 auto;line-height:1.6}
+.site-footer{text-align:center;padding:clamp(2rem,4vw,3rem);font-family:'Syne', sans-serif;font-size:0.5rem;font-weight:400;letter-spacing:0.18em;text-transform:uppercase;color:var(--mid);opacity:0.55;border-top:1px solid var(--line);margin-top:auto}
+@media(max-width:600px){h1{font-size:clamp(32px,9vw,48px)}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="site-nav">
+    <a class="site-logo" href="../portfolio.html">${esc(cfg('identity.nameSpaced'))}</a>
+    <a class="site-back" href="../portfolio.html">${esc(cfg('nav.caseStudyBack'))}</a>
+  </div>
+</div>
+<div class="site-header"><div class="wrap"><div class="header-inner">
+  <div><div class="header-label">Portfolio</div><h1>Case Studies</h1></div>
+  <div class="header-count">${published.length} project${published.length===1?'':'s'}</div>
+</div></div></div>
+<div class="wrap"><div class="grid">${published.length?cards:empty}</div></div>
+<div class="site-footer">Generated · ${new Date().toLocaleDateString([],{year:'numeric',month:'long',day:'numeric'})}</div>
+</body></html>`;
+}
+
+// ════════════════════════════════════════════════
+// PORTFOLIO SETTINGS PANEL
+// ════════════════════════════════════════════════
+
+// Default seed — matches current config.json so first open feels populated
+const DEFAULT_PRINCIPLES = [
+  { titleLines:['Start in the data,','not the deck.'], italicLineIndex:1, description:'Every project begins with what\'s already known — analytics, support tickets, prior research, the team\'s own intuitions. The design problem isn\'t visible until I\'ve sat with the evidence.', label:'Discovery' },
+  { titleLines:['Make the small thing','first.'], italicLineIndex:1, description:'Strategy and shipped pixels are the same conversation. Earning trust to do bigger work means landing the smaller version cleanly first — a single screen, a single flow, a single decision that holds up in production.', label:'Method' },
+  { titleLines:['Detail is','the product.'], italicLineIndex:1, description:'A great interaction isn\'t the wireframe; it\'s the handful of micro-decisions made between Figma and the engineer\'s pull request. Most of the value lives in the last 10%.', label:'Craft' },
+  { titleLines:['Decide once,','document forever.'], italicLineIndex:1, description:'Design that scales is design that\'s traceable. Every recurring decision deserves a written rationale — not because anyone will read it, but because the act of writing it down is what makes it sturdy.', label:'Systems' }
+];
+
+function getPrinciples() {
+  return (appData.settings?.process?.principles) || null;
+}
+
+function principleCardHTML(p, i, total) {
+  const line1 = esc(p.titleLines?.[0] || '');
+  const line2 = esc(p.titleLines?.[1] || '');
+  const desc  = esc(p.description || '');
+  const label = esc(p.label || '');
+  const previewLine1 = p.titleLines?.[0] || '';
+  const previewLine2 = p.titleLines?.[1] ? `<br><em>${p.titleLines[1]}</em>` : '';
+  return `
+  <div class="principle-card" id="pcard_${i}">
+    <div class="principle-card-head">
+      <span class="principle-card-num">${String(i+1).padStart(2,'0')}</span>
+      <div class="principle-card-actions">
+        <button onclick="movePrinciple(${i},-1)" ${i===0?'disabled':''}>↑</button>
+        <button onclick="movePrinciple(${i},1)" ${i===total-1?'disabled':''}>↓</button>
+        <button class="btn-remove" onclick="removePrinciple(${i})">Remove</button>
+      </div>
+    </div>
+    <div class="fg fg-2">
+      ${field('Title — first line','e.g. Start in the data,',`<input class="ff" data-field="line1" value="${line1}" oninput="updatePreview(${i})" placeholder="e.g. Start in the data,">`)}
+      ${field('Title — second line (italic)','e.g. not the deck.',`<input class="ff" data-field="line2" value="${line2}" oninput="updatePreview(${i})" placeholder="e.g. not the deck.">`)}
+    </div>
+    ${field('Description','One or two sentences about what this means in practice',`<textarea class="ff" data-field="desc" rows="2" placeholder="e.g. Every project begins with what's already known…">${desc}</textarea>`)}
+    <div class="fg fg-2">
+      ${field('Label tag','Short category, e.g. Discovery',`<input class="ff" data-field="label" value="${label}" placeholder="e.g. Discovery">`)}
+    </div>
+    <div class="principle-preview" id="ppreview_${i}">${previewLine1}${previewLine2}</div>
+  </div>`;
+}
+
+function updatePreview(i) {
+  const card = document.getElementById('pcard_'+i);
+  const preview = document.getElementById('ppreview_'+i);
+  if (!card || !preview) return;
+  const l1 = card.querySelector('[data-field="line1"]')?.value || '';
+  const l2 = card.querySelector('[data-field="line2"]')?.value || '';
+  preview.innerHTML = esc(l1) + (l2 ? `<br><em>${esc(l2)}</em>` : '');
+}
+
+function collectPrinciples() {
+  return Array.from(document.querySelectorAll('.principle-card')).map(card => ({
+    titleLines: [
+      card.querySelector('[data-field="line1"]')?.value?.trim() || '',
+      card.querySelector('[data-field="line2"]')?.value?.trim() || ''
+    ].filter(Boolean),
+    italicLineIndex: 1,
+    description: card.querySelector('[data-field="desc"]')?.value?.trim() || '',
+    label: card.querySelector('[data-field="label"]')?.value?.trim() || ''
+  }));
+}
+
+function rerenderPrinciplesList(principles) {
+  const list = document.getElementById('principlesList');
+  if (!list) return;
+  list.innerHTML = principles.map((p,i) => principleCardHTML(p,i,principles.length)).join('');
+}
+
+function addPrincipleCard() {
+  const current = collectPrinciples();
+  if (current.length >= 8) { showToast({icon:'ℹ️',title:'Max 8 principles',desc:'That\'s plenty — quality over quantity.'}); return; }
+  current.push({ titleLines:['',''], italicLineIndex:1, description:'', label:'' });
+  rerenderPrinciplesList(current);
+  // Scroll to new card
+  const cards = document.querySelectorAll('.principle-card');
+  cards[cards.length-1]?.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function removePrinciple(idx) {
+  const current = collectPrinciples();
+  if (current.length <= 1) { showToast({icon:'ℹ️',title:'Need at least one',desc:'You must have at least one principle.'}); return; }
+  current.splice(idx, 1);
+  rerenderPrinciplesList(current);
+}
+
+function movePrinciple(idx, delta) {
+  const current = collectPrinciples();
+  const target = idx + delta;
+  if (target < 0 || target >= current.length) return;
+  [current[idx], current[target]] = [current[target], current[idx]];
+  rerenderPrinciplesList(current);
+}
+
+async function savePortfolioSettings() {
+  const principles = collectPrinciples();
+  if (!appData.settings) appData.settings = {};
+  if (!appData.settings.process) appData.settings.process = {};
+  appData.settings.process.principles = principles;
+  await saveEncrypted(); // persist in encrypted localStorage
+
+  const settingsJson = JSON.stringify({
+    process: { subtitleNoun:'principles', principles }
+  }, null, 2);
+
+  try {
+    if ('showDirectoryPicker' in window) {
+      const dir = await getCaseStudiesDir();
+      await writeToCaseStudiesDir(dir, 'portfolio-settings.json', settingsJson);
+      showToast({icon:'✅', title:'Portfolio updated', desc:'portfolio-settings.json saved. Reload your portfolio to see changes.'});
+    } else {
+      const blob = new Blob([settingsJson], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='portfolio-settings.json'; a.click();
+      showToast({icon:'↓', title:'Downloaded', desc:'Drop portfolio-settings.json into your case-studies/ folder.'});
+    }
+  } catch(e) {
+    if (e.name !== 'AbortError') showToast({icon:'⚠️', title:'Save failed', desc: e.message || 'Could not write file.'});
+  }
+}
+
+function renderSettingsPanel(body) {
+  const saved = getPrinciples();
+  // First visit: seed from defaults so the panel feels populated, not blank
+  const principles = saved && saved.length ? saved : DEFAULT_PRINCIPLES;
+
+  body.innerHTML = `
+    <div class="dash-section-head">
+      <div>
+        <div class="dash-section-title">Portfolio Settings</div>
+        <div class="dash-section-sub">Content that appears on your public portfolio site</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="savePortfolioSettings()">Save to portfolio →</button>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-title">Process Principles</div>
+      <div class="settings-group-desc">These appear in the Process section of your portfolio — authentic, specific statements about how you actually work. Two title lines: the second is always shown in italic. Aim for 3–5 principles.</div>
+      <div id="principlesList">
+        ${principles.map((p,i) => principleCardHTML(p,i,principles.length)).join('')}
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:16px" onclick="addPrincipleCard()">＋ Add principle</button>
+    </div>`;
+}
+
+// ── Build the machine-readable manifest portfolio.html consumes ──
+// Includes meta + all 9 section objects so the portfolio modal can render
+// a rich preview. Empty sections are sent as {} and the consumer skips them.
+async function buildManifest(){
+  const published=Object.values(appData.projects||{})
+    .filter(p=>p.status==='published')
+    .sort((a,b)=>(b.publishedAt||b.updatedAt||0)-(a.publishedAt||a.updatedAt||0));
+
+  return Promise.all(published.map(async p=>{
+    const d=p.data||{};
+    const m=d.meta||{};
+    const slug=(m.title||'project').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    // Fetch image data URLs from IndexedDB so the portfolio modal can render real images
+    const imgs=await getProjectImages(p.id).catch(()=>({}));
+    return {
+      slug,
+      href: slug+'-case-study.html',
+      // ── meta ──
+      title: m.title||'Untitled',
+      subtitle: m.subtitle||'',
+      year: m.year||'',
+      tags: m.tags||[],
+      client: m.client||'',
+      type: m.type||'',
+      duration: m.duration||'',
+      role: m.role||'',
+      oneliner: m.oneliner||'',
+      summary: m.summary||'',
+      img1: m.img1||'',
+      img2: m.img2||'',
+      img3: m.img3||'',
+      // ── image data URLs: index 0 = cover, rest = gallery ──
+      // Only non-empty slots, preserving order (slot 1 → [0], slot 2 → [1], …)
+      imageData: Object.keys(imgs).map(Number).sort((a,b)=>a-b).map(k=>imgs[k]),
+      // ── full case study sections ──
+      problem: d.problem||{},
+      research: d.research||{},
+      define: d.define||{},
+      ideate: d.ideate||{},
+      design: d.design||{},
+      audit: d.audit||{},
+      test: d.test||{},
+      outcomes: d.outcomes||{},
+      reflections: d.reflections||{},
+      publishedAt: p.publishedAt||p.updatedAt||Date.now()
+    };
+  }));
+}
+
+// ════════════════════════════════════════════════
+// CASE STUDY PUBLISHING (JSON)
+// ════════════════════════════════════════════════
+async function publishCaseStudyAsJson() {
+  const cs = appData.caseStudies[currentCaseStudyId];
+  if (!cs) return;
+  if (!cs.data?.title) { showToast({icon:'⚠️',title:'Title required',desc:'Please add a title before publishing.'}); return; }
+  if (!cs.data?.subtitle) { showToast({icon:'⚠️',title:'Subtitle required',desc:'Please add a subtitle before publishing.'}); return; }
+
+  try {
+    if ('showDirectoryPicker' in window) {
+      const dir = await getCaseStudiesDir();
+
+      // Build slug from title
+      const slug = (cs.data.title || 'case-study').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+      // Build case study JSON structure matching portfolio format
+      const caseStudyJson = {
+        slug,
+        title: cs.data.title,
+        subtitle: cs.data.subtitle,
+        year: cs.data.year || new Date().getFullYear(),
+        tags: cs.data.tags || [],
+        summary: cs.data.summary || '',
+        caseStudyUrl: `/case-studies/published/case-study-${slug}.json`,
+
+        services: cs.data.services || [],
+
+        role: cs.data.role || 'Product Designer',
+        sections: {
+          // Spread first so any extra sections (e.g. contribution / My Role &
+          // Contributions) are preserved; then guarantee the core four exist.
+          ...(cs.data.sections || {}),
+          problem: cs.data.sections?.problem || { statement: '', bizCtx: '', constraints: '' },
+          insight: cs.data.sections?.insight || { methods: [], findings: [], decision: '' },
+          design: cs.data.sections?.design || { solution: '', flows: '', annotations: '' },
+          outcome: cs.data.sections?.outcome || { shipped: '', measures: '', learnings: '' }
+        },
+
+        imageData: cs.data.imageData || [],
+        publishedAt: Date.now()
+      };
+
+      // Write case study JSON
+      const filename = `case-study-${slug}.json`;
+      await writeToCaseStudiesDir(dir, filename, JSON.stringify(caseStudyJson, null, 2));
+
+      // Mark as published
+      cs.status = 'published';
+      cs.publishedAt = Date.now();
+      cs.data.slug = slug;
+      markDirty();
+      await saveEncrypted();
+
+      // Regenerate projects.json
+      await generateProjectsJson(dir);
+
+      showToast({
+        icon: '🎉',
+        title: 'Published!',
+        desc: `"${filename}" saved to case-studies/published/. Portfolio will pick it up automatically.`
+      });
+
+      renderCaseStudyNav();
+
+    } else {
+      showToast({icon:'⚠️',title:'Browser not supported',desc:'Use Chrome/Edge for publishing. Or use the download option.'});
+    }
+  } catch (e) {
+    if (e.name !== 'AbortError') {
+      showToast({icon:'⚠️',title:'Error',desc:e.message});
+    }
+  }
+}
+
+async function generateProjectsJson(dir) {
+  const published = Object.values(appData.caseStudies || {})
+    .filter(cs => cs.status === 'published')
+    .sort((a,b) => (b.publishedAt||0) - (a.publishedAt||0))
+    .map(cs => {
+      const slug = cs.data.slug || (cs.data.title || 'case-study').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const firstImg = (cs.data.imageData || [])[0];
+      // A "coming soon" placeholder is not a real cover: omit it so the home grid
+      // falls back to the hero-word tile instead of showing a stand-in image.
+      const coverImage = (firstImg && typeof firstImg === 'object' && firstImg.placeholder)
+        ? undefined
+        : (firstImg ? (firstImg.src || firstImg) : undefined);
+      return {
+        slug,
+        title: cs.data.title,
+        subtitle: cs.data.subtitle,
+        year: cs.data.year,
+        tags: cs.data.tags,
+        summary: cs.data.summary,
+        caseStudyUrl: `/case-studies/published/case-study-${slug}.json`,
+        coverImage,
+        publishedAt: cs.publishedAt
+      };
+    });
+
+  const projectsJson = JSON.stringify(published, null, 2);
+  await writeToCaseStudiesDir(dir, 'projects.json', projectsJson);
+}
+
+async function importCaseStudy() {
+  try {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.multiple = true;
+    input.onchange = async (e) => {
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
+
+      let imported = 0;
+      for (const file of files) {
+        try {
+          const text = await file.text();
+          const json = JSON.parse(text);
+
+          if (!json.title) {
+            console.error(`${file.name}: No title found`);
+            continue;
+          }
+
+          // Create new case study from imported JSON
+          const id = 'cs_' + Math.random().toString(36).slice(2,10);
+          appData.caseStudies[id] = {
+            id,
+            status: 'draft',
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            publishedAt: null,
+            data: {
+              slug: json.slug,
+              title: json.title,
+              subtitle: json.subtitle,
+              year: json.year,
+              tags: json.tags || [],
+              summary: json.summary,
+              services: json.services || [],
+              sections: json.sections || {},
+              imageData: json.imageData || []
+            }
+          };
+          imported++;
+        } catch (err) {
+          console.error(`Failed to import ${file.name}:`, err.message);
+        }
+      }
+
+      if (imported > 0) {
+        markDirty();
+        renderDashboard();
+        showToast({
+          icon: '📥',
+          title: `Imported ${imported} case ${imported===1?'study':'studies'}!`,
+          desc: `Your case studies are now in the framework. Edit and republish as needed.`
+        });
+      } else {
+        showToast({icon:'⚠️',title:'Import failed',desc:'No valid JSON files found.'});
+      }
+    };
+    input.click();
+  } catch (e) {
+    showToast({icon:'⚠️',title:'Import failed',desc:e.message});
+  }
+}
+
+// ── Main publish function (for design process projects) ──
+async function publishCaseStudy(){
+  const html=await buildCaseStudyHTML();
+  const m=appData.projects[currentProjectId]?.data?.meta||{};
+  const filename=(m.title||'project').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-case-study.html';
+
+  try{
+    if('showDirectoryPicker' in window){
+      const dir=await getCaseStudiesDir();
+
+      // Save the case study
+      await writeToCaseStudiesDir(dir,filename,html);
+
+      // Mark project as published
+      if(currentProjectId&&appData.projects[currentProjectId]){
+        appData.projects[currentProjectId].status='published';
+        appData.projects[currentProjectId].publishedAt=Date.now();
+        markDirty();updateStatusBadge();
+      }
+
+      // Regenerate and save portfolio index + manifest
+      await saveEncrypted(); // flush before building so they reflect new status
+      const indexHtml=buildIndexHTML();
+      await writeToCaseStudiesDir(dir,'index.html',indexHtml);
+      const manifestJson=JSON.stringify(await buildManifest(),null,2);
+      await writeToCaseStudiesDir(dir,'manifest.json',manifestJson);
+
+      const previewUrl=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+      showToast({icon:'🎉',title:'Published!',desc:`"${filename}" + index.html + manifest.json saved. Portfolio will pick it up automatically.`,openUrl:previewUrl});
+
+    } else {
+      // Fallback: download
+      const blob=new Blob([html],{type:'text/html'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url;a.download=filename;a.click();
+      if(currentProjectId&&appData.projects[currentProjectId]){
+        appData.projects[currentProjectId].status='published';
+        appData.projects[currentProjectId].publishedAt=Date.now();
+        markDirty();updateStatusBadge();
+      }
+      const previewUrl=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+      showToast({icon:'🎉',title:'Case study downloaded!',desc:`Move "${filename}" to your case-studies folder.`,openUrl:previewUrl});
+    }
+  } catch(e){
+    if(e.name!=='AbortError') showToast({icon:'⚠️',title:'Cancelled',desc:'Nothing was saved.'});
+  }
+}
+
+// ════════════════════════════════════════════════
+// MODAL
+// ════════════════════════════════════════════════
+function showModal({title,desc,actions}){
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalDesc').textContent=desc;
+  document.getElementById('modalActions').innerHTML=actions.map(a=>`<button class="btn ${a.cls}" onclick="${a.fn}">${a.label}</button>`).join('');
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal(){document.getElementById('modalBg').classList.remove('open')}
+
+// ════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════
+let toastTimer;
+function showToast({icon='✅',title='',desc='',openUrl=null}){
+  const t=document.getElementById('toast');
+  document.getElementById('toastIcon').textContent=icon;
+  document.getElementById('toastTitle').textContent=title;
+  document.getElementById('toastDesc').textContent=desc;
+  const ob=document.getElementById('toastOpenBtn');
+  if(openUrl){ob.style.display='inline-flex';ob.onclick=()=>{window.open(openUrl,'_blank');closeToast()}}
+  else ob.style.display='none';
+  t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(closeToast,7000);
+}
+function closeToast(){document.getElementById('toast').classList.remove('show')}
+
+// ════════════════════════════════════════════════
+// KEYBOARD
+// ════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key==='s'){e.preventDefault();saveEncrypted()}
+  if(e.key==='Escape'){closeModal()}
+});
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+/* demo: no PIN gate — open straight onto the seeded case studies,
+   which is where the sample content lives (Projects is empty). */
+showView('dash');
+showDash('case-studies');
+</script>
+
+<script>
+/* Demo shim (post-app): nothing is persisted, so a reload always restores
+   the sample case studies and a visitor cannot lock themselves out. */
+(function () {
+  'use strict';
+  if (typeof window.saveEncrypted === 'function') {
+    window.saveEncrypted = async function () { /* no-op in the demo */ };
+  }
+  if (typeof window.lockApp === 'function') {
+    window.lockApp = function () { /* the demo has no PIN to lock behind */ };
+  }
+
+  /* Publishing writes real files. With showDirectoryPicker removed the app
+     falls back to downloading them, which in a demo means an unexpected file
+     plus instructions ("move this to your case-studies folder") that mean
+     nothing to a visitor. Replace those paths with an explanation instead. */
+  var PUBLISH_OFF = 'Publishing is switched off in this demo. In the real ' +
+    'editor this writes the case study straight into the portfolio folder, ' +
+    'and it appears on the live site.';
+  ['publishCaseStudy', 'publishCaseStudyAsJson', 'exportCaseStudy', 'exportJSON']
+    .forEach(function (fn) {
+      if (typeof window[fn] !== 'function') return;
+      window[fn] = async function () {
+        if (typeof window.showToast === 'function') {
+          window.showToast({ icon: '🌐', title: 'Demo mode', desc: PUBLISH_OFF });
+        } else {
+          alert(PUBLISH_OFF);
+        }
+      };
+    });
+
+  /* updateProgress() counts the filled inputs of whichever section is on
+     screen, but it is only called from the projects editor — so a fully
+     written case study still reads "0%". Re-run it after each case-study
+     render so the meter reflects what the visitor is actually looking at
+     (the published sample reads high, the draft reads low). */
+  ['openCaseStudy', 'goToCaseStudySection'].forEach(function (fn) {
+    var original = window[fn];
+    if (typeof original !== 'function' || typeof window.updateProgress !== 'function') return;
+    window[fn] = function () {
+      var result = original.apply(this, arguments);
+      try { window.updateProgress(); } catch (_) {}
+      return result;
+    };
+  });
+})();
+</script>
+
+<style>
+  .demo-badge {
+    position: fixed; left: 16px; bottom: 16px; z-index: 99999;
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px; border-radius: 999px;
+    background: rgba(20,20,22,.92); color: #fff;
+    font: 500 12px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    letter-spacing: .04em; text-transform: uppercase;
+    box-shadow: 0 4px 18px rgba(0,0,0,.22);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .demo-badge span { opacity: .62; text-transform: none; letter-spacing: .01em; }
+  .demo-badge a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 640px) {
+    .demo-badge { left: 10px; bottom: 10px; padding: 7px 11px; font-size: 11px; }
+    .demo-badge span { display: none; }
+  }
+</style>
+<div class="demo-badge" role="note">
+  Demo <span>&middot; sample case studies, nothing is saved &middot;
+  <a href="/">back to portfolio</a></span>
+</div>
+
+</body>
+</html>

@@ -29,6 +29,11 @@ log "Syncing public files from Portfolio_2026 ..."
 "$RSYNC" -a "$SRC/assets/" "$DST/assets/"
 # portfolio-config.json (identity/nav/about/contact) in case it was edited.
 "$RSYNC" -a "$SRC/portfolio-config.json" "$DST/portfolio-config.json"
+# The public Lab demos (/demo/curio/, /demo/framework/). These are generated
+# files — rebuild them with _internal/build-*-demo.py after changing Curio or
+# the framework, then run this script to publish. --delete so a demo removed
+# at source also disappears from the live site.
+"$RSYNC" -a --delete "$SRC/demo/" "$DST/demo/"
 # NOTE: index.html is intentionally NOT synced here — the deploy copy keeps the
 # one delta (Lab card links to the live framework). Re-sync it by hand on a
 # portfolio design change, preserving that link.

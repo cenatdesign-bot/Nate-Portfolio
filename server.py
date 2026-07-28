@@ -5,6 +5,7 @@ import hmac
 import os
 import sys
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from urllib.parse import unquote
 
 PORT = int(os.environ.get("PORT", 3458))
 IS_PRODUCTION = bool(os.environ.get("RAILWAY_ENVIRONMENT"))
@@ -29,6 +30,12 @@ REALM = "Nataly Cetre Portfolio"
 # Source/config files that should never be served to visitors. Matched by
 # basename; any dotfile is blocked too.
 BLOCKED_NAMES = {"server.py", "procfile", "readme.md", "deploy.sh"}
+
+# Public demo sandboxes (/demo/curio/, /demo/framework/). These are deliberately
+# exempt from BOTH gates so the Lab demos can be linked publicly while the
+# portfolio itself stays private. They are self-contained static pages with
+# dummy content only — no API keys, no real data, nothing that costs money.
+PUBLIC_PREFIX = "/demo/"
 
 # Always serve this script's own folder, regardless of launch cwd.
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -99,8 +106,33 @@ class Handler(SimpleHTTPRequestHandler):
         name = parts[-1].lower() if parts else ""
         return name in BLOCKED_NAMES
 
+    def _is_public_demo(self):
+        """True for the /demo/ sandboxes, which bypass both password gates."""
+        path = self.path.split("?", 1)[0].split("#", 1)[0]
+        # Unquote FIRST, then normalise away traversal, so neither
+        # /demo/../secret nor its percent-encoded twin /demo/%2e%2e/secret
+        # can ride the exemption out of the demo folder.
+        path = unquote(path)
+        parts = []
+        for part in path.split("/"):
+            if part in ("", "."):
+                continue
+            if part == "..":
+                if parts:
+                    parts.pop()
+                continue
+            parts.append(part)
+        clean = "/" + "/".join(parts)
+        return clean == PUBLIC_PREFIX.rstrip("/") or clean.startswith(PUBLIC_PREFIX)
+
     def _guard(self):
         # Returns True if the request was handled (blocked/unauthorized).
+        if self._is_public_demo():
+            # Still refuse dotfiles and source files inside /demo/.
+            if self._is_blocked():
+                self.send_error(404, "Not found")
+                return True
+            return False
         if AUTH_PASSWORD:
             # Whole-site gate (native Basic Auth prompt).
             if not self._authorized():

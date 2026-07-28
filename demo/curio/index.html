@@ -1,0 +1,4336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Curio — Personal Library (Demo)</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Interactive demo of Curio, a personal library app. Sample content only.">
+  <meta name="theme-color" content="#F7F5F1">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Curio">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@300;400&family=Italiana&display=swap" rel="stylesheet">
+
+  <style>
+    /* ─── RESET ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:    #F7F5F1;
+      --ink:   #1A1916;
+      --ink-2: #5C5A54;
+      --ink-3: #9E9B93;
+      --accent:#BF5B3F;
+      --border:#E6E2D8;
+      --card:  #EDEAE2;
+
+      --fd: 'Cormorant Garamond', Georgia, serif;
+      --fb: 'DM Sans', system-ui, sans-serif;
+      --fm: 'DM Mono', monospace;
+
+      --ease:   cubic-bezier(0.22, 1, 0.36, 1);
+      --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+      /* iOS safe areas: status bar / home indicator in standalone PWA mode */
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+
+      /* card-h is set per-page below so each page accounts for its own header height */
+    }
+
+    html, body {
+      font-family: var(--fb);
+      background: var(--bg);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* noise grain */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 9999;
+      pointer-events: none;
+      opacity: 0.022;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 160px 160px;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: calc(52px + var(--sat));
+      background: rgba(247,245,241,0.9);
+      backdrop-filter: blur(18px) saturate(1.4);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: var(--sat) 28px 0; gap: 0;
+    }
+
+    .n-logo {
+      font-family: var(--fd);
+      font-size: 20px; font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--ink); cursor: pointer;
+      margin-right: auto; user-select: none;
+      transition: opacity .2s;
+    }
+    .n-logo:hover { opacity: .55; }
+    .n-logo b { color: var(--accent); font-weight: 500; }
+
+    .n-links { display: flex; align-items: center; gap: 2px; }
+
+    .n-back {
+      display: none; align-items: center; gap: 5px;
+      font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--ink-3); background: none; border: none; cursor: pointer;
+      padding: 5px 10px; margin-right: 6px; transition: color .2s;
+    }
+    .n-back.show { display: flex; }
+    .n-back:hover { color: var(--ink); }
+    .n-back svg { width: 13px; height: 13px; }
+
+    .n-pill {
+      font-size: 11.5px; letter-spacing: .07em; text-transform: uppercase;
+      color: var(--ink-3); background: none; border: none;
+      cursor: pointer; padding: 5px 13px; border-radius: 100px;
+      transition: background .2s, color .2s; white-space: nowrap;
+    }
+    .n-pill:hover { background: var(--border); color: var(--ink); }
+    .n-pill.active { background: var(--ink); color: var(--bg); }
+
+    /* ─── PAGE SYSTEM ─── */
+    .page {
+      height: calc(var(--vh,1vh) * 100); padding-top: calc(52px + var(--sat));
+      position: absolute; top: 0; left: 0; right: 0;
+      opacity: 0; transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity .36s var(--ease), transform .36s var(--ease);
+    }
+    .page.active {
+      opacity: 1; transform: none;
+      pointer-events: all; position: relative;
+    }
+
+    /* ─── HOME ─── */
+    /* nav(52) + hero(~210) + section-top(12) + controls(60) + bottom-pad(40) = 374 */
+    #pg-home {
+      --card-h: min(320px, calc(var(--vh,1vh) * 100 - 374px));
+      --card-w: calc(var(--card-h) * 0.685);
+    }
+    #pg-home.active {
+      display: flex; flex-direction: column;
+    }
+    #home-cs {
+      flex: 1;
+      display: flex; flex-direction: column;
+      padding-bottom: 40px;
+    }
+    #home-cs .c-stage {
+      flex: 1;
+      height: auto;
+      max-height: 560px;
+    }
+
+    .home-hero {
+      text-align: center;
+      padding: 28px 24px 0;
+      flex-shrink: 0;
+    }
+    .home-eye {
+      font-family: var(--fm);
+      font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 12px;
+    }
+    .home-h1 {
+      font-family: var(--fd);
+      font-size: clamp(44px, 5.5vw, 76px);
+      font-weight: 300; line-height: 1;
+      letter-spacing: -.02em; color: var(--ink);
+      white-space: nowrap;
+      margin-bottom: 12px;
+    }
+    .home-h1 em { font-style: italic; color: var(--accent); }
+    .home-sub {
+      font-size: 14px; font-weight: 300;
+      color: var(--ink-2); max-width: 340px;
+      margin: 0 auto; line-height: 1.65;
+    }
+    .home-rule { width: 1px; height: 24px; background: var(--border); margin: 16px auto; }
+
+    /* Hover ring on side cards — signals they're clickable */
+    .c-card:not(.is-center):hover::before {
+      content: '';
+      position: absolute; inset: 0; z-index: 5; border-radius: 10px;
+      box-shadow: inset 0 0 0 2px rgba(26,25,22,0.18);
+      pointer-events: none;
+      transition: box-shadow .2s;
+    }
+    .c-card:not(.is-center) { cursor: pointer; }
+    .c-card:not(.is-center):hover { outline: none; }
+
+    /* ─── CAROUSEL SECTION ─── */
+    .carousel-section {
+      position: relative;
+      padding: 12px 0 0;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* soft edge fade so cards blend into the background naturally */
+    .carousel-section::before,
+    .carousel-section::after {
+      content: '';
+      position: absolute; top: 0; bottom: 80px; width: 14%; z-index: 12;
+      pointer-events: none;
+    }
+    .carousel-section::before {
+      left: 0;
+      background: linear-gradient(to right, var(--bg) 0%, transparent 100%);
+    }
+    .carousel-section::after {
+      right: 0;
+      background: linear-gradient(to left, var(--bg) 0%, transparent 100%);
+    }
+
+    .c-stage {
+      perspective: 1100px;
+      perspective-origin: 50% 46%;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .c-track {
+      position: relative;
+      width: 100%; height: 100%;
+      transform-style: preserve-3d;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ─── CARD — editorial postcard: picture mounted on paper, label beneath ─── */
+    .c-card {
+      position: absolute;
+      width: var(--card-w); height: var(--card-h);
+      border-radius: 10px; overflow: hidden;
+      cursor: pointer;
+      transition:
+        transform .48s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity   .48s cubic-bezier(0.22, 1, 0.36, 1),
+        filter    .48s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow .48s cubic-bezier(0.22, 1, 0.36, 1);
+      transform-origin: center center;
+      will-change: transform, opacity;
+      background: #FCFAF4;
+      border: 1px solid #EAE5D9;
+    }
+
+    /* image frame — inset with a paper margin, per-category tint behind */
+    .c-frame {
+      position: absolute; top: 9px; left: 9px; right: 9px;
+      height: calc(100% - 88px);
+      border-radius: 4px; overflow: hidden;
+      background: var(--tint, #E8E3D6);
+    }
+    .c-card-img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .6s var(--ease);
+    }
+    .c-card.is-center .c-card-img { transform: scale(1.02); }
+    .c-card:hover .c-card-img { transform: scale(1.05); }
+
+    /* fallback emoji (shows while image loads / when missing) */
+    .c-card-emoji {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 46px;
+      z-index: 0;
+    }
+
+    /* full-bleed illustrated cover (home categories) */
+    .c-cover { position: absolute; inset: 0; z-index: 1; }
+    .c-cover svg { width: 100%; height: 100%; display: block; }
+    .c-count-chip {
+      position: absolute; top: 12px; left: 12px; z-index: 4;
+      font-family: var(--fm); font-size: 8.5px; letter-spacing: .16em;
+      text-transform: uppercase;
+      padding: 4px 10px; border-radius: 100px;
+      background: rgba(252,250,244,.78); color: var(--ink);
+      backdrop-filter: blur(4px);
+      pointer-events: none;
+    }
+
+    /* gallery label beneath the picture */
+    .c-caption {
+      position: absolute; left: 10px; right: 10px; bottom: 7px;
+      height: 72px; z-index: 3;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; gap: 3px;
+      overflow: hidden;
+    }
+
+    .c-cap-eye {
+      font-family: var(--fm);
+      font-size: 8.5px; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--tint-ink, var(--accent));
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 100%;
+      display: flex; align-items: center; gap: 5px; justify-content: center;
+    }
+
+    .c-cap-title {
+      font-family: var(--fd);
+      font-size: 17px; font-weight: 500;
+      color: var(--ink); line-height: 1.1;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .c-cap-meta {
+      font-family: var(--fm);
+      font-size: 9px; color: var(--ink-3);
+      letter-spacing: .05em;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    /* "open" badge on hover for center card — bottom of the frame */
+    .c-badge {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      top: 14px; z-index: 4;
+      background: rgba(26,25,22,0.72);
+      backdrop-filter: blur(8px);
+      color: rgba(252,250,244,0.95);
+      font-family: var(--fm); font-size: 9px; letter-spacing: .14em;
+      text-transform: uppercase; padding: 4px 11px;
+      border-radius: 100px;
+      opacity: 0; transition: opacity .22s;
+      pointer-events: none;
+    }
+    .c-card.is-center:hover .c-badge { opacity: 1; }
+
+    /* favourite heart — chip pinned to the picture's corner */
+    .c-cap-row { display: flex; align-items: center; gap: 6px; justify-content: center; max-width: 100%; }
+    .c-cap-row .c-cap-title { flex: 0 1 auto; }
+    .c-heart {
+      position: absolute; top: 16px; right: 16px; z-index: 4;
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(252,250,244,.85);
+      backdrop-filter: blur(4px);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink-3);
+      box-shadow: 0 1px 5px rgba(26,25,22,.14);
+      transition: color .2s, transform .18s;
+    }
+    .c-heart svg { width: 13px; height: 13px; display: block; }
+    .c-heart:hover { color: var(--ink); transform: scale(1.12); }
+    .c-heart.active { color: #C44556; }
+    .c-heart.active:hover { color: #A93645; transform: scale(1.12); }
+
+    /* status badge inside card eye row */
+    .c-status-badge {
+      display: inline-block;
+      font-family: var(--fm); font-size: 8px; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--bg);
+      background: var(--ink);
+      padding: 1.5px 7px; border-radius: 100px;
+    }
+
+    /* delete button — top-left chip on the picture */
+    .c-delete {
+      position: absolute; top: 16px; left: 16px; z-index: 4;
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(252,250,244,.85);
+      backdrop-filter: blur(4px);
+      border: none;
+      color: var(--ink-2);
+      opacity: 0; transition: opacity .22s, background .2s, color .2s;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 5px rgba(26,25,22,.14);
+    }
+    .c-delete svg { width: 11px; height: 11px; }
+    .c-card.is-center:hover .c-delete { opacity: 1; }
+    .c-delete:hover { background: var(--accent); color: #fff; }
+    @media (max-width: 600px) {
+      .c-card.is-center .c-delete { opacity: 0.65; }
+    }
+
+    /* ─── CONTROLS ─── */
+    .c-controls {
+      display: flex; align-items: center;
+      justify-content: center; gap: 14px;
+      padding-top: 4px; position: relative; z-index: 20;
+    }
+
+    .c-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--border); background: rgba(247,245,241,0.9);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--ink-2); backdrop-filter: blur(8px);
+      transition: background .2s, border-color .2s, color .2s, transform .2s;
+    }
+    .c-btn:hover { background: var(--ink); border-color: var(--ink); color: #fff; transform: scale(1.07); }
+    .c-btn:active { transform: scale(.96); }
+    .c-btn svg { width: 14px; height: 14px; }
+
+    .c-dots { display: flex; align-items: center; gap: 7px; }
+    .c-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--border); cursor: pointer;
+      transition: background .25s, transform .25s;
+    }
+    .c-dot.on { background: var(--ink); transform: scale(1.45); }
+
+    /* ─── CATEGORY PAGE — full viewport, no scroll ─── */
+    /* nav(52) + lib-head(~140) + section-top(12) + controls(60) + bottom-pad(40) = 304 */
+    #pg-cat {
+      height: calc(var(--vh,1vh) * 100); overflow: hidden;
+      --card-h: min(320px, calc(var(--vh,1vh) * 100 - 304px - var(--sat)));
+      --card-w: calc(var(--card-h) * 0.685);
+    }
+    #pg-cat.active { display: flex; flex-direction: column; }
+    #cat-cs {
+      flex: 1;
+      display: flex; flex-direction: column;
+      padding-bottom: 40px;
+    }
+    #cat-cs .c-stage {
+      flex: 1;
+      height: auto;
+      max-height: 560px;
+    }
+
+    /* ─── CATEGORY PAGE HEADER ─── */
+    .lib-head {
+      text-align: center; padding: 22px 24px 16px;
+      flex-shrink: 0;
+    }
+    .lib-eye {
+      font-family: var(--fm);
+      font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--ink-3); margin-bottom: 10px;
+    }
+    .lib-title {
+      font-family: var(--fd);
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 400; line-height: 1;
+      letter-spacing: -.01em;
+    }
+    .lib-title em { font-style: italic; color: var(--accent); }
+    .lib-n-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 14px; margin-top: 10px;
+    }
+    .lib-n {
+      font-family: var(--fm);
+      font-size: 11px; color: var(--ink-3);
+      letter-spacing: .1em;
+    }
+    .lib-clear-btn {
+      font-family: var(--fm);
+      font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--ink-3); background: none; border: none; cursor: pointer;
+      padding: 2px 0; transition: color .2s, opacity .2s;
+      opacity: 0;
+    }
+    .lib-head:hover .lib-clear-btn { opacity: 1; }
+    .lib-clear-btn:hover { color: var(--accent); opacity: 1; }
+    @media (max-width: 600px) {
+      .lib-clear-btn { opacity: 0.5; }
+    }
+
+    /* ─── MODAL ─── */
+    .modal-bg {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(20,19,17,.58);
+      backdrop-filter: blur(7px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .28s;
+    }
+    .modal-bg.open { opacity: 1; pointer-events: all; }
+
+    .modal-box {
+      background: var(--bg);
+      border-radius: 20px;
+      max-width: 540px; width: 100%;
+      max-height: 88vh; overflow-y: auto;
+      position: relative;
+      transform: scale(.93) translateY(18px);
+      transition: transform .34s var(--spring);
+      scrollbar-width: none;
+      box-shadow: 0 36px 80px rgba(20,19,17,.2);
+    }
+    .modal-bg.open .modal-box { transform: scale(1) translateY(0); }
+    .modal-box::-webkit-scrollbar { display: none; }
+
+    .m-hero {
+      width: 100%; height: 220px;
+      position: relative; border-radius: 20px 20px 0 0; overflow: hidden;
+      background: var(--card); flex-shrink: 0;
+    }
+    .m-hero img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .m-hero-emoji {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 72px; z-index: 0;
+    }
+    .m-hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,.45) 100%);
+    }
+    .m-close {
+      position: absolute; top: 14px; right: 14px; z-index: 10;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(255,255,255,.9); border: none;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: var(--ink);
+      transition: background .2s, transform .2s;
+    }
+    .m-close:hover { background: #fff; transform: scale(1.1) rotate(90deg); }
+
+    .m-body { padding: 26px 30px 34px; }
+    .m-type {
+      font-family: var(--fm);
+      font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 7px;
+    }
+    .m-title {
+      font-family: var(--fd);
+      font-size: 33px; font-weight: 500;
+      color: var(--ink); line-height: 1.07; margin-bottom: 13px;
+    }
+    .m-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+    .m-tag {
+      font-family: var(--fm); font-size: 10.5px;
+      background: var(--card); color: var(--ink-2);
+      padding: 3px 10px; border-radius: 100px;
+    }
+    .m-desc {
+      font-size: 13.5px; font-weight: 300;
+      color: var(--ink-2); line-height: 1.65; margin-bottom: 16px;
+    }
+    .m-hr { height: 1px; background: var(--border); margin: 16px 0; }
+    .m-sec {
+      font-family: var(--fm); font-size: 10px;
+      letter-spacing: .2em; text-transform: uppercase;
+      color: var(--ink-3); margin-bottom: 12px;
+    }
+
+    .ings { display: flex; flex-direction: column; }
+    .ing {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 0; border-bottom: 1px solid var(--border);
+      font-size: 13.5px; color: var(--ink);
+    }
+    .ing:last-child { border-bottom: none; }
+    .ing-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+    .steps { display: flex; flex-direction: column; gap: 11px; }
+    .step { display: flex; gap: 13px; align-items: flex-start; }
+    .step-n {
+      font-family: var(--fm); font-size: 10px;
+      background: var(--ink); color: #fff;
+      width: 21px; height: 21px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .step-t { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+    .info-g { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .info-c { background: var(--card); border-radius: 10px; padding: 11px 14px; }
+    .info-l {
+      font-family: var(--fm); font-size: 9.5px;
+      letter-spacing: .16em; text-transform: uppercase;
+      color: var(--ink-3); margin-bottom: 4px;
+    }
+    .info-v { font-size: 14.5px; font-weight: 500; color: var(--ink); line-height: 1.2; }
+
+    /* ─── TMDB ATTRIBUTION ─── */
+    .tmdb-attr {
+      display: flex; align-items: center; gap: 9px;
+      margin-top: 20px; padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .tmdb-attr-label {
+      font-family: var(--fm);
+      font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--ink-3);
+    }
+    .tmdb-logo { height: 14px; width: auto; opacity: 0.65; }
+
+    /* ─── STATUS TOGGLE (read / watched) ─── */
+    .m-status-row { margin-top: 18px; }
+    .m-status-btn {
+      font-family: var(--fm);
+      font-size: 10px; letter-spacing: .13em; text-transform: uppercase;
+      color: var(--ink-2); background: var(--card);
+      border: 1px solid var(--border); padding: 8px 18px; border-radius: 100px;
+      cursor: pointer; transition: background .18s, border-color .18s, color .18s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .m-status-btn:hover { border-color: var(--ink); color: var(--ink); }
+    .m-status-btn.done { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+    /* ─── NOTES ─── */
+    .m-notes-section { margin-top: 22px; }
+    .m-notes-label {
+      font-family: var(--fm);
+      font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--ink-3); margin-bottom: 8px;
+    }
+    .m-notes-area {
+      width: 100%; min-height: 78px; resize: vertical;
+      font-family: var(--fb); font-size: 13.5px; line-height: 1.55; color: var(--ink);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 14px; outline: none;
+      transition: border-color .18s;
+    }
+    .m-notes-area:focus { border-color: var(--ink-2); }
+    .m-notes-area::placeholder { color: var(--ink-3); }
+    .m-notes-saved {
+      font-family: var(--fm); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--ink-3); margin-top: 6px;
+      opacity: 0; transition: opacity .3s; height: 16px;
+    }
+    .m-notes-saved.show { opacity: 1; }
+
+    /* ─── MEDIA GALLERY ─── */
+    .m-media-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+      gap: 8px; margin-top: 2px;
+    }
+    .m-media-tile {
+      position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden;
+      background: var(--card); border: 1px solid var(--border); cursor: pointer;
+    }
+    .m-media-tile img, .m-media-tile video {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .m-media-play {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      background: rgba(26,25,22,.26); color: #F7F5F1; pointer-events: none;
+    }
+    .m-media-play svg { width: 22px; height: 22px; filter: drop-shadow(0 1px 4px rgba(0,0,0,.4)); }
+    .m-media-x {
+      position: absolute; top: 4px; right: 4px; width: 20px; height: 20px;
+      border-radius: 50%; border: none; background: rgba(26,25,22,.62); color: #F7F5F1;
+      font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      padding: 0; line-height: 1;
+    }
+    .m-media-x:hover { background: var(--accent); }
+    .m-media-add {
+      aspect-ratio: 1; border-radius: 10px; border: 1.5px dashed var(--ink-3);
+      background: none; color: var(--ink-2);
+      display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center;
+      cursor: pointer; font-family: var(--fm); font-size: 9px;
+      letter-spacing: .08em; text-transform: uppercase;
+      transition: border-color .18s, color .18s;
+    }
+    .m-media-add:hover { border-color: var(--accent); color: var(--accent); }
+    .m-media-add svg { width: 18px; height: 18px; }
+
+    /* ─── LIGHTBOX ─── */
+    .lightbox {
+      position: fixed; inset: 0; z-index: 9400;
+      background: rgba(26,25,22,.92);
+      display: none; align-items: center; justify-content: center; padding: 28px;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img, .lightbox video {
+      max-width: 100%; max-height: calc(var(--vh, 1vh) * 88);
+      border-radius: 12px; object-fit: contain;
+    }
+    .lightbox-x {
+      position: absolute; top: 18px; right: 18px; width: 38px; height: 38px;
+      border-radius: 50%; border: none; background: rgba(247,245,241,.14);
+      color: #F7F5F1; font-size: 15px; cursor: pointer; z-index: 1;
+    }
+    .lightbox-x:hover { background: rgba(247,245,241,.28); }
+
+    /* ─── EXPORT LINK ─── */
+    .home-export {
+      margin-top: 22px; background: none; border: none; cursor: pointer;
+      color: var(--ink-3); font-family: var(--fm); font-size: 10px;
+      letter-spacing: .12em; text-transform: uppercase;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: color .18s;
+    }
+    .home-export:hover { color: var(--accent); }
+    .home-export svg { width: 13px; height: 13px; }
+
+    /* ─── RECLASSIFY ─── */
+    .m-reclassify {
+      padding-top: 20px; margin-top: 22px;
+      border-top: 1px solid var(--border);
+    }
+    .m-reclassify-label {
+      font-family: var(--fm);
+      font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--ink-3); margin-bottom: 10px;
+    }
+    .m-reclassify-cats { display: flex; flex-wrap: wrap; gap: 7px; }
+    .m-reclassify-pill {
+      font-family: var(--fb);
+      font-size: 12px; color: var(--ink-2);
+      background: none; border: 1px solid var(--border);
+      padding: 5px 13px; border-radius: 100px; cursor: pointer;
+      transition: background .18s, border-color .18s, color .18s;
+      white-space: nowrap;
+    }
+    .m-reclassify-pill:hover {
+      background: var(--ink); border-color: var(--ink); color: var(--bg);
+    }
+
+    /* ─── LOGIN OVERLAY ─── */
+    .login-overlay {
+      position: fixed; inset: 0; z-index: 9500;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .28s;
+    }
+    .login-overlay.show { opacity: 1; pointer-events: all; }
+
+    .login-box {
+      width: min(380px, 90vw);
+      padding: 48px 40px 40px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      text-align: center;
+    }
+    .login-logo {
+      font-family: var(--fd);
+      font-size: 30px; font-weight: 500; letter-spacing: .04em;
+      color: var(--ink); margin-bottom: 5px;
+    }
+    .login-logo b { color: var(--accent); font-weight: 500; }
+    .login-sub {
+      font-family: var(--fm);
+      font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--ink-3); margin-bottom: 34px;
+    }
+    .login-input {
+      width: 100%; padding: 12px 16px; margin-bottom: 8px;
+      font-family: var(--fb); font-size: 15px; color: var(--ink);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; outline: none; transition: border-color .18s;
+    }
+    .login-input:focus { border-color: var(--ink-2); }
+    .login-input::placeholder { color: var(--ink-3); }
+    .login-error {
+      font-family: var(--fm); font-size: 10px; letter-spacing: .1em;
+      color: var(--accent); min-height: 18px; margin-bottom: 8px;
+    }
+    .login-btn {
+      width: 100%; padding: 13px;
+      font-family: var(--fm); font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
+      background: var(--ink); color: var(--bg); border: none; border-radius: 10px;
+      cursor: pointer; transition: opacity .2s;
+    }
+    .login-btn:hover { opacity: .75; }
+
+    /* ─── CATEGORY SWITCHER (mobile only) ─── */
+    .cat-switch { display: none; }
+
+    /* ─── MOBILE ─── */
+    @media (max-width: 540px) {
+
+      /* Nav */
+      nav { padding: var(--sat) 16px 0; gap: 0; }
+      .n-links .n-pill { display: none; }
+      .n-back { margin-right: 0; }
+
+      /* Category switcher — replaces the hidden nav pills on mobile */
+      .cat-switch {
+        display: flex; gap: 6px;
+        overflow-x: auto; -webkit-overflow-scrolling: touch;
+        padding: 8px 20px 2px;
+        scrollbar-width: none;
+      }
+      .cat-switch::-webkit-scrollbar { display: none; }
+      .cat-pill {
+        flex: 0 0 auto;
+        font-family: var(--fb); font-size: 12px; color: var(--ink-2);
+        background: none; border: 1px solid var(--border);
+        padding: 5px 12px; border-radius: 100px;
+        cursor: pointer; white-space: nowrap;
+        transition: background .18s, border-color .18s, color .18s;
+      }
+      .cat-pill.active { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+
+      /* Home hero — compact on mobile */
+      .home-hero { padding: 18px 20px 0; }
+      .home-h1 { font-size: clamp(36px, 11vw, 50px); margin-bottom: 8px; }
+      .home-sub { font-size: 13px; }
+      .home-rule { height: 16px; margin: 12px auto; }
+
+      /* Per-page card sizes for mobile — use --vh so iOS Safari's retractable chrome doesn't inflate the height.
+         #pg-cat offset includes ~42px for the category switcher strip. */
+      #pg-home { --card-h: min(260px, calc(var(--vh,1vh) * 100 - 290px)); --card-w: calc(var(--card-h) * 0.685); }
+      #pg-cat  { --card-h: min(260px, calc(var(--vh,1vh) * 100 - 292px)); --card-w: calc(var(--card-h) * 0.685); }
+
+      /* Tighten hero so cards get more vertical room */
+      .home-hero { padding: 10px 20px 0; }
+      .home-eye  { margin-bottom: 6px; }
+      .home-h1   { margin-bottom: 6px; }
+      .home-sub  { font-size: 13px; }
+      .home-rule { display: none; }
+
+      /* Category header */
+      .lib-head { padding: 10px 20px 6px; }
+      .lib-eye  { margin-bottom: 4px; }
+      .lib-n-row { margin-top: 4px; }
+
+      /* Modal — bottom sheet */
+      .modal-bg  { padding: 0; align-items: flex-end; }
+      .modal-box {
+        border-radius: 22px 22px 0 0;
+        max-height: 90vh;
+        transform: translateY(32px) scale(1);
+      }
+      .modal-bg.open .modal-box { transform: translateY(0) scale(1); }
+      .m-hero    { height: 190px; border-radius: 22px 22px 0 0; }
+      .m-hero img { border-radius: 22px 22px 0 0; }
+      .m-body    { padding: 20px 20px 48px; }
+      .m-title   { font-size: 26px; }
+    }
+
+    /* Tablet — prevent 5 nav pills overflowing */
+    @media (max-width: 820px) and (min-width: 541px) {
+      nav { padding: var(--sat) 16px 0; }
+      .n-pill { padding: 5px 9px; font-size: 11px; letter-spacing: .04em; }
+    }
+
+    /* Tiny phones */
+    @media (max-width: 360px) {
+      #pg-home { --card-h: min(220px, calc(var(--vh,1vh) * 100 - 270px)); --card-w: calc(var(--card-h) * 0.685); }
+      #pg-cat  { --card-h: min(220px, calc(var(--vh,1vh) * 100 - 262px)); --card-w: calc(var(--card-h) * 0.685); }
+    }
+
+    /* ─── IMPORT FAB ─── */
+    .import-fab {
+      position: fixed; bottom: calc(28px + var(--sab)); right: 28px; z-index: 300;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--ink); color: var(--bg);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(26,25,22,.22);
+      transition: transform .22s var(--spring), background .2s, box-shadow .2s;
+    }
+    .import-fab:hover { transform: scale(1.08); box-shadow: 0 8px 28px rgba(26,25,22,.3); }
+    .import-fab:active { transform: scale(.95); }
+    .import-fab svg { width: 20px; height: 20px; transition: transform .3s var(--spring); }
+    .import-fab.open svg { transform: rotate(45deg); }
+
+    /* ─── IMPORT SHEET ─── */
+    .import-bg {
+      position: fixed; inset: 0; z-index: 400;
+      background: rgba(20,19,17,.52);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .28s;
+    }
+    .import-bg.open { opacity: 1; pointer-events: all; }
+
+    .import-box {
+      background: var(--bg);
+      border-radius: 22px;
+      width: 100%; max-width: 460px;
+      max-height: 88vh; overflow-y: auto;
+      box-shadow: 0 32px 72px rgba(20,19,17,.22);
+      transform: scale(.96) translateY(10px);
+      transition: transform .3s var(--spring);
+    }
+    .import-bg.open .import-box { transform: scale(1) translateY(0); }
+    .import-box::-webkit-scrollbar { display: none; }
+
+    .import-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 24px 0;
+    }
+    .import-title {
+      font-family: var(--fd); font-size: 22px; font-weight: 500;
+    }
+    .import-close {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--card); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: var(--ink-2);
+      transition: background .18s, transform .18s;
+    }
+    .import-close:hover { background: var(--border); transform: rotate(90deg); }
+
+    /* Drop zone */
+    .import-drop input[type=file] {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      opacity: 0; cursor: pointer; font-size: 0; color: transparent;
+      -webkit-appearance: none; appearance: none;
+    }
+    .import-drop {
+      display: block;              /* <label> is inline by default, which ignores
+                                      overflow and lets children size to a wider
+                                      ancestor — forcing block keeps the hint text
+                                      wrapping inside the dashed box on narrow phones */
+      margin: 18px 24px;
+      border: 1.5px dashed var(--border);
+      border-radius: 16px;
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .import-drop:hover, .import-drop.drag-over {
+      border-color: var(--accent); background: rgba(191,91,63,.04);
+    }
+    .import-drop-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: var(--card);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px; font-size: 20px;
+    }
+    .import-drop-label {
+      font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 4px;
+    }
+    .import-drop-sub {
+      font-family: var(--fm); font-size: 10.5px; letter-spacing: .05em;
+      color: var(--ink-3); text-transform: uppercase;
+      line-height: 1.5; max-width: 100%;
+      overflow-wrap: break-word; word-break: break-word;
+    }
+
+    /* States */
+    .import-state { display: none; padding: 24px; }
+    .import-state.visible { display: block; }
+
+    /* Processing state */
+    .import-processing {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 14px; padding: 8px 0 16px;
+    }
+    .import-thumb {
+      width: 80px; height: 112px; border-radius: 10px;
+      object-fit: cover; display: block;
+    }
+    /* Wrapper collapses to nothing when the thumb is hidden (URL imports),
+       so the scan shimmer only shows when there's actually an image. */
+    .import-thumb-wrap {
+      position: relative; display: inline-block;
+      border-radius: 10px; overflow: hidden; line-height: 0;
+    }
+    .import-scan {
+      position: absolute; left: 0; right: 0; top: 0; height: 45%;
+      background: linear-gradient(180deg,
+        transparent, rgba(255,255,255,.45), transparent);
+      transform: translateY(-100%);
+      animation: import-scan 1.9s ease-in-out infinite;
+      pointer-events: none; mix-blend-mode: overlay;
+    }
+    @keyframes import-scan {
+      0%   { transform: translateY(-100%); opacity: 0; }
+      15%  { opacity: 1; }
+      85%  { opacity: 1; }
+      100% { transform: translateY(230%);  opacity: 0; }
+    }
+    /* Dual-ring loader: a soft track with a sweeping accent arc, plus a
+       gently pulsing dot at the centre — calmer and more on-brand than a
+       plain 1px spinner. */
+    .import-spinner {
+      position: relative;
+      width: 38px; height: 38px;
+      border-radius: 50%;
+    }
+    .import-spinner::before,
+    .import-spinner::after {
+      content: ''; position: absolute; inset: 0;
+      border-radius: 50%;
+    }
+    .import-spinner::before {
+      border: 3px solid var(--border);
+    }
+    .import-spinner::after {
+      border: 3px solid transparent;
+      border-top-color: var(--accent);
+      border-right-color: var(--accent);
+      animation: spin .9s cubic-bezier(.6,.15,.4,.85) infinite;
+    }
+    .import-spinner-dot {
+      position: absolute; top: 50%; left: 50%;
+      width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px;
+      border-radius: 50%; background: var(--accent);
+      animation: dot-pulse 1.1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes dot-pulse {
+      0%,100% { transform: scale(.6); opacity: .35; }
+      50%     { transform: scale(1);  opacity: 1;   }
+    }
+    .import-processing-label {
+      font-family: var(--fm); font-size: 10.5px; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--ink-3);
+    }
+    .import-processing-label::after {
+      content: ''; animation: label-dots 1.4s steps(4,end) infinite;
+    }
+    @keyframes label-dots {
+      0% { content: ''; } 25% { content: '·'; }
+      50% { content: '··'; } 75% { content: '···'; }
+    }
+
+    /* Editable review card: correct the category + title before saving */
+    .import-cat-select {
+      font-family: var(--fm); font-size: 10px; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--tint, var(--border)); border: 1px solid var(--border);
+      border-radius: 100px; padding: 5px 26px 5px 12px; margin-bottom: 8px;
+      cursor: pointer; -webkit-appearance: none; appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%23999' stroke-width='1.5' stroke-linecap='round'/></svg>");
+      background-repeat: no-repeat; background-position: right 11px center;
+    }
+    .import-title-input {
+      font-family: var(--fd); font-size: 19px; line-height: 1.25;
+      color: var(--ink); background: transparent;
+      border: none; border-bottom: 1px solid transparent;
+      width: 100%; padding: 2px 0; margin-bottom: 4px;
+      transition: border-color .18s;
+    }
+    .import-title-input:focus {
+      outline: none; border-bottom-color: var(--border);
+    }
+    .import-review-hint {
+      font-family: var(--fm); font-size: 9.5px; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--ink-3); margin-top: 2px;
+    }
+
+    /* Cast chips, streaming providers, external links, audio preview */
+    .m-cast { display: flex; flex-wrap: wrap; gap: 7px; }
+    .m-cast-chip {
+      font-family: var(--fm); font-size: 10px; letter-spacing: .06em;
+      color: var(--ink-2); border: 1px solid var(--border);
+      padding: 4px 11px; border-radius: 100px;
+    }
+    .m-providers { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .m-provider {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-family: var(--fm); font-size: 11px; color: var(--ink);
+      border: 1px solid var(--border); padding: 5px 11px 5px 6px;
+      border-radius: 100px;
+    }
+    .m-provider img { width: 20px; height: 20px; border-radius: 5px; display: block; }
+    .m-ext-links { display: flex; flex-wrap: wrap; gap: 8px; }
+    .m-ext-link {
+      display: inline-block; font-family: var(--fm); font-size: 11px;
+      letter-spacing: .04em; color: var(--accent); text-decoration: none;
+      border: 1px solid var(--border); padding: 6px 13px; border-radius: 100px;
+      margin-top: 4px; transition: background .15s;
+    }
+    .m-ext-link:hover { background: var(--border); }
+    .m-audio-row audio { width: 100%; margin: 4px 0 8px; }
+    .m-preview-loading {
+      font-family: var(--fm); font-size: 10.5px; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--ink-3); padding: 6px 0;
+    }
+
+    /* Result state */
+    .import-result-card {
+      border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden; margin-bottom: 16px;
+    }
+    .import-result-img {
+      width: 100%; height: 160px; object-fit: cover; display: block;
+      background: var(--card);
+    }
+    .import-result-body { padding: 16px 18px 18px; }
+    .import-result-cat {
+      font-family: var(--fm); font-size: 9.5px; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+    }
+    .import-result-title {
+      font-family: var(--fd); font-size: 22px; font-weight: 500;
+      line-height: 1.15; margin-bottom: 4px;
+    }
+    .import-result-sub {
+      font-family: var(--fm); font-size: 10.5px; color: var(--ink-3);
+      letter-spacing: .06em; margin-bottom: 10px;
+    }
+    .import-result-desc {
+      font-size: 13px; color: var(--ink-2); line-height: 1.65;
+    }
+    .import-conf {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 12px;
+    }
+    .import-conf-bar-bg {
+      flex: 1; height: 3px; background: var(--border); border-radius: 99px;
+    }
+    .import-conf-bar-fill {
+      height: 100%; border-radius: 99px; background: var(--accent);
+      transition: width .6s var(--ease);
+    }
+    .import-conf-label {
+      font-family: var(--fm); font-size: 9.5px; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--ink-3); white-space: nowrap;
+    }
+
+    /* Action buttons */
+    .import-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .import-btn {
+      flex: 1; padding: 12px; border-radius: 100px;
+      font-family: var(--fb); font-size: 13px; font-weight: 500;
+      cursor: pointer; border: none; transition: opacity .18s, transform .12s;
+    }
+    /* "Save all" takes its own full-width row above the Try/Save pair */
+    .import-btn.saveall {
+      order: -1; flex-basis: 100%;
+      background: var(--ink); color: var(--bg);
+    }
+    .import-btn:active { transform: scale(.97); }
+    .import-btn.primary { background: var(--ink); color: var(--bg); }
+    .import-btn.primary:hover { opacity: .85; }
+    .import-btn.secondary {
+      background: var(--card); color: var(--ink-2);
+      border: 1px solid var(--border);
+    }
+    .import-btn.secondary:hover { background: var(--border); }
+
+    /* ─── IMPORT TABS ─── */
+    .import-tabs {
+      display: flex; gap: 4px;
+      margin: 16px 24px 0;
+      background: var(--card); border-radius: 100px; padding: 4px;
+    }
+    .import-tab {
+      flex: 1; padding: 7px 12px; border-radius: 100px;
+      font-family: var(--fb); font-size: 12px; font-weight: 500;
+      text-align: center; cursor: pointer;
+      border: none; background: transparent; color: var(--ink-3);
+      transition: background .18s, color .18s;
+      user-select: none;
+    }
+    .import-tab.active {
+      background: var(--bg); color: var(--ink);
+      box-shadow: 0 1px 4px rgba(20,19,17,.10);
+    }
+
+    /* URL input panel */
+    .import-url-panel {
+      margin: 18px 24px 4px;
+    }
+    .import-url-row {
+      display: flex; gap: 8px; align-items: center;
+    }
+    .import-url-input {
+      flex: 1; padding: 11px 14px; border-radius: 100px;
+      border: 1.5px solid var(--border); background: var(--card);
+      font-family: var(--fb); font-size: 13px; color: var(--ink);
+      outline: none; transition: border-color .18s;
+      min-width: 0;
+    }
+    .import-url-input::placeholder { color: var(--ink-3); }
+    .import-url-input:focus { border-color: var(--accent); }
+    .import-url-submit {
+      padding: 11px 18px; border-radius: 100px;
+      background: var(--ink); color: var(--bg);
+      font-family: var(--fb); font-size: 13px; font-weight: 500;
+      border: none; cursor: pointer;
+      transition: opacity .18s, transform .12s;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .import-url-submit:hover { opacity: .82; }
+    .import-url-submit:active { transform: scale(.96); }
+    .import-url-hint {
+      font-family: var(--fm); font-size: 10px; letter-spacing: .06em;
+      color: var(--ink-3); margin-top: 9px; padding: 0 4px;
+    }
+
+    /* Mobile */
+    @media (max-width: 540px) {
+      .import-fab { bottom: calc(20px + var(--sab)); right: 20px; width: 48px; height: 48px; }
+      .import-bg { padding: 0; align-items: flex-end; }
+      .import-box { border-radius: 22px 22px 0 0; max-height: 92vh; }
+    }
+
+    /* ─── SEARCH ─── */
+    .lib-search-row {
+      margin-top: 12px;
+      display: flex; justify-content: center;
+    }
+    .lib-search-wrap {
+      position: relative;
+      display: flex; align-items: center;
+      width: 100%; max-width: 320px;
+    }
+    .lib-search-icon {
+      position: absolute; left: 11px;
+      width: 14px; height: 14px;
+      color: var(--ink-3); pointer-events: none;
+    }
+    .lib-search-input {
+      width: 100%;
+      font-family: var(--fm); font-size: 11.5px; letter-spacing: .05em;
+      color: var(--ink); background: var(--card);
+      border: 1px solid var(--border); border-radius: 100px;
+      padding: 7px 34px 7px 32px;
+      outline: none; transition: border-color .18s, background .18s;
+    }
+    .lib-search-input:focus { border-color: var(--ink-2); background: var(--bg); }
+    .lib-search-input::placeholder { color: var(--ink-3); }
+    .lib-search-clear {
+      position: absolute; right: 10px;
+      background: none; border: none; cursor: pointer;
+      font-size: 10px; color: var(--ink-3);
+      display: none; padding: 2px 3px;
+      transition: color .18s;
+    }
+    .lib-search-clear:hover { color: var(--ink); }
+    .lib-search-input:not(:placeholder-shown) ~ .lib-search-clear { display: block; }
+
+    /* ─── EMPTY STATE ─── */
+    .cat-empty {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-bottom: 60px;
+      gap: 18px;
+    }
+    .cat-empty.show { display: flex; }
+    .cat-empty svg { opacity: 0.22; }
+    @keyframes empty-float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-8px); }
+    }
+    .cat-empty svg { animation: empty-float 3.6s var(--ease) infinite; }
+    .cat-empty-label {
+      font-family: var(--fd);
+      font-size: 22px; font-weight: 400; font-style: italic;
+      color: var(--ink-3); letter-spacing: -.01em;
+    }
+    .cat-empty-sub {
+      font-family: var(--fm);
+      font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--ink-3); opacity: 0.6;
+    }
+
+    /* ─── SYNC / CONNECTION PILL ─── */
+    .sync-pill {
+      position: fixed; bottom: calc(28px + var(--sab)); left: 28px; z-index: 300;
+      display: flex; align-items: center; gap: 7px;
+      font-family: var(--fm); font-size: 9.5px; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--ink-3);
+      background: rgba(252,250,244,.92); border: 1px solid var(--border);
+      border-radius: 100px; padding: 6px 14px;
+      opacity: 0; pointer-events: none; transition: opacity .25s;
+    }
+    .sync-pill.show { opacity: 1; }
+    .sync-pill .sync-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--accent);
+      animation: sync-pulse 1s ease-in-out infinite;
+    }
+    .sync-pill.offline .sync-dot { background: var(--ink-3); animation: none; }
+    @keyframes sync-pulse { 50% { opacity: .25; } }
+    @media (max-width: 540px) {
+      .sync-pill { bottom: calc(20px + var(--sab)); left: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <span class="n-logo" onclick="goHome()">Curio<b>.</b></span>
+  <div class="n-links">
+    <button class="n-back" id="n-back" onclick="goHome()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M5 12l7-7M5 12l7 7"/></svg>
+      Home
+    </button>
+    <button class="n-pill" data-c="tools"  onclick="goCat('tools')">Tools</button>
+    <button class="n-pill" data-c="style"  onclick="goCat('style')">Style</button>
+    <button class="n-pill" data-c="books"  onclick="goCat('books')">Books</button>
+    <button class="n-pill" data-c="music"  onclick="goCat('music')">Music</button>
+    <button class="n-pill" data-c="saved" id="n-pill-saved" style="display:none" onclick="goCat('saved')">Saved</button>
+  </div>
+</nav>
+
+<!-- ═══ HOME PAGE ═══ -->
+<div class="page active" id="pg-home">
+  <div class="home-hero">
+    <p class="home-eye">Personal Library · II</p>
+    <h1 class="home-h1">Your <em>Curio</em></h1>
+    <p class="home-sub">A quiet place for everything you love. This demo is stocked with design tools, references, books and records.</p>
+    <div class="home-rule"></div>
+    <button class="home-export" onclick="exportLibrary()" title="Download a JSON backup of your library">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export library
+    </button>
+    <button class="home-export" onclick="dedupeLibrary()" title="Find and remove duplicate entries">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Remove duplicates
+    </button>
+  </div>
+
+  <!-- Home carousel -->
+  <div class="carousel-section" id="home-cs">
+
+    <div class="c-stage">
+      <div class="c-track" id="home-track"></div>
+    </div>
+    <div class="c-controls">
+      <button class="c-btn" onclick="stepCarousel('home',-1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="c-dots" id="home-dots"></div>
+      <button class="c-btn" onclick="stepCarousel('home',1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CATEGORY PAGE ═══ -->
+<div class="page" id="pg-cat">
+  <div class="lib-head">
+    <p class="lib-eye">Collection</p>
+    <h1 class="lib-title" id="lib-title"><em>Recipes</em></h1>
+    <div class="lib-n-row">
+      <p class="lib-n" id="lib-n">8 items</p>
+      <button class="lib-clear-btn" onclick="confirmClearCategory()">Clear all</button>
+    </div>
+    <!-- Mobile-only category switcher (nav pills are hidden on small screens) -->
+    <div class="cat-switch" id="cat-switch"></div>
+
+    <div class="lib-search-row" id="lib-search-row">
+      <div class="lib-search-wrap">
+        <svg class="lib-search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="4.5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>
+        <input class="lib-search-input" id="lib-search" type="text" placeholder="Search…" oninput="onSearchInput(this.value)" autocomplete="off" spellcheck="false">
+        <button class="lib-search-clear" id="lib-search-clear" onclick="clearSearch()" title="Clear">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category carousel -->
+  <div class="carousel-section" id="cat-cs">
+    <div class="c-stage">
+      <div class="c-track" id="cat-track"></div>
+    </div>
+    <div class="c-controls">
+      <button class="c-btn" onclick="stepCarousel('cat',-1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="c-dots" id="cat-dots"></div>
+      <button class="c-btn" onclick="stepCarousel('cat',1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="cat-empty" id="cat-empty">
+    <svg width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="44" cy="44" r="36" stroke="var(--ink)" stroke-width="2" stroke-dasharray="5 4"/>
+      <line x1="44" y1="28" x2="44" y2="60" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="28" y1="44" x2="60" y2="44" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <p class="cat-empty-label">Nothing here yet</p>
+    <p class="cat-empty-sub">Import something to start</p>
+  </div>
+
+</div>
+
+<!-- ═══ SYNC PILL ═══ -->
+<div class="sync-pill" id="sync-pill"><span class="sync-dot"></span><span id="sync-pill-label">Syncing library…</span></div>
+
+<!-- ═══ IMPORT FAB ═══ -->
+<button class="import-fab" id="import-fab" onclick="toggleImport()" title="Import screenshot">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+</button>
+
+<!-- ═══ IMPORT SHEET ═══ -->
+<div class="import-bg" id="import-bg" onclick="importBgClose(event)">
+  <div class="import-box" id="import-box">
+
+    <!-- Header -->
+    <div class="import-head">
+      <span class="import-title">Import</span>
+      <button class="import-close" onclick="closeImport()">✕</button>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="import-tabs">
+      <button class="import-tab active" id="tab-screenshot" onclick="switchImportTab('screenshot')">📸 Screenshot</button>
+      <button class="import-tab"        id="tab-url"        onclick="switchImportTab('url')">🔗 URL</button>
+    </div>
+
+    <!-- Screenshot: Drop zone (default state) -->
+    <div id="import-drop-zone">
+      <label class="import-drop" id="import-drop"
+             ondragover="dropOver(event)" ondragleave="dropLeave(event)" ondrop="dropFile(event)">
+        <div class="import-drop-icon">📸</div>
+        <div class="import-drop-label">Drop screenshots or videos here</div>
+        <div class="import-drop-sub">or tap to choose from your camera roll</div>
+        <input type="file" accept="image/*,video/*" multiple id="import-file-input" onchange="fileChosen(event)">
+      </label>
+    </div>
+
+    <!-- URL input panel -->
+    <div class="import-url-panel" id="import-url-panel" style="display:none">
+      <div class="import-url-row">
+        <input class="import-url-input" id="import-url-input"
+               type="url" placeholder="https://…"
+               onkeydown="if(event.key==='Enter')submitUrl()">
+        <button class="import-url-submit" onclick="submitUrl()">Extract</button>
+      </div>
+      <div class="import-url-hint">Paste any page — recipe, article, product, book…</div>
+    </div>
+
+    <!-- Processing state -->
+    <div class="import-state" id="import-processing-state">
+      <div class="import-processing">
+        <span class="import-thumb-wrap">
+          <img id="import-thumb" class="import-thumb" src="" alt="">
+          <span class="import-scan" aria-hidden="true"></span>
+        </span>
+        <div class="import-spinner"><span class="import-spinner-dot"></span></div>
+        <div class="import-processing-label">Claude is reading this</div>
+      </div>
+    </div>
+
+    <!-- Result state -->
+    <div class="import-state" id="import-result-state">
+      <div class="import-result-card" id="import-result-card">
+        <img id="import-result-img" class="import-result-img" src="" alt="">
+        <div class="import-result-body">
+          <select class="import-cat-select" id="import-result-cat-select" onchange="onReviewCatChange(this.value)"></select>
+          <input class="import-title-input" id="import-result-title-input" oninput="onReviewTitleInput(this.value)" spellcheck="false">
+          <div class="import-review-hint">Check the category &amp; title, then save</div>
+          <div class="import-result-sub" id="import-result-sub"></div>
+          <div class="import-result-desc" id="import-result-desc"></div>
+          <div class="import-conf">
+            <div class="import-conf-bar-bg">
+              <div class="import-conf-bar-fill" id="import-conf-fill" style="width:0%"></div>
+            </div>
+            <span class="import-conf-label" id="import-conf-label"></span>
+          </div>
+        </div>
+      </div>
+      <div class="import-actions">
+        <button class="import-btn saveall" id="import-saveall-btn" onclick="saveAllRemaining()" style="display:none">Save all</button>
+        <button class="import-btn secondary" onclick="resetImport()">Try another</button>
+        <button class="import-btn primary" onclick="saveImport()">Save to library</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ MODAL ═══ -->
+<div class="modal-bg" id="modal" onclick="bgClose(event)">
+  <div class="modal-box">
+    <div class="m-hero" id="m-hero">
+      <button class="m-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="m-body" id="m-body"></div>
+  </div>
+</div>
+
+<!-- ═══ LOGIN OVERLAY ═══ -->
+<!-- ═══ MEDIA GALLERY: hidden multi-file picker + lightbox ═══ -->
+<input type="file" id="media-file-input" accept="image/*,video/*" multiple style="display:none" onchange="mediaFilesChosen(event)">
+<div class="lightbox" id="lightbox" onclick="lightboxBgClose(event)">
+  <button class="lightbox-x" onclick="closeLightbox()">✕</button>
+  <div id="lightbox-content" style="display:contents"></div>
+</div>
+
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">Curio<b>·</b></div>
+    <p class="login-sub">Personal Library</p>
+    <input class="login-input" id="login-password" type="password"
+           placeholder="Password" autocomplete="current-password"
+           onkeydown="if(event.key==='Enter')doLogin()">
+    <p class="login-error" id="login-error"></p>
+    <button class="login-btn" onclick="doLogin()">Sign in →</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   CURIO — PUBLIC DEMO SHIM
+   Generated by Portfolio_2026/_internal/build-curio-demo.py. Do not edit
+   this file by hand; edit the builder and regenerate.
+
+   This page has no backend. Everything below keeps the real Curio UI
+   intact while making sure no network call can reach a server, an API
+   key, or anyone's real library.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  /* 1. Start every visit from a clean slate. Curio persists notes, deleted
+        ids and its auth token in localStorage; wiping those on load means a
+        visitor can explore freely (including deleting things) without
+        permanently breaking their own copy of the demo. */
+  try {
+    Object.keys(localStorage)
+      .filter(function (k) { return k.indexOf('curio') === 0; })
+      .forEach(function (k) { localStorage.removeItem(k); });
+  } catch (_) {}
+
+  /* 2. Pre-seed a placeholder token so the login overlay never appears.
+        It is never sent anywhere — the fetch stub below answers everything. */
+  try { localStorage.setItem('curio_auth_token', 'demo'); } catch (_) {}
+
+  /* 3. In-memory store. Starts empty: the demo library is compiled into the
+        page as DATA, and Curio merges server items on top of it. */
+  var store = [];
+  var DISABLED =
+    'This is a read-only demo, so adding new items is switched off. ' +
+    'In the real app this reads the link or screenshot with Claude and files ' +
+    'it into the right category automatically.';
+
+  function json(body, status) {
+    return Promise.resolve(new Response(JSON.stringify(body), {
+      status: status || 200,
+      headers: { 'Content-Type': 'application/json' }
+    }));
+  }
+
+  var realFetch = window.fetch.bind(window);
+
+  window.fetch = function (input, init) {
+    var url = typeof input === 'string' ? input : (input && input.url) || '';
+    var path;
+    try {
+      path = new URL(url, location.href).pathname;
+    } catch (_) {
+      path = String(url);
+    }
+
+    /* Anything that isn't a Curio API call (images, fonts) goes out as normal. */
+    if (path.indexOf('/api/') !== 0) return realFetch(input, init);
+
+    var method = ((init && init.method) || 'GET').toUpperCase();
+
+    /* Auth: always succeed, never contact a server. */
+    if (path === '/api/auth/login') return json({ token: 'demo' });
+    if (path === '/api/health') return json({ ok: true, demo: true });
+
+    /* Library reads and writes, held in memory for this page view only. */
+    if (path === '/api/items' && method === 'GET') return json(store);
+    if (path === '/api/items' && method === 'POST') {
+      var created = {};
+      try { created = JSON.parse((init && init.body) || '{}'); } catch (_) {}
+      store.push(created);
+      return json(created, 201);
+    }
+    if (/^\/api\/items\//.test(path)) {
+      var id = decodeURIComponent(path.split('/').pop());
+      if (method === 'DELETE') {
+        store = store.filter(function (i) { return i && i.id !== id; });
+        return json({ ok: true });
+      }
+      if (method === 'PATCH') {
+        var patch = {};
+        try { patch = JSON.parse((init && init.body) || '{}'); } catch (_) {}
+        var found = false;
+        store = store.map(function (i) {
+          if (i && i.id === id) { found = true; return Object.assign({}, i, patch); }
+          return i;
+        });
+        if (!found) store.push(Object.assign({ id: id, _stub: true }, patch));
+        return json({ ok: true });
+      }
+    }
+
+    /* Export still works — it is harmless and shows off a real feature. */
+    if (path === '/api/export') {
+      return json({ exported_at: new Date().toISOString(), demo: true, items: store });
+    }
+
+    /* Everything that would cost money or touch a third party: politely off.
+       /api/extract*, /api/media, /api/images, /api/poster, /api/music-preview,
+       /api/watch-providers, /api/fallback-image. The UI surfaces `detail`. */
+    return json({ detail: DISABLED }, 503);
+  };
+
+  /* 4. Belt and braces: no service worker, so nothing can be cached or
+        re-registered against an origin that has no Curio backend. */
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations
+      && navigator.serviceWorker.getRegistrations()
+          .then(function (rs) { rs.forEach(function (r) { r.unregister(); }); })
+          .catch(function () {});
+  }
+})();
+</script>
+<script>
+/* ── Viewport height fix for iOS Safari ──────────────────────────
+   100vh on iOS = full screen including retractable browser chrome,
+   so we measure the real visible height and expose it as --vh.     */
+function _setVH() {
+  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+}
+_setVH();
+window.addEventListener('resize', _setVH);
+window.addEventListener('orientationchange', () => setTimeout(_setVH, 120));
+
+/* ══════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════ */
+const IMG = (kw, sig, w=520, h=748) =>
+  `https://picsum.photos/seed/${sig}/${w}/${h}`;
+
+/* ── V2 Illustrated category covers ───────────────────────────────
+   Botanical / editorial art direction: muted natural palettes,
+   elegant display serifs (Italiana + Cormorant italic), one quiet
+   illustration per category. Rendered as INLINE SVG (not data: URIs)
+   so the covers can use the page's loaded web fonts.                */
+
+const PALETTE = {
+  recipes:   { bg:'#C99CA9', ink:'#7E2B33', tint:'#EBDCE0', cap:'#A0616E' },
+  music:     { bg:'#383B6E', ink:'#E8E4CF', tint:'#DEDFEA', cap:'#5B5F94' },
+  books:     { bg:'#E9EAE2', ink:'#20402C', tint:'#DFE2D7', cap:'#5E7A62' },
+  movies:    { bg:'#BFCDB4', ink:'#EFFFD9', tint:'#DEE6D5', cap:'#7C8F6B' },
+  cocktails: { bg:'#92ABC1', ink:'#DCEFC8', tint:'#DCE4EB', cap:'#6986A0' },
+  places:    { bg:'#F3F1EA', ink:'#2742C8', tint:'#E8E6DD', cap:'#4D62C4' },
+  style:     { bg:'#D8BFAE', ink:'#9C4B26', tint:'#EDE0D6', cap:'#B0764F' },
+  tools:     { bg:'#2C4435', ink:'#EDE8D7', tint:'#DBE0D8', cap:'#5E7A62' },
+};
+
+const FD_DISPLAY = `Italiana, 'Cormorant Garamond', Georgia, serif`;
+const FD_ITALIC  = `'Cormorant Garamond', Georgia, serif`;
+
+function cover(key, inner) {
+  const p = PALETTE[key];
+  return `<svg viewBox="0 0 260 374" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><rect width="260" height="374" fill="${p.bg}"/>${inner}</svg>`;
+}
+
+const COVERS = {
+
+  /* dusty pink · pressed fern in a mounted frame · arched wine type */
+  recipes: cover('recipes', `
+    <rect x="146" y="22" width="92" height="118" fill="#F2E2E6"/>
+    <rect x="152" y="28" width="80" height="106" fill="#E8CDD4"/>
+    <line x1="192" y1="38" x2="192" y2="124" stroke="#7E2B33" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M192 48 C181 44 173 46 168 52 M192 48 C203 44 211 46 216 52" stroke="#7E2B33" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M192 64 C179 60 170 62 164 69 M192 64 C205 60 214 62 220 69" stroke="#7E2B33" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M192 80 C179 76 169 78 163 85 M192 80 C205 76 215 78 221 85" stroke="#7E2B33" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M192 96 C181 92 172 94 167 100 M192 96 C203 92 212 94 217 100" stroke="#7E2B33" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M192 112 C184 109 177 110 173 115 M192 112 C200 109 207 110 211 115" stroke="#7E2B33" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <defs>
+      <path id="cov-r-a1" d="M36 226 Q130 200 224 226"/>
+      <path id="cov-r-a2" d="M30 282 Q130 252 230 282"/>
+    </defs>
+    <text font-family="${FD_DISPLAY}" font-size="13" letter-spacing="4" fill="#7E2B33"><textPath href="#cov-r-a1" startOffset="50%" text-anchor="middle">ONE GOOD MEAL</textPath></text>
+    <text font-family="${FD_DISPLAY}" font-size="42" fill="#7E2B33"><textPath href="#cov-r-a2" startOffset="50%" text-anchor="middle">RECIPES</textPath></text>
+    <text x="130" y="318" text-anchor="middle" font-family="${FD_ITALIC}" font-style="italic" font-size="17" fill="#7E2B33">from the kitchen</text>`),
+
+  /* night indigo · record spinning among constellations */
+  music: cover('music', `
+    ${[[26,40,1.6],[68,24,1],[206,52,1.4],[234,96,1],[20,150,1.2],[242,200,1.5],[40,300,1],[224,310,1.3],[120,28,1],[176,330,1]].map(([x,y,r]) =>
+      `<circle cx="${x}" cy="${y}" r="${r}" fill="#E8E4CF" opacity="0.8"/>`).join('')}
+    <path d="M26 40 L68 24 L120 28" stroke="#E8E4CF" stroke-width="0.6" opacity="0.3" fill="none"/>
+    <path d="M206 52 L234 96" stroke="#E8E4CF" stroke-width="0.6" opacity="0.3" fill="none"/>
+    <circle cx="130" cy="158" r="84" stroke="#E8E4CF" stroke-width="2" fill="none"/>
+    <circle cx="130" cy="158" r="66" stroke="#E8E4CF" stroke-width="0.8" fill="none" opacity="0.35"/>
+    <circle cx="130" cy="158" r="50" stroke="#E8E4CF" stroke-width="0.8" fill="none" opacity="0.35"/>
+    <circle cx="130" cy="158" r="30" stroke="#E9D8A0" stroke-width="1.6" fill="none"/>
+    <circle cx="130" cy="158" r="5" fill="#E9D8A0"/>
+    <circle cx="188" cy="99" r="2" fill="#E9D8A0"/>
+    <defs><path id="cov-m-a" d="M28 296 Q130 266 232 296"/></defs>
+    <text font-family="${FD_DISPLAY}" font-size="44" fill="#E8E4CF"><textPath href="#cov-m-a" startOffset="50%" text-anchor="middle">MUSIC</textPath></text>
+    <text x="130" y="330" text-anchor="middle" font-family="${FD_ITALIC}" font-style="italic" font-size="16" fill="#E8E4CF" opacity="0.85">songs for the night</text>`),
+
+  /* gallery off-white · one enormous serif word · pressed sprig */
+  books: cover('books', `
+    <text x="130" y="120" text-anchor="middle" font-family="${FD_ITALIC}" font-weight="500" font-size="64" fill="#20402C">Books</text>
+    <text x="130" y="165" text-anchor="middle" font-family="${FD_DISPLAY}" font-size="11" letter-spacing="3" fill="#9FAE9B">THE SONG</text>
+    <text x="130" y="180" text-anchor="middle" font-family="${FD_DISPLAY}" font-size="11" letter-spacing="3" fill="#9FAE9B">OF PAGES</text>
+    <line x1="130" y1="240" x2="130" y2="300" stroke="#20402C" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M130 252 C121 246 114 247 109 253 M130 266 C139 260 146 261 151 267 M130 280 C121 274 115 275 110 281 M130 294 C139 288 145 289 150 295" stroke="#20402C" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    <g fill="#20402C"><circle cx="222" cy="340" r="4"/><circle cx="232" cy="332" r="4"/><circle cx="232" cy="348" r="4"/><circle cx="242" cy="340" r="4"/></g>`),
+
+  /* sage · macro seed-head with saffron stamens · stacked pale type */
+  movies: cover('movies', `
+    ${Array.from({length:26},(_,i)=>{const a=(i/26)*Math.PI*2;const x1=104+Math.cos(a)*26,y1=212+Math.sin(a)*26;const x2=104+Math.cos(a)*72,y2=212+Math.sin(a)*72;
+      return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#8FA06B" stroke-width="1.6" opacity="0.85"/><circle cx="${x2.toFixed(1)}" cy="${y2.toFixed(1)}" r="3.4" fill="#D9A441"/>`;}).join('')}
+    <circle cx="104" cy="212" r="26" fill="#4A4636"/>
+    <path d="M104 284 Q112 332 96 374" stroke="#71855B" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <text x="150" y="64" font-family="${FD_DISPLAY}" font-size="38" fill="#EFFFD9">MOV</text>
+    <text x="172" y="100" font-family="${FD_DISPLAY}" font-size="38" fill="#EFFFD9">IES</text>
+    <text x="244" y="348" text-anchor="end" font-family="${FD_ITALIC}" font-style="italic" font-size="16" fill="#EFFFD9">an evening&#8217;s escape</text>`),
+
+  /* sky blue · backlit ginkgo fan · celadon deco type */
+  cocktails: cover('cocktails', `
+    <path d="M130 230 C60 218 36 156 62 96 C92 110 120 104 130 70 C140 104 168 110 198 96 C224 156 200 218 130 230 Z" fill="#C2BD4E" opacity="0.95"/>
+    ${Array.from({length:9},(_,i)=>{const x=70+i*15;return `<path d="M${x} ${108+Math.abs(4-i)*8} Q ${x+(130-x)*0.4} 170 130 226" stroke="#A8A33B" stroke-width="0.8" fill="none" opacity="0.5"/>`;}).join('')}
+    <path d="M130 230 Q126 290 140 336" stroke="#C2BD4E" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <text x="28" y="56" font-family="${FD_DISPLAY}" font-size="20" fill="#DCEFC8">The</text>
+    <defs><path id="cov-c-a" d="M24 304 Q130 276 236 304"/></defs>
+    <text font-family="${FD_DISPLAY}" font-size="36" fill="#DCEFC8"><textPath href="#cov-c-a" startOffset="50%" text-anchor="middle">COCKTAILS</textPath></text>
+    <text x="130" y="338" text-anchor="middle" font-family="${FD_DISPLAY}" font-size="10" letter-spacing="3.5" fill="#DCEFC8" opacity="0.85">STIRRED &#183; SHAKEN</text>`),
+
+  /* riso print · yellow diamond, green grove, cobalt swifts */
+  places: cover('places', `
+    <rect x="46" y="100" width="168" height="168" fill="#F2C230" transform="rotate(45 130 184)"/>
+    <g fill="#2E9444">
+      <rect x="90" y="196" width="4" height="32"/>
+      <circle cx="92" cy="182" r="20"/><circle cx="78" cy="194" r="12"/><circle cx="106" cy="194" r="12"/>
+      <rect x="144" y="190" width="4" height="44"/>
+      <circle cx="146" cy="172" r="24"/><circle cx="129" cy="188" r="13"/><circle cx="163" cy="188" r="13"/>
+      <rect x="184" y="196" width="3.6" height="22"/>
+      <circle cx="186" cy="188" r="13"/>
+      <path d="M64 238 Q130 252 196 238 L196 244 Q130 258 64 244 Z" opacity="0.9"/>
+    </g>
+    <path d="M52 70 q10 -12 22 0 q-12 2 -22 0 Z M84 56 q8 -10 18 0 q-10 2 -18 0 Z" fill="#2742C8"/>
+    <text x="130" y="312" text-anchor="middle" font-family="${FD_ITALIC}" font-weight="500" font-size="30" fill="#2742C8">Places</text>
+    <text x="130" y="334" text-anchor="middle" font-family="${FD_DISPLAY}" font-size="10" letter-spacing="3" fill="#2E9444">FIELDS &#38; COASTLINES</text>`),
+
+  /* warm blush · eucalyptus sprig · arched rust type */
+  style: cover('style', `
+    <path d="M130 36 Q146 110 132 188" stroke="#9C4B26" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    ${[[52,-1],[76,1],[100,-1],[124,1],[148,-1],[172,1]].map(([y,s])=>{
+      const cx=134+s*24, cy=y+10;
+      return `<ellipse cx="${cx}" cy="${cy}" rx="13" ry="9" fill="#B05A30" opacity="0.88" transform="rotate(${s*28} ${cx} ${cy})"/>`;}).join('')}
+    <defs>
+      <path id="cov-s-a1" d="M40 252 Q130 226 220 252"/>
+      <path id="cov-s-a2" d="M30 306 Q130 278 230 306"/>
+    </defs>
+    <text font-family="${FD_DISPLAY}" font-size="13" letter-spacing="4" fill="#9C4B26"><textPath href="#cov-s-a1" startOffset="50%" text-anchor="middle">WORN AND LOVED</textPath></text>
+    <text font-family="${FD_DISPLAY}" font-size="44" fill="#9C4B26"><textPath href="#cov-s-a2" startOffset="50%" text-anchor="middle">STYLE</textPath></text>
+    <text x="130" y="340" text-anchor="middle" font-family="${FD_ITALIC}" font-style="italic" font-size="16" fill="#9C4B26">a wardrobe of ideas</text>`),
+
+  /* deep green · botanist's instruments as constellation */
+  tools: cover('tools', `
+    ${[[40,52,1.2],[210,40,1],[230,140,1.4],[30,210,1],[226,288,1.2],[60,330,1]].map(([x,y,r])=>
+      `<circle cx="${x}" cy="${y}" r="${r}" fill="#EDE8D7" opacity="0.7"/>`).join('')}
+    <line x1="86" y1="208" x2="172" y2="100" stroke="#EDE8D7" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="182" cy="88" r="26" stroke="#EDE8D7" stroke-width="2.2" fill="#2C4435"/>
+    <circle cx="182" cy="88" r="15" stroke="#EDE8D7" stroke-width="1.6" fill="#2C4435"/>
+    <path d="M82 214 Q70 226 68 234 Q74 242 82 236 L92 224" stroke="#EDE8D7" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <g stroke="#D9A441" stroke-width="1.8" stroke-linecap="round">
+      <line x1="74" y1="120" x2="74" y2="104"/><line x1="74" y1="136" x2="74" y2="152"/>
+      <line x1="66" y1="128" x2="50" y2="128"/><line x1="82" y1="128" x2="98" y2="128"/>
+    </g>
+    <defs><path id="cov-t-a" d="M30 296 Q130 268 230 296"/></defs>
+    <text font-family="${FD_DISPLAY}" font-size="42" fill="#EDE8D7"><textPath href="#cov-t-a" startOffset="50%" text-anchor="middle">TOOLS</textPath></text>
+    <text x="130" y="330" text-anchor="middle" font-family="${FD_ITALIC}" font-style="italic" font-size="16" fill="#EDE8D7" opacity="0.9">useful little things</text>`),
+};
+
+/* legacy v1 covers kept below for reference (no longer used) */
+function svgCard(inner) {
+  return 'data:image/svg+xml,' + encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 748">${inner}</svg>`
+  );
+}
+const SVG_BG = `<rect width="520" height="748" fill="#1A1916"/>`;
+const C1 = '#F7F5F1', C2 = '#BF5B3F'; // cream, rust
+
+const COVERS_LEGACY = {
+  recipes: svgCard(`${SVG_BG}
+    <path d="M175 420 Q175 500 260 500 Q345 500 345 420" stroke="${C1}" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <line x1="158" y1="420" x2="362" y2="420" stroke="${C1}" stroke-width="3" stroke-linecap="round"/>
+    <path d="M175 420 C150 420 140 432 140 446 C140 460 155 464 175 460" stroke="${C1}" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M345 420 C370 420 380 432 380 446 C380 460 365 464 345 460" stroke="${C1}" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M222 402 Q212 376 222 350 Q232 324 222 298" stroke="${C2}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M260 396 Q250 370 260 344 Q270 318 260 292" stroke="${C2}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M298 402 Q288 376 298 350 Q308 324 298 298" stroke="${C2}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`),
+
+  music: svgCard(`${SVG_BG}
+    <circle cx="260" cy="374" r="156" stroke="${C1}" stroke-width="2.5" fill="none"/>
+    <circle cx="260" cy="374" r="128" stroke="${C1}" stroke-width="1" fill="none" opacity="0.25"/>
+    <circle cx="260" cy="374" r="100" stroke="${C1}" stroke-width="1" fill="none" opacity="0.25"/>
+    <circle cx="260" cy="374" r="72" stroke="${C1}" stroke-width="1" fill="none" opacity="0.25"/>
+    <circle cx="260" cy="374" r="58" stroke="${C2}" stroke-width="2.5" fill="none"/>
+    <circle cx="260" cy="374" r="40" stroke="${C2}" stroke-width="1.5" fill="none" opacity="0.5"/>
+    <circle cx="260" cy="374" r="9" stroke="${C1}" stroke-width="2" fill="#1A1916"/>`),
+
+  books: svgCard(`${SVG_BG}
+    <path d="M260 285 Q215 290 165 308 L148 490 Q195 478 238 478 L260 476" stroke="${C1}" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M260 285 Q305 290 355 308 L372 490 Q325 478 282 478 L260 476" stroke="${C1}" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="260" y1="285" x2="260" y2="476" stroke="${C1}" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="178" y1="335" x2="248" y2="330" stroke="${C2}" stroke-width="2" stroke-linecap="round"/>
+    <line x1="175" y1="357" x2="246" y2="352" stroke="${C1}" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+    <line x1="172" y1="379" x2="244" y2="374" stroke="${C1}" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+    <line x1="169" y1="401" x2="242" y2="396" stroke="${C1}" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+    <line x1="166" y1="423" x2="240" y2="418" stroke="${C1}" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+    <line x1="276" y1="330" x2="346" y2="335" stroke="${C1}" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+    <line x1="278" y1="352" x2="349" y2="357" stroke="${C1}" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+    <line x1="280" y1="374" x2="351" y2="379" stroke="${C1}" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+    <line x1="282" y1="396" x2="353" y2="401" stroke="${C1}" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+    <line x1="284" y1="418" x2="355" y2="423" stroke="${C1}" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>`),
+
+  movies: svgCard(`${SVG_BG}
+    <rect x="125" y="268" width="270" height="212" rx="5" stroke="${C1}" stroke-width="2.5" fill="none"/>
+    <rect x="137" y="256" width="16" height="14" rx="2" stroke="${C1}" stroke-width="1.8" fill="none"/>
+    <rect x="171" y="256" width="16" height="14" rx="2" stroke="${C1}" stroke-width="1.8" fill="none"/>
+    <rect x="205" y="256" width="16" height="14" rx="2" stroke="${C1}" stroke-width="1.8" fill="none"/>
+    <rect x="239" y="256" width="16" height="14" rx="2" stroke="${C1}" stroke-width="1.8" fill="none"/>
+    <rect x="273" y="256" width="16" height="14" rx="2" stroke="${C1}" stroke-width="1.8" fill="none"/>
+    <rect x="307" y="256" width="16" height="14" rx="2" stroke="${C1}" stroke-width="1.8" fill="none"/>
+    <rect x="341" y="256" width="16" height="14" rx="2" stroke="${C1}" stroke-width="1.8" fill="none"/>
+    <rect x="137" y="478" width="16" height="14" rx="2" stroke="${C1}" stroke-width="1.8" fill="none"/>
+    <rect x="171" y="478" width="16" height="14" rx="2" stroke="${C1}" stroke-width="1.8" fill="none"/>
+    <rect x="205" y="478" width="16" height="14" rx="2" stroke="${C1}" stroke-width="1.8" fill="none"/>
+    <rect x="239" y="478" width="16" height="14" rx="2" stroke="${C1}" stroke-width="1.8" fill="none"/>
+    <rect x="273" y="478" width="16" height="14" rx="2" stroke="${C1}" stroke-width="1.8" fill="none"/>
+    <rect x="307" y="478" width="16" height="14" rx="2" stroke="${C1}" stroke-width="1.8" fill="none"/>
+    <rect x="341" y="478" width="16" height="14" rx="2" stroke="${C1}" stroke-width="1.8" fill="none"/>
+    <polygon points="224,334 224,416 308,375" stroke="${C2}" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`),
+
+  cocktails: svgCard(`${SVG_BG}
+    <path d="M155 280 L260 432 L365 280" stroke="${C1}" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="149" y1="280" x2="371" y2="280" stroke="${C1}" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="260" y1="432" x2="260" y2="502" stroke="${C1}" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="208" y1="502" x2="312" y2="502" stroke="${C1}" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="198" y1="298" x2="308" y2="322" stroke="${C2}" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="308" cy="322" r="13" stroke="${C2}" stroke-width="2" fill="none"/>
+    <circle cx="308" cy="322" r="4" fill="${C2}"/>`),
+
+  places: svgCard(`${SVG_BG}
+    <path d="M118 476 L215 308 L280 400 L330 338 L408 476" stroke="${C1}" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="108" y1="476" x2="418" y2="476" stroke="${C1}" stroke-width="2" stroke-linecap="round" opacity="0.35"/>
+    <path d="M200 330 L215 308 L230 330" stroke="${C2}" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="376" cy="296" r="28" stroke="${C2}" stroke-width="2.5" fill="none"/>
+    <line x1="376" y1="260" x2="376" y2="250" stroke="${C2}" stroke-width="2" stroke-linecap="round"/>
+    <line x1="405" y1="267" x2="413" y2="259" stroke="${C2}" stroke-width="2" stroke-linecap="round"/>
+    <line x1="414" y1="296" x2="424" y2="296" stroke="${C2}" stroke-width="2" stroke-linecap="round"/>
+    <line x1="405" y1="325" x2="413" y2="333" stroke="${C2}" stroke-width="2" stroke-linecap="round"/>
+    <line x1="347" y1="267" x2="339" y2="259" stroke="${C2}" stroke-width="2" stroke-linecap="round"/>
+    <line x1="338" y1="296" x2="328" y2="296" stroke="${C2}" stroke-width="2" stroke-linecap="round"/>
+    <line x1="347" y1="325" x2="339" y2="333" stroke="${C2}" stroke-width="2" stroke-linecap="round"/>`),
+
+  style: svgCard(`${SVG_BG}
+    <path d="M260 265 Q260 248 277 248 Q297 248 297 265 Q297 279 260 285" stroke="${C1}" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M260 285 C255 318 190 358 138 393" stroke="${C1}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M260 285 C265 318 330 358 382 393" stroke="${C1}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <line x1="132" y1="393" x2="388" y2="393" stroke="${C1}" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="260" cy="292" r="4.5" fill="${C2}"/>
+    <line x1="198" y1="414" x2="186" y2="452" stroke="${C1}" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+    <line x1="229" y1="414" x2="224" y2="456" stroke="${C1}" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+    <line x1="260" y1="414" x2="260" y2="458" stroke="${C1}" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+    <line x1="291" y1="414" x2="296" y2="456" stroke="${C1}" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+    <line x1="322" y1="414" x2="334" y2="452" stroke="${C1}" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>`),
+
+  tools: svgCard(`${SVG_BG}
+    <line x1="178" y1="464" x2="312" y2="292" stroke="${C1}" stroke-width="16" stroke-linecap="round"/>
+    <circle cx="328" cy="276" r="42" stroke="${C1}" stroke-width="2.5" fill="#1A1916"/>
+    <circle cx="328" cy="276" r="26" stroke="${C1}" stroke-width="2" fill="#1A1916"/>
+    <path d="M173 477 Q156 494 153 504 Q161 517 174 506 L189 489" stroke="${C1}" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="190" y1="312" x2="190" y2="290" stroke="${C2}" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="190" y1="324" x2="190" y2="346" stroke="${C2}" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="178" y1="318" x2="156" y2="318" stroke="${C2}" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="202" y1="318" x2="224" y2="318" stroke="${C2}" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="183" y1="307" x2="167" y2="291" stroke="${C2}" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="197" y1="307" x2="213" y2="291" stroke="${C2}" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="183" y1="329" x2="167" y2="345" stroke="${C2}" stroke-width="2.2" stroke-linecap="round"/>
+    <line x1="197" y1="329" x2="213" y2="345" stroke="${C2}" stroke-width="2.2" stroke-linecap="round"/>`)
+};
+
+const DATA = {
+  tools: {
+    label:'Tools', emoji:'\u2699\ufe0f',
+    desc:'The design kit. Apps, plugins and workflows that survived more than one project.',
+    img: COVERS.tools,
+    items:[
+      { id:'t1',type:'tool',emoji:'\ud83c\udfa8',title:'Figma',
+        meta:'Design \u00b7 Daily driver',
+        description:'Where everything starts and most things end. Variables and modes finally made the design system real instead of aspirational.',
+        platform:'Web / Desktop',category_tag:'UI \u00b7 Systems',free:false,
+        url:'figma.com',
+        key_features:['Variables & modes','Auto layout','Dev Mode handoff','Multiplayer critique']},
+      { id:'t2',type:'tool',emoji:'\ud83e\uddf1',title:'Storybook',
+        meta:'Systems \u00b7 Open source',
+        description:'The honest mirror for a design system. If a component only looks right in the Figma file, Storybook is where you find out.',
+        platform:'Web',category_tag:'Design Systems',free:true,
+        url:'storybook.js.org',
+        key_features:['Component isolation','Visual regression','Living documentation']},
+      { id:'t3',type:'tool',emoji:'\ud83d\udcd0',title:'Tokens Studio',
+        meta:'Tokens \u00b7 Freemium',
+        description:'Design tokens that actually round-trip between Figma and code. Ends the argument about which spacing scale is the real one.',
+        platform:'Figma plugin',category_tag:'Tokens',free:false,
+        url:'tokens.studio',
+        key_features:['Token sets & themes','Git sync','Style Dictionary export']},
+      { id:'t4',type:'tool',emoji:'\ud83c\udfac',title:'Rive',
+        meta:'Motion \u00b7 Freemium',
+        description:'Interaction motion you can actually ship. State machines mean the prototype and the build are the same artifact.',
+        platform:'Web / Desktop',category_tag:'Motion',free:false,
+        url:'rive.app',
+        key_features:['State machines','Runtime for web & native','Tiny file sizes']},
+      { id:'t5',type:'tool',emoji:'\ud83d\udd0d',title:'Maze',
+        meta:'Research \u00b7 Paid',
+        description:'Unmoderated testing for when you need evidence by Thursday and the full study is three weeks out.',
+        platform:'Web',category_tag:'Research',free:false,
+        url:'maze.co',
+        key_features:['Prototype testing','Heatmaps','Recruitment panel']},
+      { id:'t6',type:'tool',emoji:'\u267f',title:'Stark',
+        meta:'Accessibility \u00b7 Freemium',
+        description:'Contrast, focus order and simulated vision, checked in the file rather than in the bug tracker three sprints later.',
+        platform:'Figma plugin',category_tag:'Accessibility',free:false,
+        url:'getstark.co',
+        key_features:['Contrast checker','Focus order','Vision simulator']}
+    ]
+  },
+  style: {
+    label:'Style', emoji:'\ud83d\uddbc\ufe0f',
+    desc:'Visual references. Type, texture and composition worth stealing from later.',
+    img: COVERS.style,
+    items:[
+      { id:'r1',type:'style',emoji:'\ud83d\udcd0',title:'Swiss Grid Posters',
+        meta:'Print \u00b7 Composition',
+        description:'M\u00fcller-Brockmann era grid work. A reminder that constraint is what makes a layout feel inevitable rather than arranged.',
+        source:'Reference board'},
+      { id:'r2',type:'style',emoji:'\ud83e\uded6',title:'Riso Overprint',
+        meta:'Print \u00b7 Colour',
+        description:'Two inks, one misregistration, infinite character. The texture argument against flat corporate gradients.',
+        source:'Reference board'},
+      { id:'r3',type:'style',emoji:'\ud83c\udfdb\ufe0f',title:'Brutalist Interfaces',
+        meta:'Digital \u00b7 Structure',
+        description:'Structure worn on the outside. Useful when a product needs to feel honest rather than friendly.',
+        source:'Reference board'},
+      { id:'r4',type:'style',emoji:'\ud83c\udf3f',title:'Botanical Plates',
+        meta:'Illustration \u00b7 Detail',
+        description:'19th-century engraving detail. The level of care that makes an illustration feel authored instead of generated.',
+        source:'Reference board'},
+      { id:'r5',type:'style',emoji:'\ud83c\udf05',title:'Editorial Whitespace',
+        meta:'Editorial \u00b7 Rhythm',
+        description:'Magazine spreads that let the page breathe. Proof that generous margins read as confidence, not waste.',
+        source:'Reference board'},
+      { id:'r6',type:'style',emoji:'\ud83c\udf9e\ufe0f',title:'Film Title Sequences',
+        meta:'Motion \u00b7 Pacing',
+        description:'Saul Bass through Kyle Cooper. Everything worth knowing about establishing tone in under ninety seconds.',
+        source:'Reference board'}
+    ]
+  },
+  books: {
+    label:'Books', emoji:'\ud83d\udcda',
+    desc:'The shelf that keeps getting lent out and asked for back.',
+    img: COVERS.books,
+    items:[
+      { id:'k1',type:'book',emoji:'\ud83d\udeaa',title:'The Design of Everyday Things',
+        img:'https://covers.openlibrary.org/b/isbn/0465050654-L.jpg',
+        meta:'Don Norman \u00b7 1988',
+        description:'Affordances, signifiers, and why you keep pushing doors that pull. Still the clearest thing ever written about blame and design.',
+        author:'Don Norman',year:1988,genre:'Design',pages:368},
+      { id:'k2',type:'book',emoji:'\ud83d\udc41\ufe0f',title:'Ways of Seeing',
+        img:'https://covers.openlibrary.org/b/isbn/0140135154-L.jpg',
+        meta:'John Berger \u00b7 1972',
+        description:'Short, radical essays on images and power. Changed how a generation looked at pictures, and quietly how they made them.',
+        author:'John Berger',year:1972,genre:'Art Criticism',pages:166},
+      { id:'k3',type:'book',emoji:'\ud83d\udcd0',title:'Grid Systems in Graphic Design',
+        img:'https://covers.openlibrary.org/b/isbn/3721201450-L.jpg',
+        meta:'Josef M\u00fcller-Brockmann \u00b7 1981',
+        description:'The book that makes you rebuild your spacing scale from scratch, and be glad about it.',
+        author:'Josef M\u00fcller-Brockmann',year:1981,genre:'Typography',pages:176},
+      { id:'k4',type:'book',emoji:'\ud83e\udde0',title:'Thinking, Fast and Slow',
+        img:'https://covers.openlibrary.org/b/isbn/0374533555-L.jpg',
+        meta:'Daniel Kahneman \u00b7 2011',
+        description:'Why users do not behave the way the flowchart assumed. Required reading before writing another research plan.',
+        author:'Daniel Kahneman',year:2011,genre:'Psychology',pages:499},
+      { id:'k5',type:'book',emoji:'\ud83c\udff7\ufe0f',title:'Atomic Design',
+        img:'https://covers.openlibrary.org/b/isbn/0998296600-L.jpg',
+        meta:'Brad Frost \u00b7 2016',
+        description:'The vocabulary half the industry now argues in. Worth reading properly rather than quoting from a conference slide.',
+        author:'Brad Frost',year:2016,genre:'Design Systems',pages:206},
+      { id:'k6',type:'book',emoji:'\ud83e\udd1d',title:'You\'re My Favorite Client',
+        img:'https://covers.openlibrary.org/b/isbn/1937557146-L.jpg',
+        meta:'Mike Monteiro \u00b7 2014',
+        description:'Really a book about how design actually gets made: the conversation, the brief, and who is allowed to say no.',
+        author:'Mike Monteiro',year:2014,genre:'Design Practice',pages:136}
+    ]
+  },
+  music: {
+    label:'Music', emoji:'\ud83c\udfb5',
+    desc:'What is on while the work happens. Mostly wordless, occasionally not.',
+    img: COVERS.music,
+    items:[
+      { id:'u1',type:'music',emoji:'\ud83c\udfb7',title:'Kind of Blue',
+        meta:'Miles Davis \u00b7 1959',
+        description:'Modal, unhurried, and impossible to get tired of. The default when nothing else will do.',
+        artist:'Miles Davis',album:'Kind of Blue',year:1959,genre:'Modal Jazz'},
+      { id:'u2',type:'music',emoji:'\u2744\ufe0f',title:'Vespertine',
+        meta:'Bj\u00f6rk \u00b7 2001',
+        description:'Microscopic and interior. The sound of staying in and finishing something.',
+        artist:'Bj\u00f6rk',album:'Vespertine',year:2001,genre:'Art Pop'},
+      { id:'u3',type:'music',emoji:'\ud83c\udf0a',title:'Music for Airports',
+        meta:'Brian Eno \u00b7 1978',
+        description:'The original ambient brief: as ignorable as it is interesting. Still the best deep-work record ever made.',
+        artist:'Brian Eno',album:'Ambient 1: Music for Airports',year:1978,genre:'Ambient'},
+      { id:'u4',type:'music',emoji:'\ud83d\udd70\ufe0f',title:'Dummy',
+        meta:'Portishead \u00b7 1994',
+        description:'Trip-hop that still sounds like the future. They made their own weather and never left it.',
+        artist:'Portishead',album:'Dummy',year:1994,genre:'Trip-Hop'},
+      { id:'u5',type:'music',emoji:'\ud83c\udf19',title:'Selected Ambient Works Vol. II',
+        meta:'Aphex Twin \u00b7 1994',
+        description:'Untitled tracks, no landmarks, no chorus to wait for. Ideal for long stretches of quiet detail work.',
+        artist:'Aphex Twin',album:'Selected Ambient Works Volume II',year:1994,genre:'Ambient'},
+      { id:'u6',type:'music',emoji:'\ud83c\udfb9',title:'The K\u00f6ln Concert',
+        meta:'Keith Jarrett \u00b7 1975',
+        description:'Improvised on a bad piano he did not want to play. A useful thing to remember about constraints.',
+        artist:'Keith Jarrett',album:'The K\u00f6ln Concert',year:1975,genre:'Solo Piano'}
+    ]
+  }
+};
+
+/* home carousel items (one per category) */
+const HOME_ITEMS = Object.entries(DATA).map(([key, cat]) => ({
+  id: `home-${key}`, type: 'home', catKey: key,
+  emoji: cat.emoji, title: cat.label,
+  img: cat.img,
+  meta: `${cat.items.length} items`,
+  description: cat.desc
+}));
+
+/* ══════════════════════════════════════════════
+   CAROUSEL ENGINE
+══════════════════════════════════════════════ */
+const STATE = {
+  home: { float: 0, vel: 0 },
+  cat:  { float: 0, vel: 0 }
+};
+
+let activeMode = 'home'; // 'home' | 'cat'
+let currentCat = null;
+
+/* The list currently rendered in each carousel (may be a filtered subset
+   of DATA — keeps clicks, drags and dots in sync with what's on screen). */
+const VIEW = { home: [], cat: [] };
+
+function carouselItems(mode) {
+  return VIEW[mode] || [];
+}
+
+/* ── Animation loop ── */
+/* Element caches + render-dirty flag. renderPositions runs per animation frame;
+   at 50+ items per category, per-frame getElementById/querySelectorAll and
+   style writes on settled cards get expensive — cache and skip instead. */
+const _cardCache = { home: [], cat: [] };
+const _dotCache  = { home: [], cat: [] };
+let _renderDirty = true;
+
+(function loop() {
+  requestAnimationFrame(loop);
+  const s = STATE[activeMode];
+  const items = carouselItems(activeMode);
+  const n = items.length;
+  if (!n) return;
+
+  // Decelerate and snap to nearest integer
+  s.vel *= 0.82;
+  s.float += s.vel;
+
+  if (Math.abs(s.vel) < 0.002) {
+    const nearest = Math.round(s.float);
+    s.float += (nearest - s.float) * 0.12;
+    if (Math.abs(nearest - s.float) < 0.001) { s.float = nearest; s.vel = 0; }
+  }
+
+  // Wrap
+  s.float = ((s.float % n) + n) % n;
+
+  // Skip the style pass when nothing moved since the last render — at rest this
+  // would otherwise rewrite every card's style 60 times a second.
+  if (!_renderDirty && s.float === s._lastRendered) return;
+  _renderDirty = false;
+  s._lastRendered = s.float;
+
+  renderPositions(activeMode);
+})();
+
+window.addEventListener('resize', () => { _renderDirty = true; });
+
+function renderPositions(mode) {
+  const s = STATE[mode];
+  const items = carouselItems(mode);
+  const n = items.length;
+  const maxVis = Math.min(2, Math.floor(n / 2));
+  const cards = _cardCache[mode] || [];
+
+  items.forEach((_, i) => {
+    const el = cards[i] || document.getElementById(`${mode}-c-${i}`);
+    if (!el) return;
+
+    let pos = i - s.float;
+    if (pos >  n / 2) pos -= n;
+    if (pos < -n / 2) pos += n;
+    const abs = Math.abs(pos);
+
+    if (abs > maxVis + 0.5) {
+      if (el._hidden) return;   // already hidden — skip the style writes
+      el._hidden = true;
+      el.style.opacity = '0';
+      el.style.pointerEvents = 'none';
+      el.style.zIndex = '0';
+      el.classList.remove('is-center');
+      return;
+    }
+    el._hidden = false;
+
+    // Promote the deferred image now that the card is (nearly) on screen.
+    if (el._img === undefined) el._img = el.querySelector('.c-card-img');
+    if (el._img && el._img.dataset.src) {
+      el._img.src = el._img.dataset.src;
+      el._img.removeAttribute('data-src');
+    }
+
+    const mob = window.innerWidth <= 360;
+    const sm  = window.innerWidth <= 540;
+    const spread = mode === 'home'
+      ? (mob ? 192 : sm ? 218 : 306)
+      : (mob ? 158 : sm ? 178 : 246);
+    const tx  = pos * spread;
+    const tz  = -abs * 110;
+    const ry  = pos * 17;
+    const sc  = 1 - abs * 0.105;
+    const op  = Math.max(0, 1 - abs * 0.27);
+    const br  = abs > 0 ? 0.88 + 0.12 * (1 - abs / 2.5) : 1;
+    const sh  = abs < 0.3 ? '0 24px 60px rgba(0,0,0,0.22)' : 'none';
+
+    el.style.transform   = `translateX(${tx}px) translateZ(${tz}px) rotateY(${ry}deg) scale(${sc})`;
+    el.style.opacity     = String(op);
+    el.style.zIndex      = String(10 - Math.round(abs));
+    el.style.filter      = `brightness(${br})`;
+    el.style.boxShadow   = sh;
+    el.style.pointerEvents = 'all';
+
+    const isCenter = abs < 0.3;
+    el.classList.toggle('is-center', isCenter);
+  });
+
+  // Dots — only touch the DOM when the active dot changes
+  const centerIdx = ((Math.round(s.float) % n) + n) % n;
+  if (s._lastDot !== centerIdx) {
+    (_dotCache[mode] || []).forEach((d, i) => d.classList.toggle('on', i === centerIdx));
+    s._lastDot = centerIdx;
+  }
+}
+
+/* ── HTML-escape user-derived strings before injecting into templates ── */
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
+/* ── Build carousel ── */
+function buildCarousel(mode, items, keepPos = false) {
+  const trackEl = document.getElementById(`${mode}-track`);
+  const dotsEl  = document.getElementById(`${mode}-dots`);
+
+  trackEl.innerHTML = items.map((item, i) => {
+    /* Home: full-bleed illustrated cover with an item-count chip */
+    if (mode === 'home' && typeof item.img === 'string' && item.img.startsWith('<svg')) {
+      return `
+      <div class="c-card" id="${mode}-c-${i}" onclick="handleCardClick('${mode}',${i})">
+        <div class="c-cover">${item.img}</div>
+        <span class="c-count-chip">${esc(item.meta)}</span>
+        <div class="c-badge">Open →</div>
+      </div>`;
+    }
+
+    /* Category items (and dynamically created home covers): postcard */
+    const pal = (mode === 'home' ? PALETTE[item.catKey] : PALETTE[currentCat]) || {};
+    const statusBadge =
+      (item.read    ? '<span class="c-status-badge">Read</span>'    : '') +
+      (item.watched ? '<span class="c-status-badge">Watched</span>' : '');
+    const heartFill = item.favourite ? 'currentColor' : 'none';
+    return `
+    <div class="c-card" id="${mode}-c-${i}" style="--tint:${pal.tint || '#E8E3D6'};--tint-ink:${pal.cap || 'var(--accent)'}" onclick="handleCardClick('${mode}',${i})">
+      <div class="c-frame">
+        <div class="c-card-emoji">${item.emoji}</div>
+        ${item.img ? `<img class="c-card-img" data-src="${esc(item.img)}" alt="${esc(item.title)}"
+             loading="lazy" onerror="this.style.display='none'">` : ''}
+      </div>
+      <div class="c-caption">
+        <div class="c-cap-eye">${statusBadge}<span>${esc(item.type === 'home' ? item.meta : (item.meta || ''))}</span></div>
+        <div class="c-cap-row">
+          <div class="c-cap-title">${esc(item.title)}</div>
+        </div>
+        <div class="c-cap-meta">${esc(item.description || '')}</div>
+      </div>
+      <div class="c-badge">Open →</div>
+      ${mode !== 'home' ? `<button class="c-heart ${item.favourite ? 'active' : ''}" title="${item.favourite ? 'Unfavourite' : 'Favourite'}" onclick="event.stopPropagation();toggleFavourite('${esc(item.id)}')"><svg viewBox="0 0 24 24" fill="${heartFill}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>` : ''}
+      ${mode !== 'home' ? `<button class="c-delete" title="Remove" onclick="event.stopPropagation();confirmDeleteItem('${esc(item.id)}')"><svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 3.5h10M5.5 3.5V2h3v1.5M3.5 3.5l.75 8.25h5.5L10.5 3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>` : ''}
+    </div>`;
+  }).join('');
+
+  dotsEl.innerHTML = items.map((_, i) =>
+    `<div class="c-dot" onclick="jumpTo('${mode}',${i})"></div>`
+  ).join('');
+
+  // Refresh the element caches used by renderPositions (see animation loop).
+  _cardCache[mode] = items.map((_, i) => {
+    const el = document.getElementById(`${mode}-c-${i}`);
+    if (el) { el._img = el.querySelector('.c-card-img'); el._hidden = false; }
+    return el;
+  });
+  _dotCache[mode] = Array.from(dotsEl.children);
+  STATE[mode]._lastDot = -1;
+  _renderDirty = true;
+
+  VIEW[mode] = items;
+  if (!keepPos) {
+    STATE[mode].float = 0;
+    STATE[mode].vel   = 0;
+  } else {
+    const n = items.length;
+    if (n) STATE[mode].float = Math.min(Math.round(STATE[mode].float), n - 1);
+  }
+}
+
+/* ── Click handling ── */
+function handleCardClick(mode, i) {
+  // Home carousel: any card click navigates directly — no two-step required.
+  // Read from the live view, not the frozen HOME_ITEMS constant: the home
+  // carousel is rebuilt with extra cards (e.g. "Saved") when dynamic
+  // categories load, so HOME_ITEMS[i] can be undefined for those and the
+  // click would silently throw.
+  if (mode === 'home') {
+    const card = carouselItems('home')[i] || HOME_ITEMS[i];
+    if (card) goCat(card.catKey);
+    return;
+  }
+
+  const s = STATE[mode];
+  const n = carouselItems(mode).length;
+  const center = ((Math.round(s.float) % n) + n) % n;
+
+  if (i === center) {
+    const item = carouselItems(mode)[i];
+    openModal(item);
+  } else {
+    jumpTo(mode, i);
+  }
+}
+
+function jumpTo(mode, target) {
+  const s = STATE[mode];
+  const n = carouselItems(mode).length;
+  let diff = target - s.float;
+  diff = ((diff % n) + n + n/2) % n - n/2;
+  s.vel = diff * 0.28;
+  s.hovering = false;
+}
+
+function stepCarousel(mode, dir) {
+  const s = STATE[mode];
+  const n = carouselItems(mode).length;
+  const target = ((Math.round(s.float) + dir + n) % n);
+  jumpTo(mode, target);
+}
+
+
+/* ── Touch drag — real-time, both axes ── */
+let _touch = null;
+
+function _touchOnCarousel(e) {
+  if (document.getElementById('modal').classList.contains('open')) return false;
+  if (e.target.closest('#import-bg') || e.target.closest('#login-overlay')) return false;
+  // The category switcher scrolls horizontally itself — don't drag the carousel under it.
+  if (e.target.closest('#cat-switch') || e.target.closest('#lightbox')) return false;
+  return true;
+}
+
+document.addEventListener('touchstart', e => {
+  if (!_touchOnCarousel(e)) return;
+  _touch = {
+    x0: e.touches[0].clientX,
+    y0: e.touches[0].clientY,
+    t0: Date.now(),
+    axis: null,
+    baseFloat: STATE[activeMode].float
+  };
+}, {passive: true});
+
+document.addEventListener('touchmove', e => {
+  if (!_touch) return;
+  if (!_touchOnCarousel(e)) { _touch = null; return; }
+
+  const dx = e.touches[0].clientX - _touch.x0;
+  const dy = e.touches[0].clientY - _touch.y0;
+
+  // Lock to dominant axis on first significant movement
+  if (!_touch.axis) {
+    if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+    _touch.axis = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
+  }
+
+  e.preventDefault(); // block native scroll on our axis
+
+  const items = carouselItems(activeMode);
+  const n = items.length;
+  if (!n) return;
+
+  const mob    = window.innerWidth <= 360;
+  const sm     = window.innerWidth <= 540;
+  const spread = activeMode === 'home'
+    ? (mob ? 192 : sm ? 218 : 306)
+    : (mob ? 158 : sm ? 178 : 246);
+  const delta  = _touch.axis === 'h' ? dx : dy;
+  const s = STATE[activeMode];
+  s.float = (((_touch.baseFloat - delta / spread) % n) + n) % n;
+  s.vel   = 0;
+  renderPositions(activeMode);
+}, {passive: false});
+
+document.addEventListener('touchend', e => {
+  if (!_touch) return;
+  const dx = e.changedTouches[0].clientX - _touch.x0;
+  const dy = e.changedTouches[0].clientY - _touch.y0;
+  const dt = Math.max(Date.now() - _touch.t0, 16);
+
+  if (_touch.axis) {
+    const delta  = _touch.axis === 'h' ? dx : dy;
+    const mob    = window.innerWidth <= 360;
+    const sm     = window.innerWidth <= 540;
+    const spread = activeMode === 'home'
+      ? (mob ? 192 : sm ? 218 : 306)
+      : (mob ? 158 : sm ? 178 : 246);
+    const vel    = -(delta / spread) / dt * 14;
+    STATE[activeMode].vel = Math.max(-1.2, Math.min(1.2, vel));
+  }
+  _touch = null;
+});
+
+document.addEventListener('touchcancel', () => { _touch = null; });
+
+/* ── Keyboard ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft')  stepCarousel(activeMode, -1);
+  if (e.key === 'ArrowRight') stepCarousel(activeMode,  1);
+  if (e.key === 'ArrowUp')    stepCarousel(activeMode, -1);
+  if (e.key === 'ArrowDown')  stepCarousel(activeMode,  1);
+  if (e.key === 'Escape') closeModal();
+});
+
+/* ── Scroll-to-step ── */
+let _wheelLock = false;
+document.addEventListener('wheel', (e) => {
+  // Don't hijack scroll inside an open modal
+  if (document.getElementById('modal').classList.contains('open')) return;
+  if (_wheelLock) return;
+  if (Math.abs(e.deltaY) < 8) return; // ignore tiny trackpad drift
+
+  e.preventDefault();
+  _wheelLock = true;
+  setTimeout(() => { _wheelLock = false; }, 520);
+
+  stepCarousel(activeMode, e.deltaY > 0 ? 1 : -1);
+}, { passive: false });
+
+/* ══════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════ */
+function goHome() {
+  activeMode = 'home';
+  _renderDirty = true;
+  document.getElementById('pg-home').classList.add('active');
+  document.getElementById('pg-cat').classList.remove('active');
+  document.getElementById('n-back').classList.remove('show');
+  document.querySelectorAll('.n-pill').forEach(p => p.classList.remove('active'));
+  currentCat = null;
+}
+
+function goCat(key) {
+  const cat = DATA[key];
+  if (!cat) return; // dynamic category not loaded yet — ignore rather than throw
+  currentCat = key;
+  activeMode = 'cat';
+  _renderDirty = true;
+
+  // reset search
+  const searchEl = document.getElementById('lib-search');
+  if (searchEl) searchEl.value = '';
+
+  document.getElementById('lib-title').innerHTML = `<em>${esc(cat.label)}</em>`;
+  document.getElementById('lib-n').textContent =
+    `${cat.items.length} item${cat.items.length !== 1 ? 's' : ''}`;
+
+  const empty = document.getElementById('cat-empty');
+  const cs    = document.getElementById('cat-cs');
+  if (cat.items.length === 0) {
+    cs.style.display    = 'none';
+    empty.classList.add('show');
+  } else {
+    cs.style.display    = '';
+    empty.classList.remove('show');
+    buildCarousel('cat', cat.items);
+  }
+
+  document.getElementById('pg-home').classList.remove('active');
+  document.getElementById('pg-cat').classList.add('active');
+  document.getElementById('n-back').classList.add('show');
+
+  document.querySelectorAll('.n-pill').forEach(p =>
+    p.classList.toggle('active', p.dataset.c === key)
+  );
+
+  _renderCatSwitch();
+}
+
+/* The "Saved" nav pill only makes sense once the Saved category exists
+   (it's created on demand when unclassified/imported items load). Show or
+   hide it to match. */
+function _syncSavedNavPill() {
+  const pill = document.getElementById('n-pill-saved');
+  if (!pill) return;
+  const has = !!(DATA.saved && DATA.saved.items && DATA.saved.items.length);
+  pill.style.display = has ? '' : 'none';
+}
+
+/* Mobile category switcher — the desktop nav pills are hidden on small screens,
+   so this strip lets users hop between categories without going Back → home. */
+function _renderCatSwitch() {
+  const el = document.getElementById('cat-switch');
+  if (!el) return;
+  el.innerHTML = Object.entries(DATA).map(([k, c]) =>
+    `<button class="cat-pill ${k === currentCat ? 'active' : ''}" onclick="goCat('${k}')">${c.emoji} ${esc(c.label)}</button>`
+  ).join('');
+  el.querySelector('.cat-pill.active')?.scrollIntoView({ block: 'nearest', inline: 'center' });
+}
+
+/* ── Full-text search ── */
+let _searchTimer = null;
+function onSearchInput(q) {
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(() => _applySearch(q.trim().toLowerCase()), 120);
+}
+
+function _applySearch(q, keepPos = false) {
+  const cat   = DATA[currentCat];
+  if (!cat) return;
+  const empty = document.getElementById('cat-empty');
+  const cs    = document.getElementById('cat-cs');
+
+  const filtered = q
+    ? cat.items.filter(item => _itemMatchesQuery(item, q))
+    : cat.items;
+
+  if (filtered.length === 0) {
+    cs.style.display = 'none';
+    empty.classList.add('show');
+    document.getElementById('cat-empty').querySelector('.cat-empty-label').textContent =
+      q ? 'No matches' : 'Nothing here yet';
+    document.getElementById('cat-empty').querySelector('.cat-empty-sub').textContent =
+      q ? `Nothing found for "${q}"` : 'Import something to start';
+    VIEW.cat = [];
+  } else {
+    cs.style.display = '';
+    empty.classList.remove('show');
+    buildCarousel('cat', filtered, keepPos);
+  }
+  const n = cat.items.length;
+  document.getElementById('lib-n').textContent =
+    q ? `${filtered.length} of ${n}` : `${n} item${n !== 1 ? 's' : ''}`;
+}
+
+function _itemMatchesQuery(item, q) {
+  const fields = [
+    item.title, item.description, item.meta,
+    item.cuisine, item.author, item.director, item.genre,
+    item.glass, item.strength, item.region, item.type_tag,
+    item.creator, item.platform, item.vibe, item.category_tag,
+    ...(item.tags       || []),
+    ...(item.genres     || []),
+    ...(item.activities || []),
+    ...(item.ingredients|| []),
+  ];
+  return fields.some(f => f && String(f).toLowerCase().includes(q));
+}
+
+function clearSearch() {
+  const el = document.getElementById('lib-search');
+  if (el) { el.value = ''; _applySearch(''); }
+}
+
+/* ══════════════════════════════════════════════
+   MODAL
+══════════════════════════════════════════════ */
+function openModal(item) {
+  const hero = document.getElementById('m-hero');
+  const body = document.getElementById('m-body');
+
+  hero.innerHTML = `
+    <button class="m-close" onclick="closeModal()">✕</button>
+    <div class="m-hero-emoji">${item.emoji}</div>
+    ${item.img ? `<img src="${esc(item.img)}" alt="${esc(item.title)}" style="position:absolute;inset:0;z-index:1"
+         onerror="this.style.display='none'">` : ''}`;
+
+  // Normalize plural DATA keys → singular for HTML dispatch
+  const MODAL_TYPE = { recipes:'recipe', books:'book', movies:'movie', cocktails:'cocktail', tools:'tool', places:'place' };
+  const t = MODAL_TYPE[item.type] || item.type;
+  const htmlFns = { recipe:recipeHTML, music:musicHTML, book:bookHTML, movie:movieHTML,
+                    cocktail:cocktailHTML, style:styleHTML, tool:toolHTML, place:placeHTML, saved:savedHTML };
+  body.innerHTML = (htmlFns[t] || savedHTML)(item);
+
+  _modalItem = item;
+
+  // Status toggle — books and movies only
+  if (t === 'book' || t === 'movie') {
+    const key = t === 'book' ? 'read' : 'watched';
+    const label = t === 'book' ? 'Read' : 'Watched';
+    const done = !!item[key];
+    body.innerHTML += `
+      <div class="m-status-row">
+        <button class="m-status-btn ${done ? 'done' : ''}" id="m-status-btn" onclick="toggleStatus('${key}')">
+          ${done
+            ? `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><polyline points="2,8 6,12 14,4"/></svg> ${label}`
+            : `Mark as ${label.toLowerCase()}`}
+        </button>
+      </div>`;
+  }
+
+  // Notes — all item types
+  body.innerHTML += `
+    <div class="m-notes-section">
+      <div class="m-notes-label">Notes</div>
+      <textarea class="m-notes-area" id="m-note-area" placeholder="Add a personal note…" oninput="onNoteInput()"></textarea>
+      <div class="m-notes-saved" id="m-note-saved">Saved</div>
+    </div>`;
+
+  // Photos & videos gallery — all item types
+  body.innerHTML += `
+    <div class="m-notes-section">
+      <div class="m-notes-label">Photos &amp; Videos</div>
+      <div class="m-media-grid" id="m-media-grid"></div>
+    </div>`;
+
+  // Reclassify row — lets user move misclassified items to the right category
+  if (currentCat) {
+    const catPills = Object.entries(DATA)
+      .filter(([k]) => k !== currentCat)
+      .map(([k, c]) =>
+        `<button class="m-reclassify-pill" onclick="moveToCategory('${k}')">${c.emoji} ${c.label}</button>`)
+      .join('');
+    body.innerHTML += `
+      <div class="m-reclassify">
+        <div class="m-reclassify-label">Move to</div>
+        <div class="m-reclassify-cats">${catPills}</div>
+      </div>`;
+  }
+
+  // Set note value LAST — after all innerHTML mutations, which destroy and recreate the textarea.
+  // localStorage is the primary store (synchronous, survives server restarts).
+  // Falls back to item.note (populated by loadSavedItems for Railway/cloud sync).
+  const noteArea = document.getElementById('m-note-area');
+  if (noteArea) {
+    const localNote = _loadNoteLocal(item.id);
+    noteArea.value = (localNote !== null ? localNote : (item.note || ''));
+  }
+
+  renderMediaGrid();
+
+  // Async enrichment — runs after all innerHTML mutations so its target
+  // placeholders (#m-preview, #m-watch) still exist when the fetch resolves.
+  if (t === 'music') fetchMusicPreview(item);
+  if (t === 'movie') fetchWatchProviders(item);
+
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+/* ── Music: 30-second preview via iTunes Search (server proxy) ── */
+async function fetchMusicPreview(item) {
+  const el = document.getElementById('m-preview');
+  if (!el) return;
+  el.innerHTML = `<div class="m-preview-loading">Finding a preview…</div>`;
+  const links = musicSearchLinks(item);
+  try {
+    const q = `${SERVER}/api/music-preview?title=${encodeURIComponent(item.album || item.title || '')}&artist=${encodeURIComponent(item.artist || '')}`;
+    const r = await authFetch(q);
+    const d = await r.json();
+    if (d && d.preview_url) {
+      // When we have a direct Apple Music URL, drop the Apple Music *search*
+      // link so it isn't listed twice.
+      const searchLinks = d.apple_url ? musicSearchLinks(item, true) : links;
+      el.innerHTML = `
+        <p class="m-sec" style="margin-top:14px">Listen · 30s preview</p>
+        <div class="m-audio-row"><audio controls preload="none" src="${esc(d.preview_url)}"></audio></div>
+        ${d.apple_url ? `<a class="m-ext-link" href="${esc(d.apple_url)}" target="_blank" rel="noopener">Apple Music ↗</a> ` : ''}${searchLinks}`;
+    } else {
+      el.innerHTML = links;
+    }
+  } catch (_) {
+    el.innerHTML = links;
+  }
+}
+function musicSearchLinks(item, skipApple) {
+  const q = encodeURIComponent(`${item.artist || ''} ${item.album || item.title || ''}`.trim());
+  const apple = skipApple ? '' : `<a class="m-ext-link" href="https://music.apple.com/us/search?term=${q}" target="_blank" rel="noopener">Apple Music ↗</a>`;
+  return `<div class="m-ext-links" style="margin-top:8px">
+    <a class="m-ext-link" href="https://open.spotify.com/search/${q}" target="_blank" rel="noopener">Spotify ↗</a>
+    ${apple}
+    <a class="m-ext-link" href="https://music.youtube.com/search?q=${q}" target="_blank" rel="noopener">YouTube Music ↗</a>
+    <a class="m-ext-link" href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener">YouTube ↗</a>
+  </div>`;
+}
+
+/* ── Movie: streaming availability via TMDB watch providers (server proxy) ── */
+async function fetchWatchProviders(item) {
+  const el = document.getElementById('m-watch');
+  if (!el) return;
+  el.innerHTML = `<div class="m-hr"></div><p class="m-sec">Where to watch</p><div class="m-preview-loading">Checking availability…</div>`;
+  const jw = `https://www.justwatch.com/us/search?q=${encodeURIComponent(item.title || '')}`;
+  try {
+    const q = `${SERVER}/api/watch-providers?title=${encodeURIComponent(item.title || '')}` + (item.year ? `&year=${item.year}` : '');
+    const r = await authFetch(q);
+    const d = await r.json();
+    if (d && d.providers && d.providers.length) {
+      const chips = d.providers.map(p =>
+        `<span class="m-provider">${p.logo ? `<img src="${esc(p.logo)}" alt="">` : ''}${esc(p.name)}</span>`).join('');
+      el.innerHTML = `<div class="m-hr"></div><p class="m-sec">Where to watch</p>
+        <div class="m-providers">${chips}</div>
+        <a class="m-ext-link" href="${esc(d.link || jw)}" target="_blank" rel="noopener">All options ↗</a>`;
+    } else {
+      el.innerHTML = `<div class="m-hr"></div><p class="m-sec">Where to watch</p>
+        <a class="m-ext-link" href="${jw}" target="_blank" rel="noopener">Search on JustWatch ↗</a>`;
+    }
+  } catch (_) {
+    el.innerHTML = `<div class="m-hr"></div><p class="m-sec">Where to watch</p>
+      <a class="m-ext-link" href="${jw}" target="_blank" rel="noopener">Search on JustWatch ↗</a>`;
+  }
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function bgClose(e) { if (e.target === document.getElementById('modal')) closeModal(); }
+
+/* ══════════════════════════════════════════════
+   DELETE & RECLASSIFY
+══════════════════════════════════════════════ */
+let _modalItem = null;
+
+function refreshHomeCarousel() {
+  const updated = Object.entries(DATA).map(([key, c]) => ({
+    id: `home-${key}`, type: 'home', catKey: key,
+    emoji: c.emoji, title: c.label, img: c.img,
+    meta: `${c.items.length} items`, description: c.desc,
+  }));
+  buildCarousel('home', updated);
+}
+
+/* ══════════════════════════════════════════════
+   DEDUPE — review & remove duplicate entries
+══════════════════════════════════════════════ */
+/* How "rich" an item is, so the fullest copy of a duplicate is the one kept. */
+function _itemRichness(it) {
+  let s = 0;
+  if (it.note) s += 5;
+  if (it.favourite) s += 3;
+  if (Array.isArray(it.media) && it.media.length) s += 4;
+  if (it.read || it.watched) s += 1;
+  s += Object.values(it).filter(v =>
+    v != null && v !== '' && !(Array.isArray(v) && v.length === 0)).length * 0.1;
+  return s;
+}
+
+/* Group items by category + normalized title; return groups with more than one,
+   each with the chosen keeper and the redundant copies to remove. */
+function _findDuplicateGroups() {
+  const groups = {};
+  for (const [catKey, cat] of Object.entries(DATA)) {
+    for (const it of cat.items) {
+      const key = catKey + '||' + _normTitle(it.title);
+      (groups[key] = groups[key] || []).push({ catKey, it });
+    }
+  }
+  const dups = [];
+  for (const arr of Object.values(groups)) {
+    if (arr.length < 2) continue;
+    arr.sort((a, b) => _itemRichness(b.it) - _itemRichness(a.it));
+    dups.push({
+      title: arr[0].it.title,
+      catLabel: DATA[arr[0].catKey].label,
+      remove: arr.slice(1),   // keep arr[0] (richest), remove the rest
+    });
+  }
+  return dups;
+}
+
+/* Review the duplicates, confirm, then delete the redundant copies. Triggered by
+   the user from their own signed-in session — the app never deletes on its own. */
+async function dedupeLibrary() {
+  const dups = _findDuplicateGroups();
+  const totalRemove = dups.reduce((n, g) => n + g.remove.length, 0);
+  if (!totalRemove) { showToast('No duplicates found'); return; }
+
+  const preview = dups.slice(0, 12)
+    .map(g => `• ${g.title} (${g.catLabel}) ×${g.remove.length + 1}`).join('\n');
+  const more = dups.length > 12 ? `\n…and ${dups.length - 12} more` : '';
+  const ok = confirm(
+    `Found ${totalRemove} duplicate item${totalRemove !== 1 ? 's' : ''} across ` +
+    `${dups.length} title${dups.length !== 1 ? 's' : ''}. Keep the fullest copy of ` +
+    `each and remove the rest?\n\n${preview}${more}\n\n` +
+    `Tip: tap "Export library" first for a backup — this can't be undone.`);
+  if (!ok) return;
+
+  showToast('Removing duplicates…');
+  let removed = 0;
+  for (const g of dups) {
+    for (const r of g.remove) {
+      const arr = DATA[r.catKey].items;
+      const idx = arr.findIndex(x => x.id === r.it.id);
+      if (idx !== -1) arr.splice(idx, 1);
+      try {
+        const res = await authFetch(`${SERVER}/api/items/${r.it.id}`, { method: 'DELETE' });
+        if (res.status === 404) {   // hardcoded demo item — tombstone it for other devices
+          _recordDeletedId(r.it.id);
+          await patchItem(r.it.id, { deleted: true });
+        }
+        removed++;
+      } catch (_) { /* keep going; it stays removed on this device */ }
+    }
+  }
+  refreshHomeCarousel();
+  if (currentCat) _applySearch(_currentQuery(), true);
+  showToast(`Removed ${removed} duplicate${removed !== 1 ? 's' : ''}`);
+}
+
+/* current search query (so list rebuilds preserve the active filter) */
+function _currentQuery() {
+  return (document.getElementById('lib-search')?.value || '').trim().toLowerCase();
+}
+
+function confirmDeleteItem(id) {
+  const item = DATA[currentCat]?.items.find(x => x.id === id);
+  if (!item) return;
+  if (!confirm(`Remove "${item.title}" from your library?`)) return;
+  removeItem(item);
+}
+
+async function removeItem(item) {
+  const arr = DATA[currentCat].items;
+  const idx = arr.findIndex(x => x.id === item.id);
+  if (idx !== -1) arr.splice(idx, 1);
+  const remaining = arr.length;
+  if (remaining === 0) {
+    goHome();
+    refreshHomeCarousel();
+    showToast('Last item removed');
+  } else {
+    _applySearch(_currentQuery(), true);
+    refreshHomeCarousel();
+    showToast('Removed');
+  }
+  try {
+    const res = await authFetch(`${SERVER}/api/items/${item.id}`, { method: 'DELETE' });
+    if (res.status === 404) {
+      // Hardcoded demo item — it only exists in this file's JS, so write a
+      // server-side tombstone too; other devices hide it on their next load.
+      _recordDeletedId(item.id);
+      patchItem(item.id, { deleted: true });
+    }
+  } catch (_) {
+    _recordDeletedId(item.id); // server unreachable — at least keep it deleted on this device
+    showToast('Removed on this device — server offline');
+  }
+}
+
+function confirmClearCategory() {
+  if (!currentCat) return;
+  const cat = DATA[currentCat];
+  if (!cat.items.length) { showToast('Nothing to clear'); return; }
+  if (!confirm(`Remove all ${cat.items.length} item${cat.items.length !== 1 ? 's' : ''} from ${cat.label}?`)) return;
+  clearCategory();
+}
+
+async function clearCategory() {
+  const cat = currentCat;
+  const catLabel = DATA[cat].label;
+  const items = [...DATA[cat].items];
+  DATA[cat].items = [];
+  goHome();
+  refreshHomeCarousel();
+  showToast(`${catLabel} cleared`);
+  for (const item of items) {
+    try {
+      const res = await authFetch(`${SERVER}/api/items/${item.id}`, { method: 'DELETE' });
+      if (res.status === 404) {
+        _recordDeletedId(item.id);
+        await patchItem(item.id, { deleted: true }); // tombstone for other devices
+      }
+    } catch (_) {}
+  }
+}
+
+/* ── Favourite ── */
+function toggleFavourite(id) {
+  const item = DATA[currentCat]?.items.find(x => x.id === id);
+  if (!item) return;
+  item.favourite = !item.favourite;
+  _applySearch(_currentQuery(), true); // re-render without losing position or filter
+  patchItem(item.id, { favourite: item.favourite });
+}
+
+/* ── Read / Watched status ── */
+function toggleStatus(key) {
+  if (!_modalItem) return;
+  _modalItem[key] = !_modalItem[key];
+  const done = _modalItem[key];
+  const label = key === 'read' ? 'Read' : 'Watched';
+  const btn = document.getElementById('m-status-btn');
+  if (btn) {
+    btn.className = `m-status-btn ${done ? 'done' : ''}`;
+    btn.innerHTML = done
+      ? `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><polyline points="2,8 6,12 14,4"/></svg> ${label}`
+      : `Mark as ${label.toLowerCase()}`;
+  }
+  if (currentCat) _applySearch(_currentQuery(), true);
+  patchItem(_modalItem.id, { [key]: _modalItem[key] });
+}
+
+/* ── Notes (auto-save after 800ms idle) ── */
+let _noteTimer = null;
+function onNoteInput() {
+  clearTimeout(_noteTimer);
+  _noteTimer = setTimeout(() => {
+    const area = document.getElementById('m-note-area');
+    const saved = document.getElementById('m-note-saved');
+    if (!area || !_modalItem) return;
+    _modalItem.note = area.value;
+    _saveNoteLocal(_modalItem.id, area.value); // synchronous — survives server restarts
+    patchItem(_modalItem.id, { note: area.value }); // async server sync for Railway
+    if (saved) {
+      saved.classList.add('show');
+      setTimeout(() => saved.classList.remove('show'), 1600);
+    }
+  }, 800);
+}
+
+/* ── Helpers for hardcoded-item persistence ── */
+
+// Hardcoded demo items live only in JS DATA — never in the DB.
+// When we delete one, we record its ID in localStorage so it stays gone on reload.
+const _DELETED_KEY = 'curio_deleted_ids';
+function _getDeletedIds() {
+  try { return new Set(JSON.parse(localStorage.getItem(_DELETED_KEY) || '[]')); }
+  catch (_) { return new Set(); }
+}
+function _recordDeletedId(id) {
+  const ids = _getDeletedIds(); ids.add(id);
+  localStorage.setItem(_DELETED_KEY, JSON.stringify([...ids]));
+}
+
+// ── Note localStorage helpers ──
+// Notes are saved to localStorage immediately (synchronous, survives server restarts).
+// The server PATCH is kept as a secondary cloud sync for Railway.
+const _NOTE_PREFIX = 'curio_note_';
+function _saveNoteLocal(itemId, note) {
+  try { localStorage.setItem(_NOTE_PREFIX + itemId, note ?? ''); } catch (_) {}
+}
+function _loadNoteLocal(itemId) {
+  try { return localStorage.getItem(_NOTE_PREFIX + itemId); } catch (_) { return null; }
+}
+
+// Walk all categories to find a live item by id.
+function _findItemById(id) {
+  for (const cat of Object.values(DATA)) {
+    const item = cat.items.find(i => i.id === id);
+    if (item) return item;
+  }
+  return null;
+}
+
+/* ── Patch item on server ── */
+async function patchItem(itemId, updates) {
+  try {
+    await authFetch(`${SERVER}/api/items/${itemId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+  } catch (_) {}
+}
+
+/* ══════════════════════════════════════════════
+   MEDIA GALLERY (photos + videos per item)
+══════════════════════════════════════════════ */
+const MEDIA_MAX_MB = 100;
+
+function renderMediaGrid() {
+  const grid = document.getElementById('m-media-grid');
+  if (!grid || !_modalItem) return;
+  const media = _modalItem.media || [];
+  grid.innerHTML = media.map((m, i) => {
+    const url = esc(m.url);
+    const inner = m.type === 'video'
+      ? `<video src="${url}#t=0.1" preload="metadata" muted playsinline></video>
+         <span class="m-media-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>`
+      : `<img src="${url}" alt="" loading="lazy">`;
+    return `<div class="m-media-tile" onclick="openLightbox(${i})">${inner}
+      <button class="m-media-x" onclick="event.stopPropagation();removeMedia(${i})" title="Remove">✕</button>
+    </div>`;
+  }).join('') + `
+    <button class="m-media-add" onclick="document.getElementById('media-file-input').click()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Add
+    </button>`;
+}
+
+async function mediaFilesChosen(e) {
+  const files = Array.from(e.target.files || []);
+  e.target.value = '';   // allow re-picking the same files later
+  if (!files.length || !_modalItem) return;
+  const item = _modalItem;
+  let done = 0, failed = 0;
+  for (const f of files) {
+    if (f.size > MEDIA_MAX_MB * 1024 * 1024) {
+      failed++;
+      showToast(`${f.name}: over ${MEDIA_MAX_MB} MB, skipped`);
+      continue;
+    }
+    showToast(`Uploading ${done + failed + 1} of ${files.length}…`);
+    try {
+      const fd = new FormData();
+      fd.append('file', f);
+      const res = await authFetch(`${SERVER}/api/media`, { method: 'POST', body: fd });
+      if (!res.ok) {
+        failed++;
+        let detail = '';
+        try { detail = (await res.json()).detail || ''; } catch (_) {}
+        showToast(`${f.name}: ${detail || 'upload failed'}`);
+        continue;
+      }
+      const { url, type } = await res.json();
+      item.media = [...(item.media || []), { url, type }];
+      renderMediaGrid();   // show each file as soon as it lands
+      done++;
+    } catch (_) { failed++; }
+  }
+  if (done) {
+    patchItem(item.id, { media: item.media });
+    showToast(failed ? `Added ${done}, ${failed} failed` : `Added ${done} ${done === 1 ? 'file' : 'files'}`);
+  } else if (failed) {
+    showToast('Upload failed');
+  }
+}
+
+function removeMedia(i) {
+  if (!_modalItem || !_modalItem.media) return;
+  _modalItem.media.splice(i, 1);
+  renderMediaGrid();
+  patchItem(_modalItem.id, { media: _modalItem.media });
+  showToast('Removed');
+}
+
+/* ── Lightbox ── */
+function openLightbox(i) {
+  const m = (_modalItem?.media || [])[i];
+  if (!m) return;
+  const c = document.getElementById('lightbox-content');
+  c.innerHTML = m.type === 'video'
+    ? `<video src="${esc(m.url)}" controls autoplay playsinline></video>`
+    : `<img src="${esc(m.url)}" alt="">`;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox-content').innerHTML = '';   // stops video playback
+  document.getElementById('lightbox').classList.remove('open');
+}
+function lightboxBgClose(e) { if (e.target === document.getElementById('lightbox')) closeLightbox(); }
+
+/* ══════════════════════════════════════════════
+   EXPORT (library backup)
+══════════════════════════════════════════════ */
+async function exportLibrary() {
+  showToast('Preparing export…');
+  try {
+    const res = await authFetch(`${SERVER}/api/export`);
+    if (!res.ok) { showToast('Export failed'); return; }
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `curio-export-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    showToast('Library exported');
+  } catch (_) {
+    showToast('Export failed, server offline');
+  }
+}
+
+async function moveToCategory(newCatKey) {
+  if (!_modalItem || !currentCat || newCatKey === currentCat) return;
+  const item = _modalItem;
+  const fromCat = currentCat;
+  const toLabel = DATA[newCatKey].label;
+
+  // 1. Remove from old category
+  const idx = DATA[fromCat].items.findIndex(i => i.id === item.id);
+  if (idx !== -1) DATA[fromCat].items.splice(idx, 1);
+
+  // 2. Add to new category with updated type
+  const newItem = { ...item, type: newCatKey };
+  DATA[newCatKey].items.unshift(newItem);
+
+  // 3. Navigate + update UI
+  closeModal();
+  goCat(newCatKey);
+  refreshHomeCarousel();
+  showToast(`Moved to ${toLabel}`);
+
+  // 4. Update server: remove from old slot, post to new
+  try {
+    const res = await authFetch(`${SERVER}/api/items/${item.id}`, { method: 'DELETE' });
+    if (res.status === 404) {
+      // Hardcoded original: tombstone the old id so it disappears on every
+      // device, and re-home the moved copy under a fresh id so the tombstone
+      // and the new record can't collide.
+      _recordDeletedId(item.id);
+      await patchItem(item.id, { deleted: true });
+      newItem.id = 'imp-' + Date.now();
+    }
+  } catch (_) {}
+  try {
+    const payload = { ...newItem, img: newItem.img?.startsWith('data:') ? '__screenshot__' : newItem.img };
+    await authFetch(`${SERVER}/api/items`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  } catch (_) {}
+}
+
+function recipeHTML(it) { return `
+  <div class="m-type">Recipe</div>
+  <h2 class="m-title">${it.title}</h2>
+  <div class="m-tags">
+    <span class="m-tag">${it.cuisine}</span>
+    <span class="m-tag">${it.time}</span>
+    <span class="m-tag">${it.servings} servings</span>
+  </div>
+  <p class="m-desc">${it.description}</p>
+  <div class="m-hr"></div>
+  <p class="m-sec">Ingredients</p>
+  <div class="ings">${(it.ingredients || []).map(s=>`<div class="ing"><span class="ing-dot"></span>${s}</div>`).join('')}</div>
+  <div class="m-hr"></div>
+  <p class="m-sec">Instructions</p>
+  <div class="steps">${(it.steps || []).map((s,i)=>`<div class="step"><span class="step-n">${i+1}</span><p class="step-t">${s}</p></div>`).join('')}</div>`; }
+
+function musicHTML(it) { return `
+  <div class="m-type">Music</div>
+  <h2 class="m-title">${it.title}</h2>
+  <div class="m-tags">${it.genre ? `<span class="m-tag">${it.genre}</span>` : ''}${it.year ? `<span class="m-tag">${it.year}</span>` : ''}</div>
+  <p class="m-desc">${it.description || ''}</p>
+  <div id="m-preview"></div>
+  <div class="m-hr"></div>
+  <div class="info-g">
+    ${it.artist ? `<div class="info-c"><div class="info-l">Artist</div><div class="info-v">${it.artist}</div></div>` : ''}
+    ${it.album  ? `<div class="info-c"><div class="info-l">Album</div><div class="info-v">${it.album}</div></div>` : ''}
+    ${it.year   ? `<div class="info-c"><div class="info-l">Year</div><div class="info-v">${it.year}</div></div>` : ''}
+    ${it.genre  ? `<div class="info-c"><div class="info-l">Genre</div><div class="info-v">${it.genre}</div></div>` : ''}
+  </div>`; }
+
+function bookHTML(it) { return `
+  <div class="m-type">Book</div>
+  <h2 class="m-title">${it.title}</h2>
+  <div class="m-tags"><span class="m-tag">${it.genre}</span><span class="m-tag">${it.year}</span><span class="m-tag">${it.pages} pages</span></div>
+  <p class="m-desc">${it.description}</p>
+  <div class="m-hr"></div>
+  <div class="info-g">
+    <div class="info-c"><div class="info-l">Author</div><div class="info-v">${it.author}</div></div>
+    <div class="info-c"><div class="info-l">Year</div><div class="info-v">${it.year}</div></div>
+    <div class="info-c"><div class="info-l">Genre</div><div class="info-v">${it.genre}</div></div>
+    <div class="info-c"><div class="info-l">Pages</div><div class="info-v">${it.pages}</div></div>
+  </div>`; }
+
+function movieHTML(it) { return `
+  <div class="m-type">Film</div>
+  <h2 class="m-title">${it.title || ''}</h2>
+  <div class="m-tags">
+    ${it.genre   ? `<span class="m-tag">${it.genre}</span>` : ''}
+    ${it.year    ? `<span class="m-tag">${it.year}</span>` : ''}
+    ${it.runtime ? `<span class="m-tag">${it.runtime}</span>` : ''}
+  </div>
+  <p class="m-desc">${it.description || ''}</p>
+  <div class="m-hr"></div>
+  <div class="info-g">
+    ${it.director ? `<div class="info-c"><div class="info-l">Director</div><div class="info-v">${it.director}</div></div>` : ''}
+    ${it.year     ? `<div class="info-c"><div class="info-l">Year</div><div class="info-v">${it.year}</div></div>` : ''}
+    ${it.genre    ? `<div class="info-c"><div class="info-l">Genre</div><div class="info-v">${it.genre}</div></div>` : ''}
+    ${it.runtime  ? `<div class="info-c"><div class="info-l">Runtime</div><div class="info-v">${it.runtime}</div></div>` : ''}
+  </div>
+  ${it.cast && it.cast.length ? `<div class="m-hr"></div><p class="m-sec">Cast</p>
+  <div class="m-cast">${it.cast.slice(0,8).map(c => `<span class="m-cast-chip">${esc(c)}</span>`).join('')}</div>` : ''}
+  <div id="m-watch"></div>
+  <div class="tmdb-attr">
+    <span class="tmdb-attr-label">Poster data</span>
+    <img src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg"
+         alt="TMDB" class="tmdb-logo">
+  </div>`; }
+
+function cocktailHTML(it) { return `
+  <div class="m-type">Cocktail</div>
+  <h2 class="m-title">${it.title}</h2>
+  <div class="m-tags">
+    <span class="m-tag">${it.glass}</span>
+    <span class="m-tag">${it.strength}</span>
+  </div>
+  <p class="m-desc">${it.description}</p>
+  <div class="m-hr"></div>
+  <p class="m-sec">Ingredients</p>
+  <div class="ings">${(it.ingredients || []).map(s=>`<div class="ing"><span class="ing-dot"></span>${s}</div>`).join('')}</div>
+  <div class="m-hr"></div>
+  <p class="m-sec">Method</p>
+  <div class="steps">${(it.steps || []).map((s,i)=>`<div class="step"><span class="step-n">${i+1}</span><p class="step-t">${s}</p></div>`).join('')}</div>`; }
+
+function styleHTML(it) { return `
+  <div class="m-type">Style</div>
+  <h2 class="m-title">${it.title}</h2>
+  <div class="m-tags">
+    <span class="m-tag">${it.vibe}</span>
+    ${it.creator ? `<span class="m-tag">${it.creator}</span>` : ''}
+    <span class="m-tag">${it.platform}</span>
+  </div>
+  <p class="m-desc">${it.description}</p>
+  ${it.tags && it.tags.length ? `<div class="m-hr"></div>
+  <div style="display:flex;flex-wrap:wrap;gap:7px">
+    ${(it.tags || []).map(t => `<span style="font-family:var(--fm);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);border:1px solid var(--border);padding:4px 11px;border-radius:100px">${t}</span>`).join('')}
+  </div>` : ''}
+`; }
+
+function toolHTML(it) { return `
+  <div class="m-type">Tool</div>
+  <h2 class="m-title">${it.title}</h2>
+  <div class="m-tags">
+    <span class="m-tag">${it.category_tag}</span>
+    <span class="m-tag" style="color:${it.free ? 'var(--accent)' : 'inherit'}">${it.free ? 'Free' : 'Paid'}</span>
+  </div>
+  <p class="m-desc">${it.description}</p>
+  <div class="m-hr"></div>
+  <div class="info-g">
+    ${it.url ? `<div class="info-c"><div class="info-l">URL</div><div class="info-v" style="color:var(--accent)">${it.url}</div></div>` : ''}
+    <div class="info-c"><div class="info-l">Saved from</div><div class="info-v">${it.platform}</div></div>
+    ${it.creator ? `<div class="info-c"><div class="info-l">Via</div><div class="info-v">${it.creator}</div></div>` : ''}
+  </div>
+`; }
+
+function placeHTML(it) { return `
+  <div class="m-type">Place</div>
+  <h2 class="m-title">${it.title || ''}</h2>
+  <div class="m-tags">
+    ${it.type_tag ? `<span class="m-tag">${it.type_tag}</span>` : ''}
+    ${it.season   ? `<span class="m-tag">${it.season}</span>` : ''}
+  </div>
+  <p class="m-desc">${it.description || ''}</p>
+  ${(it.location || it.region || it.country) ? `<div class="m-hr"></div>
+  <div class="info-g">
+    ${it.location ? `<div class="info-c"><div class="info-l">Location</div><div class="info-v">${it.location}</div></div>` : ''}
+    ${it.region   ? `<div class="info-c"><div class="info-l">Region</div><div class="info-v">${it.region}</div></div>` : ''}
+    ${it.country  ? `<div class="info-c"><div class="info-l">Country</div><div class="info-v">${it.country}</div></div>` : ''}
+    ${it.type_tag ? `<div class="info-c"><div class="info-l">Type</div><div class="info-v">${it.type_tag}</div></div>` : ''}
+  </div>` : ''}
+  ${it.activities && it.activities.length ? `<div class="m-hr"></div><p class="m-sec">Things to do</p>
+  <div class="ings">${it.activities.map(a => `<div class="ing"><span class="ing-dot"></span>${esc(a)}</div>`).join('')}</div>` : ''}
+  <div class="m-hr"></div>
+  <a class="m-ext-link" href="https://www.google.com/maps/search/${encodeURIComponent([it.title, it.location, it.country].filter(Boolean).join(' '))}" target="_blank" rel="noopener">Open in Maps ↗</a>`; }
+
+function savedHTML(it) {
+  // Videos added from the main add flow live in "saved" but aren't unclassified
+  // screenshots — give them their own clean copy instead of the "Claude couldn't
+  // classify this" message (and no "undefined" platform tag).
+  const isVideo = (it.media || []).some(m => m.type === 'video') && !it.platform && !it.raw_text;
+  if (isVideo) return `
+  <div class="m-type" style="color:var(--ink-3)">Saved · Video</div>
+  <h2 class="m-title">${esc(it.title)}</h2>
+  <div class="m-tags"><span class="m-tag">Video</span></div>
+  <p class="m-desc" style="color:var(--ink-3)">Saved to your library. Play it below, or add photos and a note.</p>
+`;
+  return `
+  <div class="m-type" style="color:var(--ink-3)">Saved · Unclassified</div>
+  <h2 class="m-title">${it.title}</h2>
+  <div class="m-tags">
+    <span class="m-tag">${it.platform}</span>
+    ${it.creator ? `<span class="m-tag">${it.creator}</span>` : ''}
+  </div>
+  <p class="m-desc" style="color:var(--ink-3);font-style:italic">Claude couldn't fully classify this — saved as-is. Add a note or re-import with a clearer screenshot.</p>
+  ${it.raw_text ? `<div class="m-hr"></div><p class="m-sec">Visible text</p><p style="font-family:var(--fm);font-size:12px;color:var(--ink-2);line-height:1.7">${it.raw_text}</p>` : ''}
+`; }
+
+/* ══════════════════════════════════════════════
+   IMPORT FLOW
+══════════════════════════════════════════════ */
+
+/* ── Extraction via local server (reads API key from .env) ── */
+async function extractWithClaude(base64Data, mediaType) {
+  const resp = await authFetch(`${SERVER}/api/extract`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ image: base64Data, media_type: mediaType }),
+  });
+
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.detail || `Server error ${resp.status}`);
+  }
+
+  return resp.json();
+}
+
+/* ── URL extraction via server ── */
+async function extractWithUrl(url) {
+  const resp = await authFetch(`${SERVER}/api/extract-url`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url }),
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.detail || `Server error ${resp.status}`);
+  }
+  return resp.json();
+}
+
+function submitUrl() {
+  const input = document.getElementById('import-url-input');
+  const url   = (input.value || '').trim();
+  if (!url) { input.focus(); return; }
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    showUrlError('Please enter a full URL starting with https://');
+    return;
+  }
+  processUrl(url);
+}
+
+async function processUrl(url) {
+  // Show processing state with a link-icon placeholder
+  document.getElementById('import-thumb').src = '';
+  document.getElementById('import-thumb').style.display = 'none';
+  showImportState('processing');
+  document.querySelector('#import-processing-state .import-processing-label').textContent = 'Claude is reading this page';
+
+  try {
+    const result = await extractWithUrl(url);
+
+    // Use OG image as thumbnail / card image if server returned one
+    const ogImage = result._ogImage || null;
+    if (!result.description && result.metadata?.description) {
+      result.description = result.metadata.description;
+    }
+
+    // Enrich with real cover art for media categories
+    const posterCats = ['movie','movies','book','books','music'];
+    if (posterCats.includes(result.category)) {
+      try {
+        const year = result.metadata?.year || result.metadata?.release_year || null;
+        const pUrl = `${SERVER}/api/poster?title=${encodeURIComponent(result.title)}&category=${result.category}` + (year ? `&year=${year}` : '');
+        const pr   = await authFetch(pUrl);
+        if (pr.ok) {
+          const pd = await pr.json();
+          if (pd.url) result._posterUrl = pd.url;
+        }
+      } catch (_) {}
+    }
+
+    // Prefer poster > OG image > empty
+    const displayImg = result._posterUrl || ogImage || '';
+    // Queue any extra items the page listed for review.
+    _enqueueAdditional(result, ogImage || '');
+    showResult(displayImg, result);
+  } catch (err) {
+    const m = err.message || '';
+    const serverDown = m.includes('Failed to fetch') || m.includes('Load failed') || m.includes('NetworkError');
+    const msg = serverDown
+      ? 'Server not running — start it with: python3 curio_server.py'
+      : m || 'Something went wrong';
+    showImportState('drop'); // return to URL panel
+    showUrlError(msg);
+  }
+}
+
+function showUrlError(msg) {
+  const input = document.getElementById('import-url-input');
+  const hint  = document.querySelector('.import-url-hint');
+  const prev  = hint.textContent;
+  hint.textContent = '⚠️ ' + msg;
+  hint.style.color = 'var(--accent)';
+  input.style.borderColor = 'var(--accent)';
+  setTimeout(function() {
+    hint.textContent  = 'Paste any page — recipe, article, product, book…';
+    hint.style.color  = '';
+    input.style.borderColor = '';
+  }, 3500);
+}
+
+/* ── FAB & sheet open/close ── */
+function toggleImport() {
+  const bg = document.getElementById('import-bg');
+  if (bg.classList.contains('open')) closeImport();
+  else openImport();
+}
+
+function openImport() {
+  document.getElementById('import-bg').classList.add('open');
+  document.getElementById('import-fab').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  resetImport();
+}
+
+function closeImport() {
+  _importQueue = [];   // closing the sheet abandons any queued screenshots
+  _extractedQueue = []; // ...and any un-reviewed extra items
+  _saveAllMode = false;
+  document.getElementById('import-bg').classList.remove('open');
+  document.getElementById('import-fab').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function importBgClose(e) {
+  if (e.target === document.getElementById('import-bg')) closeImport();
+}
+
+/* ── Import tab switching ── */
+let _importTab = 'screenshot'; // 'screenshot' | 'url'
+
+function switchImportTab(tab) {
+  _importTab = tab;
+  _importQueue = [];
+  _extractedQueue = [];
+  _saveAllMode = false;
+  document.getElementById('tab-screenshot').classList.toggle('active', tab === 'screenshot');
+  document.getElementById('tab-url').classList.toggle('active',        tab === 'url');
+  resetImport();
+}
+
+function resetImport() {
+  _saveAllMode = false;
+  // "Try another" skips ahead to the next pending item (extras, then queued screenshots)
+  if (_advanceImport()) return;
+  showImportState('drop');
+  document.getElementById('import-file-input').value = '';
+  document.getElementById('import-url-input').value  = '';
+}
+
+function showImportState(state) {
+  const isUrl   = _importTab === 'url';
+  const isDrop  = state === 'drop';
+  // Screenshot drop zone: visible only on screenshot tab in drop state
+  document.getElementById('import-drop-zone').style.display    = (!isUrl && isDrop) ? '' : 'none';
+  // URL panel: visible only on url tab in drop state
+  document.getElementById('import-url-panel').style.display    = (isUrl  && isDrop) ? '' : 'none';
+  document.getElementById('import-processing-state').classList.toggle('visible', state === 'processing');
+  document.getElementById('import-result-state').classList.toggle('visible',    state === 'result');
+}
+
+/* ── Drag & drop ── */
+function dropOver(e) {
+  e.preventDefault();
+  document.getElementById('import-drop').classList.add('drag-over');
+}
+function dropLeave(e) {
+  document.getElementById('import-drop').classList.remove('drag-over');
+}
+function dropFile(e) {
+  e.preventDefault();
+  document.getElementById('import-drop').classList.remove('drag-over');
+  const all = Array.from(e.dataTransfer.files || []);
+  const videos = all.filter(isVideoFile);
+  const images = all.filter(isImageFile);
+  if (videos.length) importVideos(videos);
+  if (images.length > 1) {
+    _importQueue = images;
+    showToast(`${images.length} screenshots queued`);
+    _processNextInQueue();
+    return;
+  }
+  if (images.length === 1) { processFile(images[0]); return; }
+  if (!videos.length) {
+    showImportError("That's not an image or video — drop a PNG, JPG, or MP4");
+  }
+}
+/* ── Multi-image import queue ──
+   Several screenshots can be picked at once; each still goes through the
+   normal extract → review → save loop, one at a time. */
+let _importQueue = [];
+
+/* Extra items the server found inside a SINGLE screenshot/page (multi-item
+   detection). Already extracted — they replay through the same auto-review
+   pipeline (auto-save the confident ones, show the card for the rest) without
+   costing another API call. Drained before the raw screenshot queue. */
+let _extractedQueue = [];
+
+function _enqueueAdditional(result, imgSrc) {
+  const extra = result && result._additionalItems;
+  if (Array.isArray(extra) && extra.length) {
+    extra.forEach(it => _extractedQueue.push({ result: it, imgSrc }));
+    delete result._additionalItems;
+  }
+}
+
+/* Advance to the next pending item: already-extracted extras first (no new API
+   call), then any remaining raw screenshots. Returns true if one was started. */
+function _advanceImport() {
+  const next = _extractedQueue.shift();
+  if (next) { showResult(next.imgSrc, next.result); return true; }
+  return _processNextInQueue();
+}
+
+function _processNextInQueue() {
+  const next = _importQueue.shift();
+  if (next) { processFile(next); return true; }
+  return false;
+}
+
+/* iOS often reports camera-roll videos with an empty or "application/octet-stream"
+   MIME, so fall back to the filename extension when the type is missing. */
+const _VIDEO_NAME_RE = /\.(mp4|m4v|mov|qt|webm)$/i;
+function isVideoFile(f) {
+  return (f.type || '').startsWith('video/') || _VIDEO_NAME_RE.test(f.name || '');
+}
+function isImageFile(f) {
+  return !isVideoFile(f) && (f.type || '').startsWith('image/');
+}
+
+function fileChosen(e) {
+  const all = Array.from(e.target.files || []);
+  e.target.value = '';   // allow re-picking the same files later
+  const videos = all.filter(isVideoFile);
+  const images = all.filter(isImageFile);
+  if (!videos.length && !images.length) {
+    showImportError("That's not an image or video — choose a PNG, JPG, or MP4");
+    return;
+  }
+  // Videos can't be extracted by Claude — they become standalone gallery items.
+  if (videos.length) importVideos(videos);
+  if (images.length) {
+    _importQueue = images;
+    if (images.length > 1) showToast(`${images.length} screenshots queued`);
+    _processNextInQueue();
+  }
+}
+
+/* ── Import videos picked from the main add flow ──
+   A video can't be handed to Claude directly, but a still frame can: grab a
+   representative frame, classify it through the SAME /api/extract pipeline the
+   screenshot importer uses, and file the clip into whatever category comes
+   back (recipe, music, movie…). Falls back to "Saved" if classification
+   fails (offline, no API key, or an unreadable frame). The video itself is
+   uploaded via /api/media and attached to the item's Photos & Videos gallery. */
+async function importVideos(videos) {
+  let done = 0, failed = 0, lastLabel = null;
+  const label = document.querySelector('.import-processing-label');
+  for (const f of videos) {
+    if (f.size > MEDIA_MAX_MB * 1024 * 1024) {
+      failed++;
+      showToast(`${f.name}: over ${MEDIA_MAX_MB} MB, skipped`);
+      continue;
+    }
+    showImportState('processing');
+    if (label) label.textContent = 'Reading your video…';
+    showToast(`Adding video ${done + failed + 1} of ${videos.length}…`);
+    let objUrl = null;
+    try {
+      // 1) Upload the clip.
+      const fd = new FormData();
+      fd.append('file', f);
+      const res = await authFetch(`${SERVER}/api/media`, { method: 'POST', body: fd });
+      if (!res.ok) {
+        failed++;
+        let detail = '';
+        try { detail = (await res.json()).detail || ''; } catch (_) {}
+        showToast(`${f.name}: ${detail || 'upload failed'}`);
+        continue;
+      }
+      const { url, type } = await res.json();
+
+      // 2) Sample frames across the clip (adaptive 6–8). All go to Claude so
+      //    text shown at different moments (ingredients, steps, title) is read.
+      objUrl = URL.createObjectURL(f);
+      if (label) label.textContent = 'Reading the video…';
+      const frameUrls = await grabVideoFrames(objUrl);   // JPEG data URLs, time order
+
+      // 3) Read ALL frames together so Claude can assemble the full recipe (or
+      //    other details) from overlays spread across the video.
+      let result = null;
+      if (frameUrls.length) {
+        try {
+          const b64s = frameUrls.map(u => u.split(',')[1]).filter(Boolean);
+          if (b64s.length) result = await extractVideoFrames(b64s);
+        } catch (_) { /* offline / no key / unreadable → Saved fallback below */ }
+      }
+
+      // 3b) Pick the cover frame: Claude's chosen "hero" frame (e.g. the plated
+      //     dish), falling back to the middle frame if it didn't pick one.
+      let coverFrame = null;
+      const ci = result && result.cover_frame;
+      if (Number.isInteger(ci) && ci >= 0 && ci < frameUrls.length) {
+        coverFrame = frameUrls[ci];
+      } else if (frameUrls.length) {
+        coverFrame = frameUrls[frameUrls.length > 2 ? Math.floor(frameUrls.length / 2) : 0];
+      }
+
+      // 3c) For movie/music/book videos, search for real cover art (poster /
+      //     album) and prefer it over a video frame — same as the screenshot path.
+      if (result && ['movie','movies','book','books','music'].includes(result.category)) {
+        try {
+          const year = result.metadata?.year || result.metadata?.release_year || null;
+          const pUrl = `${SERVER}/api/poster?title=${encodeURIComponent(result.title || '')}&category=${result.category}` + (year ? `&year=${year}` : '');
+          const pr = await authFetch(pUrl);
+          if (pr.ok) { const pd = await pr.json(); if (pd.url) result._posterUrl = pd.url; }
+        } catch (_) {}
+      }
+
+      // Upload the chosen frame only when we'll actually use it (skip when real
+      // cover art was found, so we don't store an unused frame).
+      const posterUrl = (!(result && result._posterUrl) && coverFrame)
+        ? await uploadImage(coverFrame) : null;
+
+      // 4) Build the item: detected category, or Saved fallback.
+      let item;
+      if (result && result.category) {
+        // normalizeExtraction prefers result._posterUrl (real cover art) over imgSrc.
+        item = normalizeExtraction(result, posterUrl || coverFrame);
+        if (!result._posterUrl && posterUrl) item.img = posterUrl;
+      } else {
+        item = {
+          id: 'imp-' + Date.now(),
+          type: 'saved', emoji: '🎬',
+          title: (f.name || 'Video').replace(/\.[^.]+$/, '').trim() || 'Video',
+          img: posterUrl || null, meta: 'Video', description: '', imported: true,
+        };
+      }
+      item.id = 'imp-' + Date.now() + '-' + done;   // stable, collision-free
+      item.media = [{ url, type: type || 'video' }];
+
+      // 5) Add to the library + persist (same steps as saveImport, minus review).
+      const cat = item.type;
+      if (!DATA[cat]) {
+        DATA[cat] = { label: cat.charAt(0).toUpperCase() + cat.slice(1),
+                      emoji: CAT_EMOJI[cat] || item.emoji || '📌', desc: '',
+                      img: null, items: [] };
+      }
+      DATA[cat].items.unshift(item);
+      if (currentCat === cat) buildCarousel('cat', DATA[cat].items);
+      buildCarousel('home', Object.entries(DATA).map(([key, c]) => ({
+        id: `home-${key}`, type: 'home', catKey: key,
+        emoji: c.emoji, title: c.label, img: c.img,
+        meta: `${c.items.length} items`, description: c.desc,
+      })));
+      _syncSavedNavPill();
+
+      persistItem(item);
+      lastLabel = DATA[cat].label;
+      done++;
+    } catch (_) { failed++; }
+    finally { if (objUrl) URL.revokeObjectURL(objUrl); }
+  }
+
+  if (done) {
+    closeImport();
+    const n = `${done} video${done === 1 ? '' : 's'}`;
+    showToast(failed ? `Added ${n}, ${failed} failed`
+                     : (done === 1 && lastLabel ? `Added to ${lastLabel}` : `Added ${n}`));
+  } else {
+    showImportError(failed ? 'Video upload failed' : 'No video added');
+  }
+}
+
+/* Grab a frame from a video as a JPEG data URL, for the card cover and
+   classification. `frac` is where to sample (0–1 of duration). Same-origin /
+   object-URL media, so the canvas isn't tainted. Best-effort: resolves null if
+   the browser can't decode the clip. */
+function grabVideoFrame(src, frac = 0.3, maxPx = 1080) {
+  return new Promise((resolve) => {
+    const v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = src;
+    let settled = false;
+    const done = (val) => { if (!settled) { settled = true; resolve(val); } };
+    v.addEventListener('loadeddata', () => {
+      try {
+        const d = v.duration || 0;
+        v.currentTime = d ? Math.min(d * frac, Math.max(0, d - 0.1)) : 0.1;
+      } catch (_) { done(null); }
+    });
+    v.addEventListener('seeked', () => {
+      try {
+        const w = v.videoWidth || maxPx, h = v.videoHeight || maxPx;
+        const scale = Math.min(1, maxPx / Math.max(w, h));
+        const c = document.createElement('canvas');
+        c.width = Math.round(w * scale);
+        c.height = Math.round(h * scale);
+        c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+        done(c.toDataURL('image/jpeg', 0.82));
+      } catch (_) { done(null); }
+    });
+    v.addEventListener('error', () => done(null));
+    setTimeout(() => done(null), 6000);
+  });
+}
+
+/* Grab several frames across a video's timeline as JPEG data URLs, in time
+   order, by reusing ONE <video> element and seeking sequentially. Recipe/video
+   details are usually spread across the clip (title card, ingredient overlay,
+   step captions), so multiple frames give Claude far more to work with than a
+   single mid-clip grab. Best-effort: resolves with whatever it captured (may be
+   fewer than requested, or empty) — a per-seek watchdog and an overall cap keep
+   it from hanging on clips the browser can't seek cleanly. */
+function grabVideoFrames(src, count = null, maxPx = 1280) {
+  return new Promise((resolve) => {
+    const v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = src;
+    const frames = [];
+    let fracs = [];
+    let idx = -1, dur = 0, settled = false, stepDone = false, seekTimer = null;
+    const overall = setTimeout(() => finish(), 16000);
+    function finish() {
+      if (settled) return;
+      settled = true;
+      clearTimeout(seekTimer); clearTimeout(overall);
+      resolve(frames);
+    }
+    function capture() {
+      try {
+        const w = v.videoWidth || maxPx, h = v.videoHeight || maxPx;
+        const scale = Math.min(1, maxPx / Math.max(w, h));
+        const c = document.createElement('canvas');
+        c.width = Math.round(w * scale);
+        c.height = Math.round(h * scale);
+        c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+        frames.push(c.toDataURL('image/jpeg', 0.8));
+      } catch (_) { /* skip this frame */ }
+    }
+    function advance() {
+      if (settled) return;
+      idx++;
+      if (idx >= fracs.length) return finish();
+      stepDone = false;
+      const t = dur ? Math.min(dur * fracs[idx], Math.max(0, dur - 0.1)) : 0.1;
+      clearTimeout(seekTimer);
+      seekTimer = setTimeout(onStep, 2500);   // watchdog if 'seeked' never fires
+      try { v.currentTime = t; } catch (_) { finish(); }
+    }
+    function onStep() {
+      if (settled || stepDone) return;        // one capture per step
+      stepDone = true;
+      clearTimeout(seekTimer);
+      capture();
+      advance();
+    }
+    v.addEventListener('loadeddata', () => {
+      dur = v.duration || 0;
+      // Adaptive sampling: ~1 frame per 6s of video, clamped to 6–8 frames, so
+      // longer recipe clips (more step-captions) get more coverage while short
+      // ones don't waste Claude image calls. Frames are evenly spaced, centred
+      // in each slice (avoids the very first/last frame = intro/outro cards).
+      const n = count || Math.max(6, Math.min(8, Math.round((dur || 30) / 6) + 2));
+      fracs = Array.from({ length: n }, (_, i) => (i + 0.5) / n);
+      advance();
+    });
+    v.addEventListener('seeked', onStep);
+    v.addEventListener('error', () => finish());
+  });
+}
+
+/* Send several video frames to the multi-image extractor so Claude can
+   synthesise one item (e.g. the full recipe) from text shown across the clip. */
+async function extractVideoFrames(frames, mediaType = 'image/jpeg') {
+  const resp = await authFetch(`${SERVER}/api/extract-video`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ frames, media_type: mediaType }),
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.detail || `Server error ${resp.status}`);
+  }
+  return resp.json();
+}
+
+/* ── Resize image to stay under Claude's 5 MB base64 limit ── */
+function resizeImage(dataUrl, maxPx, quality) {
+  return new Promise(function(resolve) {
+    const img = new Image();
+    img.onload = function() {
+      const scale = Math.min(1, maxPx / Math.max(img.width, img.height));
+      const w = Math.round(img.width  * scale);
+      const h = Math.round(img.height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = dataUrl;
+  });
+}
+
+/* ── Core flow ── */
+function processFile(file) {
+  const reader = new FileReader();
+  reader.onload = async function(ev) {
+    let dataUrl = ev.target.result;
+
+    // Resize to max 1600px longest side, JPEG 85% — keeps base64 well under 5 MB
+    dataUrl = await resizeImage(dataUrl, 1600, 0.85);
+
+    const [meta, base64Data] = dataUrl.split(',');
+    const mediaType = 'image/jpeg';
+
+    const thumb = document.getElementById('import-thumb');
+    thumb.src = dataUrl;
+    thumb.style.display = '';
+    showImportState('processing');
+
+    try {
+      const result = await extractWithClaude(base64Data, mediaType);
+      if (!result.description && result.metadata?.description) {
+        result.description = result.metadata.description;
+      }
+
+      // Enrich with real cover art when possible
+      const posterCats = ['movie','movies','book','books','music'];
+      if (posterCats.includes(result.category)) {
+        try {
+          const year = result.metadata?.year || result.metadata?.release_year || null;
+          const pUrl = `${SERVER}/api/poster?title=${encodeURIComponent(result.title)}&category=${result.category}` + (year ? `&year=${year}` : '');
+          const pr = await authFetch(pUrl);
+          if (pr.ok) {
+            const pd = await pr.json();
+            if (pd.url) result._posterUrl = pd.url;
+          }
+        } catch (_) {}
+      }
+
+      // Queue any extra items found in the same screenshot for review.
+      _enqueueAdditional(result, dataUrl);
+      showResult(dataUrl, result);
+    } catch (err) {
+      const m = err.message || '';
+      const serverDown = m.includes('Failed to fetch') || m.includes('Load failed') || m.includes('NetworkError');
+      const staleServer = m === 'Not Found' || m.includes('404');
+      const msg = serverDown
+        ? 'Server not running — start it with: python3 curio_server.py'
+        : staleServer
+          ? 'Restart the server: python3 curio_server.py'
+          : m || 'Something went wrong';
+      // Don't auto-advance on failure: each extraction costs an API call,
+      // and a down server would burn through the whole queue.
+      if (_importQueue.length) showToast(`${_importQueue.length} queued screenshots cancelled`);
+      _importQueue = [];
+      showImportError(msg);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function showImportError(msg) {
+  showImportState('drop');
+  const drop = document.getElementById('import-drop');
+  const old = drop.querySelector('.import-drop-label');
+  old.textContent = '⚠️ ' + (msg || 'Something went wrong');
+  old.style.color = 'var(--accent)';
+  setTimeout(function() {
+    old.textContent = 'Drop a screenshot here';
+    old.style.color = '';
+  }, 3500);
+}
+
+
+/* Auto-review: extractions at or above this confidence are saved automatically
+   without stopping for a manual review card. Lower-confidence results still show
+   the editable card so the user can fix the category/title first. Confidence is
+   now honestly capped by field coverage on the server, so this can sit lower. */
+const AUTO_SAVE_CONF = 0.7;
+const REVIEW_CATS = ['recipe','music','book','movie','cocktail','style','tool','place','saved'];
+
+/* When set, every remaining item saves without stopping for review ("Save all"). */
+let _saveAllMode = false;
+
+/* stored between showResult → saveImport */
+let _pendingItem   = null;
+let _pendingResult = null;
+let _pendingImg    = null;
+
+function showResult(imgSrc, result) {
+  _pendingResult = result;
+  _pendingImg    = imgSrc;
+  _pendingItem   = normalizeExtraction(result, imgSrc);
+
+  // Confident enough (or "Save all" is active) → save straight away.
+  if (_saveAllMode || (result.confidence || 0) >= AUTO_SAVE_CONF) {
+    saveImport(true);
+    return;
+  }
+
+  // Uncertain → show the editable review card.
+  // "Save all" shortcut appears only when more items are queued behind this one.
+  const remaining = _extractedQueue.length + _importQueue.length;
+  const saveAllBtn = document.getElementById('import-saveall-btn');
+  if (saveAllBtn) {
+    saveAllBtn.style.display = remaining ? '' : 'none';
+    saveAllBtn.textContent = `Save all ${remaining + 1}`;
+  }
+  document.getElementById('import-result-img').src = imgSrc;
+  document.getElementById('import-result-img').style.display = imgSrc ? '' : 'none';
+  document.getElementById('import-result-sub').textContent  = result.subtitle || '';
+  document.getElementById('import-result-desc').textContent = result.description || '';
+
+  // Category selector (defaults to Claude's guess)
+  const sel = document.getElementById('import-result-cat-select');
+  sel.innerHTML = REVIEW_CATS.map(c =>
+    `<option value="${c}"${c === (result.category || 'saved') ? ' selected' : ''}>${c.charAt(0).toUpperCase() + c.slice(1)}</option>`).join('');
+  // Editable title
+  document.getElementById('import-result-title-input').value = result.title || '';
+
+  const pct = Math.round((result.confidence || 0) * 100);
+  document.getElementById('import-conf-label').textContent = `${pct}% confidence`;
+
+  showImportState('result');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.getElementById('import-conf-fill').style.width = pct + '%';
+  }));
+}
+
+/* Re-normalise the pending item when the user corrects the category, keeping
+   any edit they already made to the title. */
+function onReviewCatChange(newCat) {
+  if (!_pendingResult) return;
+  const titleEdit = document.getElementById('import-result-title-input')?.value;
+  _pendingResult.category = newCat;
+  _pendingItem = normalizeExtraction(_pendingResult, _pendingImg);
+  if (titleEdit) _pendingItem.title = titleEdit;
+}
+function onReviewTitleInput(v) {
+  if (_pendingItem) _pendingItem.title = v || 'Untitled';
+}
+
+/* Save the current item and every queued one without stopping to review each. */
+function saveAllRemaining() {
+  _saveAllMode = true;
+  if (_pendingItem) saveImport(true);   // cascades through the queue via showResult
+}
+
+/* ── Normalise Claude result → DATA item shape ── */
+const CAT_EMOJI = { recipe:'🍳', music:'🎵', book:'📖', movie:'🎬', cocktail:'🍸', style:'👗', tool:'🔧', place:'🧭', saved:'📌' };
+
+function normalizeExtraction(result, imgSrc) {
+  const m   = result.metadata || {};
+  // Claude returns singular keys; DATA uses plural for some categories.
+  // Dispatch below MUST branch on the singular `rawCat` — `cat` (plural) is only
+  // used as the DATA/storage key. Branching on `cat` silently dropped every
+  // structured field for recipes/books/movies/cocktails/tools/places.
+  const CAT_KEY_MAP = { recipe:'recipes', book:'books', movie:'movies', cocktail:'cocktails', tool:'tools', place:'places' };
+  const rawCat = result.category || 'saved';
+  const cat = CAT_KEY_MAP[rawCat] || rawCat;
+  const id  = 'imp-' + Date.now();
+
+  const base = {
+    id, type: cat,
+    emoji: CAT_EMOJI[rawCat] || '📌',
+    title: result.title || 'Untitled',
+    img: result._posterUrl || imgSrc,   // real poster > screenshot
+    description: result.description || '',
+    confidence: result.confidence || 0,
+    imported: true,
+    ...(result._sourceUrl ? { source_url: result._sourceUrl } : {}),
+  };
+
+  if (rawCat === 'style') return {
+    ...base,
+    meta: [m.creator, m.platform].filter(Boolean).join(' · ') || 'Style',
+    creator: m.creator || null, platform: m.platform || 'Saved',
+    vibe: m.vibe || 'Saved', tags: m.tags || [],
+  };
+  if (rawCat === 'tool') return {
+    ...base,
+    meta: [m.category_tag, m.free != null ? (m.free ? 'Free' : 'Paid') : null].filter(Boolean).join(' · ') || 'Tool',
+    creator: m.creator || null, platform: m.platform || 'Saved',
+    url: m.url || null, category_tag: m.category_tag || 'Tool', free: m.free ?? null,
+  };
+  if (rawCat === 'recipe') return {
+    ...base,
+    meta: [m.cuisine, m.prep_min ? m.prep_min + ' min' : null, m.servings ? m.servings + ' srv' : null].filter(Boolean).join(' · ') || 'Recipe',
+    cuisine: m.cuisine || null,
+    time: m.prep_min ? m.prep_min + ' min' : null,
+    servings: m.servings || null,
+    ingredients: (m.ingredients || []).map(i => typeof i === 'string' ? i : [i.amount, i.unit, i.name].filter(Boolean).join(' ')),
+    steps: (m.steps || []).map(s => s.text || s),
+  };
+  if (rawCat === 'music') return {
+    ...base,
+    meta: [result.subtitle, m.year].filter(Boolean).join(' · ') || 'Music',
+    artist: m.artist || result.subtitle || result.title,
+    album: m.album || result.title, year: m.year || null,
+    genre: (m.genres || [])[0] || null,
+  };
+  if (rawCat === 'book') return {
+    ...base,
+    meta: [m.author, m.year, m.genre].filter(Boolean).join(' · ') || 'Book',
+    author: m.author || null, year: m.year || null,
+    genre: m.genre || null, pages: m.pages || null,
+  };
+  if (rawCat === 'movie') return {
+    ...base,
+    meta: [m.director ? m.director.split(' ').pop() : null, m.year, m.runtime_min ? m.runtime_min + ' min' : null].filter(Boolean).join(' · ') || 'Film',
+    director: m.director || null, year: m.year || null,
+    genre: m.genre || null, runtime: m.runtime_min ? m.runtime_min + ' min' : null,
+    // Preserve cast + synopsis (Claude extracts them) so the modal can show
+    // them and the "where to watch" lookup has a title/year to resolve.
+    cast: Array.isArray(m.cast) ? m.cast : [],
+    synopsis: m.synopsis || null, rating: m.rating || null,
+  };
+  if (rawCat === 'cocktail') return {
+    ...base,
+    meta: [m.glass, m.method].filter(Boolean).join(' · ') || 'Cocktail',
+    glass: m.glass || null, strength: m.strength || 'Unknown',
+    ingredients: (m.ingredients || []).map(i => typeof i === 'string' ? i : [i.amount, i.name].filter(Boolean).join(' ')),
+    garnish: m.garnish || null,
+    steps: m.method ? [m.method] : [],
+  };
+  if (rawCat === 'place') return {
+    ...base,
+    meta: [m.location || m.region, m.type_tag].filter(Boolean).join(' · ') || 'Place',
+    location: m.location || null, region: m.region || null,
+    country: m.country || null, type_tag: m.type_tag || null,
+    season: m.season || null, activities: Array.isArray(m.activities) ? m.activities : [],
+  };
+  // saved fallback
+  return {
+    ...base,
+    meta: m.platform || 'Saved',
+    platform: m.platform || 'Saved',
+    creator: m.creator || null,
+    raw_text: m.raw_text || null,
+  };
+}
+
+/* ── Upload a data-URL screenshot to the server volume.
+      Returns the served URL, or null if the upload failed (offline, etc.) —
+      the caller then keeps the data URL so the image still shows locally.  ── */
+async function uploadImage(dataUrl) {
+  try {
+    const [meta, b64] = dataUrl.split(',');
+    const mediaType = (meta.match(/^data:([^;]+)/) || [])[1] || 'image/jpeg';
+    const res = await authFetch(`${SERVER}/api/images`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: b64, media_type: mediaType }),
+    });
+    if (!res.ok) return null;
+    return (await res.json()).url || null;
+  } catch (_) { return null; }
+}
+
+/* ── Save: in-memory + persist to local server ── */
+const _normTitle = s => (s || '').trim().toLowerCase();
+
+/* True if an item with the same title already lives in this category. */
+function _isDuplicate(cat, title) {
+  return (DATA[cat]?.items || []).some(i => _normTitle(i.title) === _normTitle(title));
+}
+
+async function saveImport(auto = false) {
+  if (!_pendingItem) return;
+  const item = _pendingItem;
+  const cat  = item.type;
+
+  // Skip duplicates: don't add something already in this category.
+  if (_isDuplicate(cat, item.title)) {
+    _pendingItem = null;
+    _pendingResult = null;
+    const label = DATA[cat]?.label || 'library';
+    if (!_advanceImport()) closeImport();
+    showToast(`Already in ${label}, skipped`);
+    return;
+  }
+
+  // Screenshots arrive as data URLs that never used to leave this browser.
+  // Upload to the server first so the image appears on other devices too.
+  if (item.img && item.img.startsWith('data:')) {
+    const url = await uploadImage(item.img);
+    if (url) item.img = url;
+    else showToast('Image saved on this device only');
+  }
+
+  // 1. Ensure category exists in DATA (handles new categories gracefully)
+  if (!DATA[cat]) {
+    DATA[cat] = { label: cat.charAt(0).toUpperCase() + cat.slice(1), emoji: item.emoji, desc: '', img: item.img, items: [] };
+  }
+
+  // 2. Add to in-memory DATA and rebuild carousel
+  DATA[cat].items.unshift(item); // newest first
+  if (currentCat === cat) buildCarousel('cat', DATA[cat].items);
+  // Refresh home counts
+  const newHomeItems = Object.entries(DATA).map(([key, c]) => ({
+    id: `home-${key}`, type: 'home', catKey: key,
+    emoji: c.emoji, title: c.label, img: c.img,
+    meta: `${c.items.length} items`, description: c.desc,
+  }));
+  buildCarousel('home', newHomeItems);
+  _syncSavedNavPill();
+
+  // 3. Persist to local server (non-blocking — fails silently if server not running)
+  persistItem(item);
+
+  // 4. Advance the queue if more screenshots wait, otherwise close
+  _pendingItem = null;
+  _pendingResult = null;
+  const prefix = auto ? 'Auto-saved to' : 'Saved to';
+  if (_advanceImport()) {
+    const left = _extractedQueue.length + _importQueue.length;
+    showToast(`${prefix} ${DATA[cat].label}` + (left ? ` · ${left} more to review` : ''));
+  } else {
+    closeImport();
+    showToast(`${prefix} ${DATA[cat].label}`);
+  }
+}
+
+/* ── Toast ── */
+function showToast(msg) {
+  let t = document.getElementById('curio-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'curio-toast';
+    t.style.cssText = `position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(12px);
+      background:var(--ink);color:var(--bg);font-family:var(--fm);font-size:11px;letter-spacing:.1em;
+      text-transform:uppercase;padding:9px 18px;border-radius:100px;
+      opacity:0;transition:opacity .22s,transform .22s;pointer-events:none;z-index:9000;white-space:nowrap`;
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => {
+    t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(12px)';
+  }, 2400);
+}
+
+/* ── API base — empty string = same origin (served by FastAPI) ── */
+const SERVER = '';
+
+/* Items that failed to reach the server (offline saves). They're protected
+   from being culled by sync and retried on the next successful sync. */
+const _unsyncedIds = new Set();
+
+async function persistItem(item) {
+  try {
+    // Images are data URLs — too large for JSON, store a flag instead
+    const payload = { ...item, img: item.img?.startsWith('data:') ? '__screenshot__' : item.img };
+    const res = await authFetch(`${SERVER}/api/items`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      _unsyncedIds.add(item.id);
+      showToast('Saved here only — sync failed');
+    } else {
+      _unsyncedIds.delete(item.id);
+    }
+  } catch (_) {
+    // Tell the user the item lives only in this session, instead of failing silently
+    _unsyncedIds.add(item.id);
+    showToast('Saved here only — server offline');
+  }
+}
+
+/* ── Sync pill helpers ── */
+function _syncPill(show, label, offline = false) {
+  const pill = document.getElementById('sync-pill');
+  if (!pill) return;
+  document.getElementById('sync-pill-label').textContent = label || 'Syncing library…';
+  pill.classList.toggle('offline', offline);
+  pill.classList.toggle('show', show);
+}
+
+/* ── Connectivity feedback ── */
+window.addEventListener('offline', () => {
+  _syncPill(true, 'Offline — changes stay on this device', true);
+});
+window.addEventListener('online', () => {
+  _syncPill(false);
+  showToast('Back online');
+});
+
+/* Cheap fingerprint of everything that affects what's on screen — used to
+   skip UI rebuilds when a background sync brought nothing new. */
+function _librarySignature() {
+  return JSON.stringify(Object.entries(DATA).map(([k, c]) =>
+    [k, c.items.map(i => [i.id, i.note || '', !!i.favourite, !!i.read, !!i.watched, i.img || '', (i.media || []).length])]));
+}
+let _lastLibSig = null;
+
+async function loadSavedItems(quiet = false) {
+  if (!quiet) _syncPill(true, 'Syncing library…');
+  try {
+    // Remove any hardcoded items the user has previously deleted (tracked in localStorage).
+    const deletedIds = _getDeletedIds();
+    if (deletedIds.size) {
+      for (const cat of Object.values(DATA)) {
+        cat.items = cat.items.filter(i => !deletedIds.has(i.id));
+      }
+    }
+
+    const res = await authFetch(`${SERVER}/api/items`);
+    if (!res.ok) { _syncPill(false); return; }
+    const items = await res.json();
+    // place:'places' included so imported places merge into the built-in Places
+    // category instead of spawning a duplicate singular "place" section.
+    const CAT_KEY_MAP = { recipe:'recipes', book:'books', movie:'movies', cocktail:'cocktails', tool:'tools', place:'places' };
+    items.forEach(item => {
+      // Stub records exist only to carry annotations for hardcoded demo items.
+      // Find the hardcoded item by ID across all categories and merge annotations onto it.
+      if (item._stub) {
+        // Tombstone: this hardcoded demo item was deleted on another device
+        if (item.deleted) {
+          _recordDeletedId(item.id);
+          for (const cat of Object.values(DATA)) {
+            const i = cat.items.findIndex(x => x.id === item.id);
+            if (i !== -1) cat.items.splice(i, 1);
+          }
+          return;
+        }
+        const hardcoded = _findItemById(item.id);
+        if (hardcoded) {
+          const ann = {};
+          if (item.note      !== undefined) ann.note      = item.note;
+          if (item.favourite !== undefined) ann.favourite = item.favourite;
+          if (item.read      !== undefined) ann.read      = item.read;
+          if (item.watched   !== undefined) ann.watched   = item.watched;
+          if (item.media     !== undefined) ann.media     = item.media;
+          Object.assign(hardcoded, ann);
+          // The server note is authoritative across devices — mirror it into
+          // localStorage (which openModal reads first) instead of only seeding
+          // when empty, so edits made on another device actually show up here.
+          if (item.note != null) _saveNoteLocal(item.id, item.note);
+        }
+        return;
+      }
+
+      if (item.type) {
+        const canonical = CAT_KEY_MAP[item.type] || item.type;
+        // Self-heal legacy records: early saves stored singular types (e.g.
+        // 'place'), which spawned a duplicate section on older clients. Persist
+        // the canonical plural back once so the data normalises across devices.
+        // Idempotent: after the write the server value already matches.
+        if (canonical !== item.type) patchItem(item.id, { type: canonical });
+        item.type = canonical;
+      }
+      const cat = item.type;
+      if (!cat) return;
+      // Create the category on demand if it isn't one of the built-in eight.
+      // saveImport() does the same in-session; without this, imported items in
+      // a non-default category (e.g. "saved" videos/screenshots) were silently
+      // dropped on every reload because their category didn't exist yet.
+      if (!DATA[cat]) {
+        DATA[cat] = { label: cat.charAt(0).toUpperCase() + cat.slice(1),
+                      emoji: CAT_EMOJI[cat] || item.emoji || '📌', desc: '',
+                      img: null, items: [] };
+      }
+      // Skip if already present (same id) — handles hardcoded items that were saved to DB
+      if (DATA[cat].items.some(i => i.id === item.id)) {
+        // Merge server-side annotations (note, favourite, read, watched) back onto the in-memory item
+        const existing = DATA[cat].items.find(i => i.id === item.id);
+        if (existing) {
+          const ann = {};
+          if (item.note      !== undefined) ann.note      = item.note;
+          if (item.favourite !== undefined) ann.favourite = item.favourite;
+          if (item.read      !== undefined) ann.read      = item.read;
+          if (item.watched   !== undefined) ann.watched   = item.watched;
+          if (item.media     !== undefined) ann.media     = item.media;
+          Object.assign(existing, ann);
+          // The server note is authoritative across devices — mirror it into
+          // localStorage (which openModal reads first) instead of only seeding
+          // when empty, so edits made on another device actually show up here.
+          if (item.note != null) _saveNoteLocal(item.id, item.note);
+        }
+        return;
+      }
+      // Screenshot data URLs aren't stored — show emoji fallback
+      if (item.img === '__screenshot__') item.img = null;
+      DATA[cat].items.unshift(item);
+    });
+
+    // Cull imported items that were deleted on another device: they live in
+    // the DB, so "in memory but not on the server" means deleted elsewhere.
+    // Offline saves (_unsyncedIds) are protected until they reach the server.
+    const serverIds = new Set(items.map(i => i.id));
+    for (const cat of Object.values(DATA)) {
+      cat.items = cat.items.filter(it =>
+        !(it.imported || String(it.id).startsWith('imp-')) ||
+        serverIds.has(it.id) || _unsyncedIds.has(it.id));
+    }
+
+    // Rebuild the UI only when this sync actually changed something,
+    // keeping carousel position so background refreshes are invisible.
+    const sig = _librarySignature();
+    if (sig !== _lastLibSig) {
+      _lastLibSig = sig;
+      const updated = Object.entries(DATA).map(([key, c]) => ({
+        id: `home-${key}`, type: 'home', catKey: key,
+        emoji: c.emoji, title: c.label, img: c.img,
+        meta: `${c.items.length} items`, description: c.desc,
+      }));
+      buildCarousel('home', updated, true);
+      _syncSavedNavPill();
+      if (currentCat) _applySearch(_currentQuery(), true);
+    }
+    _syncPill(false);
+  } catch (_) {
+    /* server not running — library shows built-in items only */
+    if (!quiet) {
+      _syncPill(true, 'Server offline — local library', true);
+      setTimeout(() => _syncPill(false), 4000);
+    }
+  }
+}
+
+/* ── Automatic re-sync ──────────────────────────────────────────────
+   The library used to load once per page load, so a phone that kept the
+   tab alive for days never saw desktop changes. Now we re-sync whenever
+   the app comes back into view, and once a minute while visible.       */
+let _lastSyncAt = 0;
+
+async function syncNow(force = false) {
+  if (!_getToken()) return;                            // not signed in yet
+  if (!force && Date.now() - _lastSyncAt < 10_000) return; // throttle bursts
+  _lastSyncAt = Date.now();
+  // First push anything that failed to reach the server earlier
+  for (const id of [..._unsyncedIds]) {
+    const it = _findItemById(id);
+    if (it) await persistItem(it);
+  }
+  await loadSavedItems(true); // quiet — no pill flash for background syncs
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') syncNow();
+});
+window.addEventListener('focus', () => syncNow());
+window.addEventListener('online', () => syncNow(true));
+setInterval(() => {
+  if (document.visibilityState === 'visible') syncNow();
+}, 60_000);
+
+/* ══════════════════════════════════════════════
+   AUTH
+   Stateless HMAC token stored in localStorage.
+   authFetch() wraps every API call to inject the
+   Authorization header and handle 401 → re-login.
+══════════════════════════════════════════════ */
+const _TOKEN_KEY = 'curio_auth_token';
+
+function _getToken()   { return localStorage.getItem(_TOKEN_KEY); }
+function _setToken(t)  { localStorage.setItem(_TOKEN_KEY, t); }
+function _clearToken() { localStorage.removeItem(_TOKEN_KEY); }
+
+function showLogin() {
+  document.getElementById('login-overlay').classList.add('show');
+  // Focus the password field after the fade-in
+  setTimeout(() => document.getElementById('login-password')?.focus(), 300);
+}
+function hideLogin() {
+  document.getElementById('login-overlay').classList.remove('show');
+}
+
+/**
+ * Drop-in replacement for fetch() on all API calls.
+ * Automatically attaches Bearer token; on 401 clears token and shows login.
+ */
+async function authFetch(url, opts = {}) {
+  const token   = _getToken();
+  const headers = { ...(opts.headers || {}) };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(url, { ...opts, headers });
+  if (res.status === 401) {
+    _clearToken();
+    showLogin();
+    throw new Error('Session expired — please sign in again');
+  }
+  return res;
+}
+
+async function doLogin() {
+  const input = document.getElementById('login-password');
+  const errEl = document.getElementById('login-error');
+  const btn   = document.querySelector('.login-btn');
+  errEl.textContent = '';
+  const pw = input?.value?.trim();
+  if (!pw) return;
+
+  // Busy state — prevents double submits and shows something is happening
+  if (btn) { btn.disabled = true; btn.style.opacity = '.55'; btn.textContent = 'Signing in…'; }
+  try {
+    const res = await fetch('/api/auth/login', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ password: pw }),
+    });
+    if (res.ok) {
+      const { token } = await res.json();
+      _setToken(token);
+      hideLogin();
+      if (input) input.value = '';
+      loadSavedItems();   // fetch persisted items now that we're authenticated
+    } else if (res.status === 429) {
+      errEl.textContent = 'Too many attempts — wait a minute and try again';
+    } else {
+      errEl.textContent = 'Incorrect password';
+      input?.select();
+    }
+  } catch (_) {
+    errEl.textContent = 'Connection error — is the server running?';
+  } finally {
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.textContent = 'Sign in →'; }
+  }
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+buildCarousel('home', HOME_ITEMS);
+// Show login gate immediately if no token exists; loadSavedItems will also
+// trigger it via authFetch → 401 if the stored token has expired.
+if (!_getToken()) showLogin();
+loadSavedItems();
+</script>
+
+
+<style>
+  .demo-badge {
+    position: fixed; left: 16px; bottom: 16px; z-index: 99999;
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 14px; border-radius: 999px;
+    background: rgba(26,25,22,.92); color: #F7F5F1;
+    font: 500 12px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    letter-spacing: .04em; text-transform: uppercase;
+    box-shadow: 0 4px 18px rgba(0,0,0,.22);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .demo-badge span { opacity: .62; text-transform: none; letter-spacing: .01em; }
+  .demo-badge a { color: #F7F5F1; text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 540px) {
+    .demo-badge { left: 10px; bottom: 10px; padding: 7px 11px; font-size: 11px; }
+    .demo-badge span { display: none; }
+  }
+</style>
+<div class="demo-badge" role="note">
+  Demo <span>&middot; sample content, resets on reload &middot;
+  <a href="/">back to portfolio</a></span>
+</div>
+
+</body>
+</html>
