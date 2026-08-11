@@ -3430,8 +3430,22 @@ function fileChosen(e) {
    back (recipe, music, movie…). Falls back to "Saved" if classification
    fails (offline, no API key, or an unreadable frame). The video itself is
    uploaded via /api/media and attached to the item's Photos & Videos gallery. */
+/* A clean display title from a video's filename, used only when Claude can't
+   classify the clip. Downloaded reels often have junk names (long numeric IDs),
+   which make poor titles — fall back to a neutral label rather than the raw ID. */
+function _videoTitleFromName(name) {
+  const base = (name || '').replace(/\.[^.]+$/, '').replace(/[_\-]+/g, ' ').trim();
+  const compact = base.replace(/\s+/g, '');
+  const digits = (compact.match(/\d/g) || []).length;
+  const junk = !base
+    || /\d{9,}/.test(compact)                       // a long numeric ID run
+    || (compact.length && digits / compact.length > 0.5)  // mostly digits
+    || (compact.length > 24 && !base.includes(' ')); // one long gibberish token
+  return junk ? 'Untitled video' : base;
+}
+
 async function importVideos(videos) {
-  let done = 0, failed = 0, lastLabel = null;
+  let done = 0, failed = 0, skipped = 0, lastLabel = null;
   const label = document.querySelector('.import-processing-label');
   for (const f of videos) {
     if (f.size > MEDIA_MAX_MB * 1024 * 1024) {
@@ -3440,7 +3454,7 @@ async function importVideos(videos) {
       continue;
     }
     showImportState('processing');
-    if (label) label.textContent = 'Reading your video…';
+    if (label) label.textContent = 'Uploading the video…';
     showToast(`Adding video ${done + failed + 1} of ${videos.length}…`);
     let objUrl = null;
     try {
@@ -3461,12 +3475,18 @@ async function importVideos(videos) {
       //    text shown at different moments (ingredients, steps, title) is read.
       objUrl = URL.createObjectURL(f);
       if (label) label.textContent = 'Reading the video…';
-      const frameUrls = await grabVideoFrames(objUrl);   // JPEG data URLs, time order
+      const thumbEl = document.getElementById('import-thumb');
+      const frameUrls = await grabVideoFrames(objUrl, null, 1280, (n, total, frame) => {
+        if (label) label.textContent = `Reading the video… frame ${n} of ${total}`;
+        // Flash each frame in the thumbnail so the read feels tangible.
+        if (thumbEl && frame) { thumbEl.src = frame; thumbEl.style.display = ''; }
+      });
 
       // 3) Read ALL frames together so Claude can assemble the full recipe (or
       //    other details) from overlays spread across the video.
       let result = null;
       if (frameUrls.length) {
+        if (label) label.textContent = 'Claude is reading it…';
         try {
           const b64s = frameUrls.map(u => u.split(',')[1]).filter(Boolean);
           if (b64s.length) result = await extractVideoFrames(b64s);
@@ -3474,13 +3494,19 @@ async function importVideos(videos) {
       }
 
       // 3b) Pick the cover frame: Claude's chosen "hero" frame (e.g. the plated
-      //     dish), falling back to the middle frame if it didn't pick one.
+      //     dish). If Claude didn't pick one, prefer a LATE frame for food
+      //     (recipes/cocktails usually close on the finished dish); otherwise
+      //     use the middle frame.
       let coverFrame = null;
       const ci = result && result.cover_frame;
       if (Number.isInteger(ci) && ci >= 0 && ci < frameUrls.length) {
         coverFrame = frameUrls[ci];
       } else if (frameUrls.length) {
-        coverFrame = frameUrls[frameUrls.length > 2 ? Math.floor(frameUrls.length / 2) : 0];
+        const foodCat = result && ['recipe','recipes','cocktail','cocktails'].includes(result.category);
+        const fallbackIdx = foodCat
+          ? frameUrls.length - 1                                      // finished dish ≈ end
+          : (frameUrls.length > 2 ? Math.floor(frameUrls.length / 2) : 0);
+        coverFrame = frameUrls[fallbackIdx];
       }
 
       // 3c) For movie/music/book videos, search for real cover art (poster /
@@ -3509,15 +3535,25 @@ async function importVideos(videos) {
         item = {
           id: 'imp-' + Date.now(),
           type: 'saved', emoji: '🎬',
-          title: (f.name || 'Video').replace(/\.[^.]+$/, '').trim() || 'Video',
+          title: _videoTitleFromName(f.name),
           img: posterUrl || null, meta: 'Video', description: '', imported: true,
         };
       }
       item.id = 'imp-' + Date.now() + '-' + done;   // stable, collision-free
       item.media = [{ url, type: type || 'video' }];
 
-      // 5) Add to the library + persist (same steps as saveImport, minus review).
+      // 5) Skip duplicates, same as the screenshot path — but only when we have
+      //    a real (Claude-derived) title, so distinct "Untitled video" clips
+      //    aren't wrongly merged into one.
       const cat = item.type;
+      if (result && result.category && _isDuplicate(cat, item.title)) {
+        skipped++;
+        lastLabel = DATA[cat]?.label || 'library';
+        showToast(`Already in ${lastLabel}, skipped`);
+        continue;
+      }
+
+      // 6) Add to the library + persist (same steps as saveImport, minus review).
       if (!DATA[cat]) {
         DATA[cat] = { label: cat.charAt(0).toUpperCase() + cat.slice(1),
                       emoji: CAT_EMOJI[cat] || item.emoji || '📌', desc: '',
@@ -3542,8 +3578,12 @@ async function importVideos(videos) {
   if (done) {
     closeImport();
     const n = `${done} video${done === 1 ? '' : 's'}`;
-    showToast(failed ? `Added ${n}, ${failed} failed`
-                     : (done === 1 && lastLabel ? `Added to ${lastLabel}` : `Added ${n}`));
+    const extra = skipped ? `, ${skipped} already saved` : '';
+    showToast(failed ? `Added ${n}, ${failed} failed${extra}`
+                     : (done === 1 && lastLabel && !skipped ? `Added to ${lastLabel}` : `Added ${n}${extra}`));
+  } else if (skipped) {
+    closeImport();
+    showToast(skipped === 1 ? 'Already in your library' : `All ${skipped} already saved`);
   } else {
     showImportError(failed ? 'Video upload failed' : 'No video added');
   }
@@ -3588,7 +3628,7 @@ function grabVideoFrame(src, frac = 0.3, maxPx = 1080) {
    single mid-clip grab. Best-effort: resolves with whatever it captured (may be
    fewer than requested, or empty) — a per-seek watchdog and an overall cap keep
    it from hanging on clips the browser can't seek cleanly. */
-function grabVideoFrames(src, count = null, maxPx = 1280) {
+function grabVideoFrames(src, count = null, maxPx = 1280, onProgress = null) {
   return new Promise((resolve) => {
     const v = document.createElement('video');
     v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = src;
@@ -3628,6 +3668,7 @@ function grabVideoFrames(src, count = null, maxPx = 1280) {
       stepDone = true;
       clearTimeout(seekTimer);
       capture();
+      if (onProgress) { try { onProgress(frames.length, fracs.length, frames[frames.length - 1]); } catch (_) {} }
       advance();
     }
     v.addEventListener('loadeddata', () => {
