@@ -2369,12 +2369,12 @@
       </div>
     </div>
     <div class="discipline-list reveal reveal-delay-2" id="aboutDisciplines">
-      <div class="discipline-item"><span>Product &amp; UX Design</span><span class="disc-year">Since 2021</span></div>
-      <div class="discipline-item"><span>Design Systems</span><span class="disc-year">Since 2022</span></div>
-      <div class="discipline-item"><span>Cross-functional Collaboration</span><span class="disc-year">Since 2021</span></div>
-      <div class="discipline-item"><span>Visual &amp; Brand Design</span><span class="disc-year">Since 2017</span></div>
-      <div class="discipline-item"><span>Client &amp; Stakeholder Communication</span><span class="disc-year">Since 2017</span></div>
-      <div class="discipline-item"><span>AI-Assisted Prototyping &amp; Build</span><span class="disc-year">Since 2025</span></div>
+      <div class="discipline-item"><span>Product &amp; UX Design</span></div>
+      <div class="discipline-item"><span>Design Systems</span></div>
+      <div class="discipline-item"><span>Cross-functional Collaboration</span></div>
+      <div class="discipline-item"><span>Visual &amp; Brand Design</span></div>
+      <div class="discipline-item"><span>Client &amp; Stakeholder Communication</span></div>
+      <div class="discipline-item"><span>AI-Assisted Prototyping &amp; Build</span></div>
     </div>
   </div>
 </section>
@@ -2725,7 +2725,7 @@ function applyConfig(c) {
     const discEl = document.getElementById('aboutDisciplines');
     if (discEl && Array.isArray(c.about.disciplines)) {
       discEl.innerHTML = c.about.disciplines.map(d => `
-        <div class="discipline-item"><span>${d.label}</span><span class="disc-year">${d.tag || ''}</span></div>
+        <div class="discipline-item"><span>${d.label}</span>${d.tag ? `<span class="disc-year">${d.tag}</span>` : ''}</div>
       `).join('');
     }
   }

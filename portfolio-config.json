@@ -134,28 +134,22 @@
     ],
     "disciplines": [
       {
-        "label": "Product & UX Design",
-        "tag": "Since 2021"
+        "label": "Product & UX Design"
       },
       {
-        "label": "Design Systems",
-        "tag": "Since 2022"
+        "label": "Design Systems"
       },
       {
-        "label": "Cross-functional Collaboration",
-        "tag": "Since 2021"
+        "label": "Cross-functional Collaboration"
       },
       {
-        "label": "Visual & Brand Design",
-        "tag": "Since 2017"
+        "label": "Visual & Brand Design"
       },
       {
-        "label": "Client & Stakeholder Communication",
-        "tag": "Since 2017"
+        "label": "Client & Stakeholder Communication"
       },
       {
-        "label": "AI-Assisted Prototyping & Build",
-        "tag": "Since 2025"
+        "label": "AI-Assisted Prototyping & Build"
       }
     ]
   },
