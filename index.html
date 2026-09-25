@@ -3556,19 +3556,17 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// 2. Konami Code (↑↑↓↓←→←→BA)
-const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-let konamiIndex = 0;
+// 2. Secret word: type "nate" anywhere for a surprise
+const secretWord = 'nate';
+let typed = '';
 document.addEventListener('keydown', e => {
-  if (e.key.toLowerCase() === konamiCode[konamiIndex].toLowerCase()) {
-    konamiIndex++;
-    if (konamiIndex === konamiCode.length) {
-      showToast('Konami Code Unlocked! 🎮');
-      document.body.style.animation = 'rainbow 2s ease infinite';
-      setTimeout(() => { document.body.style.animation = ''; konamiIndex = 0; }, 4000);
-    }
-  } else {
-    konamiIndex = 0;
+  if (e.ctrlKey || e.metaKey || e.altKey || e.target.tagName === 'INPUT' || e.key.length !== 1) return;
+  typed = (typed + e.key.toLowerCase()).slice(-secretWord.length);
+  if (typed === secretWord) {
+    typed = '';
+    showToast('Hi, you found me! ✨');
+    document.body.style.animation = 'rainbow 2s ease infinite';
+    setTimeout(() => { document.body.style.animation = ''; }, 4000);
   }
 });
 
@@ -3631,7 +3629,7 @@ console.log(`
 ║                                       ║
 ║  Easter eggs:                         ║
 ║  • Press 'D' for dark mode            ║
-║  • Konami code for a surprise         ║
+║  • Type 'nate' for a surprise         ║
 ║  • Click footer copyright 5×          ║
 ║                                       ║
 ╚═══════════════════════════════════════╝
