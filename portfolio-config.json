@@ -167,7 +167,17 @@
       "worth building",
       "together?"
     ],
-    "italicLineIndex": 1
+    "italicLineIndex": 1,
+    "logosLabel": "Brands I've designed for",
+    "logos": [
+      { "name": "Bodenhoff", "src": "assets/logos/bodenhoff.png" },
+      { "name": "Banzo", "src": "assets/logos/banzo.png" },
+      { "name": "Ismageriet", "src": "assets/logos/ismageriet.png" },
+      { "name": "Green Mango", "src": "assets/logos/green-mango.png" },
+      { "name": "Mad & Kaffe", "src": "assets/logos/mad-kaffe.png" },
+      { "name": "AGR", "src": "assets/logos/agr.svg" },
+      { "name": "MyLoyal", "src": "assets/logos/myloyal.png" }
+    ]
   },
   "footer": {
     "status": "Available for work · Copenhagen, Denmark"
