@@ -1,16 +1,16 @@
 {
   "identity": {
-    "name": "Nataly C",
+    "name": "Nataly Cetre",
     "nameSpaced": "Nataly · C",
     "initials": "N·C",
     "tagline": "Product Designer",
-    "pageTitle": "Nataly C — Product Designer",
-    "metaDescription": "Nataly C — Product designer in Copenhagen. UX/UI, design systems and visual identity. Visual first, considered always.",
-    "ogTitle": "Nataly C — Product Designer",
+    "pageTitle": "Nataly Cetre — Product Designer",
+    "metaDescription": "Nataly Cetre — Product designer in Copenhagen. UX/UI, design systems and visual identity. Visual first, considered always.",
+    "ogTitle": "Nataly Cetre — Product Designer",
     "ogDescription": "Product designer in Copenhagen. I design digital products and the identities around them. Visual first, considered always.",
     "email": "natalicetre@gmail.com",
     "dateRange": "2024 — 2026",
-    "copyrightOwner": "Nataly C",
+    "copyrightOwner": "Nataly Cetre",
     "copyrightYear": 2026,
     "accessCode": "NC2026",
     "version": "V4"
@@ -26,7 +26,7 @@
     },
     {
       "label": "CV",
-      "href": "assets/Nataly-C-Product-Designer.pdf"
+      "href": "assets/Nataly-Cetre-Product-Designer.pdf"
     }
   ],
   "tokens": {
