@@ -31,7 +31,10 @@
         "Drew the line between what's shared (structure, behavior) and what's themed (identity), so one product can present as 13+ branded apps."
       ],
       "collaboration": "[TODO: name the engineers implementing the library, any designers contributing components, and brand/client stakeholders.]",
-      "image": { "placeholder": true, "label": "You in context: annotated component or theming decision you drove · UI coming soon" }
+      "image": {
+        "placeholder": true,
+        "label": "You in context: annotated component or theming decision you drove · UI coming soon"
+      }
     },
     "insight": {
       "methods": [
@@ -53,13 +56,16 @@
     },
     "design": {
       "solution": "A library of 50+ components covering the MyLoyal member app, with brand identity applied as a theme layer, so one product can present as 13+ different branded apps. The library grew iteratively: a pattern earned its way in by recurring across brands, rather than being designed speculatively.",
-      "image": { "placeholder": true, "label": "One component, themed across brands · UI coming soon" },
+      "image": {
+        "placeholder": true,
+        "label": "One component, themed across brands · UI coming soon"
+      },
       "flows": "When a new client brand joins, their identity is applied to the existing library rather than designed from scratch. Onboarding a brand becomes a theming exercise instead of a redesign.",
       "annotations": "The tension worth managing: every client wants to feel unique, while the product needs to stay one product. The system draws that line at identity (theirs) versus structure and behavior (shared)."
     },
     "outcome": {
       "shipped": "Live in production across the MyLoyal member app, serving 13+ client brands and 750k+ users.",
-      "measures": "No formal instrumentation on the system itself, but three shifts are visible day to day: features ship to all brands at once instead of brand by brand, design-to-dev handoff is faster because engineers reuse known components, and new brands onboard as a theming exercise instead of a redesign.",
+      "measures": "Three shifts are visible day to day: features ship to all brands at once instead of brand by brand, design-to-dev handoff is faster because engineers reuse known components, and new brands onboard as a theming exercise instead of a redesign. There is no formal instrumentation on the system itself yet.",
       "learnings": "A multi-brand system forces honesty about what a component really is. If a pattern only works under one brand's identity, it isn't a component yet. Designing against the hardest brand first made the whole library sturdier."
     }
   },

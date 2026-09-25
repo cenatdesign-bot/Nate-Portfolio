@@ -78,7 +78,7 @@
       "always."
     ],
     "italicLineIndex": 1,
-    "description": "I design digital products and the identities around them. I think visually first, I care about type and texture, and I build on systems that hold up in production. Currently at MyLoyal in Copenhagen.",
+    "description": "I design digital products used by 750k people, and the systems and identities around them. I also build: three tools I designed and built with AI are live. Currently at MyLoyal in Copenhagen.",
     "ctaPrimary": {
       "label": "Explore Work",
       "href": "#projects"
@@ -90,12 +90,13 @@
     "counter": "Selected Projects — 2026"
   },
   "marquee": [
-    "Product Strategy",
-    "Design Systems",
-    "Interaction Design",
-    "Research & Discovery",
-    "Accessibility",
-    "Design Leadership"
+      "Product & UX Design",
+      "Design Systems",
+      "Interaction Design",
+      "User Research & Discovery",
+      "Visual & Brand Design",
+      "Accessibility",
+      "AI-Assisted Prototyping & Build"
   ],
   "work": {
     "label": "Selected Work",
@@ -112,7 +113,7 @@
     "italicLineIndex": 1,
     "bio": [
       "I started in visual and editorial design, then moved through freelance and in-house roles into full-scope product design at <strong>MyLoyal</strong> in Copenhagen, where I've spent the last <strong>5+ years</strong> building loyalty and engagement products for brands across Denmark. That graphic design foundation never left. It shows up as a stronger-than-average eye for type, colour and motion, sitting on top of research, systems thinking and interaction design.",
-      "I think visually first. I usually understand a problem by making something and looking at it, not by talking around it. Then I test it, cut what isn't working, and document what is. I follow design closely but I'm careful about what makes it into the work, taste before trend. I'm most useful in the messy middle of a project, turning an ambiguous problem into something that ships and holds up. Calm under pressure, observant, and happiest working closely with a team."
+      "I usually understand a problem by making something and looking at it, not by talking around it. Then I test it, cut what isn't working, and document what is. I follow design closely but I'm careful about what makes it into the work, taste before trend. I'm most useful in the messy middle of a project, turning an ambiguous problem into something that ships and holds up. Calm under pressure, observant, and happiest working closely with a team."
     ],
     "stats": [
       {

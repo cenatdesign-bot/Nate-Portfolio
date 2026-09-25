@@ -31,7 +31,10 @@
         "Resolved the referral-reward configuration by keeping it flexible for clients to own, rather than MyLoyal dictating one approach."
       ],
       "collaboration": "[TODO: name your PM, engineering, and legal partners and what each owned, especially on the referral-reward legal question.]",
-      "image": { "placeholder": true, "label": "You in context: annotated screen showing the decisions you drove · UI coming soon" }
+      "image": {
+        "placeholder": true,
+        "label": "You in context: annotated screen showing the decisions you drove · UI coming soon"
+      }
     },
     "insight": {
       "methods": [
@@ -53,13 +56,16 @@
     },
     "design": {
       "solution": "A link-creation screen for club managers with domain whitelisting and expiration date controls, paired with a registration flow for invitees. If the invitee doesn't have the app, they complete registration on web, then are prompted to download the app to finish joining.",
-      "image": { "placeholder": true, "label": "Link-creation controls: whitelisting & expiration · UI coming soon" },
+      "image": {
+        "placeholder": true,
+        "label": "Link-creation controls: whitelisting & expiration · UI coming soon"
+      },
       "flows": "Club manager generates a link, optionally restricts it to specific email domains, and optionally sets an expiration date. Invitee opens the link: if they have the app, it opens directly; if not, they complete web registration and are directed to download the app afterward.",
       "annotations": "One nuance for clients: MyLoyal lets clients choose whether the reward for an invite goes to the invitee, the inviter, both, or neither. Referral-reward structures like this sit in a legal gray area, not clearly prohibited, but not the most recommended approach either. Rather than restrict the configuration, MyLoyal keeps it flexible and treats the choice as the client's responsibility, while offering setup recommendations."
     },
     "outcome": {
       "shipped": "Live. Club manager link-creation and settings screen (domain whitelisting, expiration date), plus the invitee registration flow for both app-installed and non-installed users.",
-      "measures": "No formal numbers are tracked yet. What changed in practice: club managers went from adding members one at a time by hand to sharing a single link they control. The measures that matter going forward: how many clubs adopt link invitations, members joined through a link versus added manually, and whether manual invitation work disappears from the admin side.",
+      "measures": "What changed in practice: club managers went from adding members one at a time by hand to sharing a single link they control. No formal numbers are tracked yet. The measures that matter going forward: how many clubs adopt link invitations, members joined through a link versus added manually, and whether manual invitation work disappears from the admin side.",
       "learnings": "Several rounds of iteration were needed to settle the whitelist and expiration configuration and the web-to-app handoff. The referral-reward legal ambiguity was one of the trickier product decisions, resolved by keeping the setting flexible for clients rather than MyLoyal dictating one approach."
     }
   },

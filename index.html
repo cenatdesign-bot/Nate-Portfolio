@@ -200,6 +200,16 @@
     min-height: 1em;
     margin-top: -1.5rem;
   }
+  /* Tells a visitor without the code how to get it, so the lock is never a dead end. */
+  .gate-hint {
+    font-size: 0.72rem;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+    color: var(--mid);
+    max-width: 30ch;
+    margin: -1.75rem 0 0;
+  }
+  .gate-hint a { color: var(--black); text-decoration: underline; text-underline-offset: 3px; }
 
   /* ── NAV ── */
   nav {
@@ -2124,6 +2134,7 @@
       <button type="submit">Enter</button>
     </form>
     <p class="gate-error" id="gateError" aria-live="polite"></p>
+    <p class="gate-hint">Shared on request. Email <a href="mailto:natalicetre@gmail.com">natalicetre@gmail.com</a> for the code.</p>
   </div>
 </div>
 
@@ -2173,8 +2184,8 @@
 <!-- Marquee -->
 <div class="marquee-section" aria-hidden="true">
   <div class="marquee-track" id="marqueeTrack" data-cfg-marquee>
-    <div class="marquee-item"><span>Product Strategy</span><span class="marquee-dot"></span><span>Design Systems</span><span class="marquee-dot"></span><span>Interaction Design</span><span class="marquee-dot"></span><span>Research &amp; Discovery</span><span class="marquee-dot"></span><span>Accessibility</span><span class="marquee-dot"></span><span>Design Leadership</span><span class="marquee-dot"></span></div>
-    <div class="marquee-item"><span>Product Strategy</span><span class="marquee-dot"></span><span>Design Systems</span><span class="marquee-dot"></span><span>Interaction Design</span><span class="marquee-dot"></span><span>Research &amp; Discovery</span><span class="marquee-dot"></span><span>Accessibility</span><span class="marquee-dot"></span><span>Design Leadership</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>Product &amp; UX Design</span><span class="marquee-dot"></span><span>Design Systems</span><span class="marquee-dot"></span><span>Interaction Design</span><span class="marquee-dot"></span><span>User Research &amp; Discovery</span><span class="marquee-dot"></span><span>Visual &amp; Brand Design</span><span class="marquee-dot"></span><span>Accessibility</span><span class="marquee-dot"></span><span>AI-Assisted Prototyping &amp; Build</span><span class="marquee-dot"></span></div>
+    <div class="marquee-item"><span>Product &amp; UX Design</span><span class="marquee-dot"></span><span>Design Systems</span><span class="marquee-dot"></span><span>Interaction Design</span><span class="marquee-dot"></span><span>User Research &amp; Discovery</span><span class="marquee-dot"></span><span>Visual &amp; Brand Design</span><span class="marquee-dot"></span><span>Accessibility</span><span class="marquee-dot"></span><span>AI-Assisted Prototyping &amp; Build</span><span class="marquee-dot"></span></div>
   </div>
 </div>
 
@@ -2245,7 +2256,7 @@
 
   <div class="lab-intro reveal">
     <h2>Small tools,<br><em>big life problems.</em></h2>
-    <p>Things I build with AI to solve niche, specific, occasionally ridiculous problems for myself and family. Three are live so far, the rest are on the bench.</p>
+    <p>Things I design and build end to end with AI, to solve real problems for myself and my family. Three are live, and you can try them.</p>
   </div>
 
   <div class="lab-grid">
@@ -2267,28 +2278,11 @@
       </div>
     </a>
 
-    <!-- 02 — Story Spinner (Concept) -->
-    <div class="lab-card concept-card reveal reveal-delay-1">
-      <div class="lab-card-top">
-        <span class="lab-status concept">Concept</span>
-        <span class="lab-num">02</span>
-      </div>
-      <div class="lab-card-name">Story<br><em>Spinner</em></div>
-      <p class="lab-card-desc">Generates bedtime stories where the characters are your actual family members. Nightly ritual, on demand, in under 10 seconds.</p>
-      <div class="lab-card-footer">
-        <div class="lab-card-tags">
-          <span class="lab-tag">Family</span>
-          <span class="lab-tag">AI</span>
-        </div>
-        <div class="lab-arrow">→</div>
-      </div>
-    </div>
-
-    <!-- 03 — What's For Dinner (public demo) -->
-    <a href="https://wfd-demo-production.up.railway.app" target="_blank" rel="noopener" class="lab-card reveal reveal-delay-2">
+    <!-- 02 — What's For Dinner (public demo) -->
+    <a href="https://wfd-demo-production.up.railway.app" target="_blank" rel="noopener" class="lab-card reveal reveal-delay-1">
       <div class="lab-card-top">
         <span class="lab-status live">Live demo</span>
-        <span class="lab-num">03</span>
+        <span class="lab-num">02</span>
       </div>
       <div class="lab-card-name">What's<br><em>For Dinner?</em></div>
       <p class="lab-card-desc">Tell it what's in the fridge. It tells you what to cook. No more scrolling through 400 saved recipes looking for something that uses the wilting spinach. The demo comes with a stocked kitchen, so it has something to say straight away.</p>
@@ -2301,31 +2295,14 @@
       </div>
     </a>
 
-    <!-- 04 — The Movie Decider (Concept) -->
-    <div class="lab-card concept-card reveal">
-      <div class="lab-card-top">
-        <span class="lab-status concept">Concept</span>
-        <span class="lab-num">04</span>
-      </div>
-      <div class="lab-card-name">The Movie<br><em>Decider</em></div>
-      <p class="lab-card-desc">End the 45-minute negotiation. Both people rate their mood, energy, and tolerance for subtitles, and it picks something you'll both actually watch.</p>
-      <div class="lab-card-footer">
-        <div class="lab-card-tags">
-          <span class="lab-tag">Personal</span>
-          <span class="lab-tag">AI</span>
-        </div>
-        <div class="lab-arrow">→</div>
-      </div>
-    </div>
-
-    <!-- 05 — Curio (Live) -->
-    <a href="/demo/curio/" target="_blank" class="lab-card reveal">
+    <!-- 03 — Curio (Live) -->
+    <a href="/demo/curio/" target="_blank" class="lab-card reveal reveal-delay-2">
       <div class="lab-card-top">
         <span class="lab-status live">Live demo</span>
-        <span class="lab-num">05</span>
+        <span class="lab-num">03</span>
       </div>
       <div class="lab-card-name">Curio<br><em>Personal Library</em></div>
-      <p class="lab-card-desc">A personal library app for collecting and organizing the things worth keeping. Careful typography, calm interactions, and a design taken all the way from first sketch to live deployment.</p>
+      <p class="lab-card-desc">A personal library that reads what you save, from screenshots, photos and video, and files it for you. Designed and built end to end, from first sketch to live deployment.</p>
       <div class="lab-card-footer">
         <div class="lab-card-tags">
           <span class="lab-tag">Web App</span>

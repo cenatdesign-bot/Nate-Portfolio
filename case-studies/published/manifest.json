@@ -1,20 +1,5 @@
 [
   {
-    "slug": "myloyal-activity-feed",
-    "href": "project-case-study.html?slug=myloyal-activity-feed",
-    "title": "Activity Feed",
-    "subtitle": "A persistent engagement surface for the app",
-    "year": 2026,
-    "tags": [
-      "Product Design",
-      "Mobile",
-      "Engagement"
-    ],
-    "summary": "Push notifications die the moment they're swiped away. I'm designing a persistent 13-card activity feed, with carousel mechanics and a state machine, so quests, offers, and notifications have a place users can return to.",
-    "caseStudyUrl": "/case-studies/published/case-study-myloyal-activity-feed.json",
-    "publishedAt": 1784930063095
-  },
-  {
     "slug": "myloyal-design-system",
     "href": "project-case-study.html?slug=myloyal-design-system",
     "title": "Design System",
@@ -42,5 +27,20 @@
     ],
     "summary": "Club managers were adding members one at a time by hand. I designed a magic-link invitation flow, so onboarding became a single shareable link, with domain whitelisting and expiration controls managers own themselves.",
     "caseStudyUrl": "/case-studies/published/case-study-club-invitation-links.json"
+  },
+  {
+    "slug": "myloyal-activity-feed",
+    "href": "project-case-study.html?slug=myloyal-activity-feed",
+    "title": "Activity Feed",
+    "subtitle": "A persistent engagement surface for the app",
+    "year": 2026,
+    "tags": [
+      "Product Design",
+      "Mobile",
+      "Engagement"
+    ],
+    "summary": "Push notifications die the moment they're swiped away. I'm designing a persistent 13-card activity feed, with carousel mechanics and a state machine, so quests, offers, and notifications have a place users can return to.",
+    "caseStudyUrl": "/case-studies/published/case-study-myloyal-activity-feed.json",
+    "publishedAt": 1784930063095
   }
 ]
