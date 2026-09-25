@@ -1,0 +1,112 @@
+{
+  "slug": "campaigns-management",
+  "title": "Campaigns Management",
+  "subtitle": "A campaign builder brands can run themselves",
+  "year": 2026,
+  "tags": [
+    "Admin",
+    "Rules engine",
+    "Prototype"
+  ],
+  "summary": "Loyalty campaigns depend on timing, audience, qualifying purchases, rewards and limits all lining up. I designed a seven-step campaign builder and its full lifecycle, from Draft to Archived, and prototyped it end to end so edge cases surfaced before engineering.",
+  "services": [
+    "Product Strategy",
+    "Admin UX",
+    "Interaction Design",
+    "State & Edge-case Design",
+    "Prototyping"
+  ],
+  "sections": {
+    "problem": {
+      "statement": "Dynamic campaigns combine many rules that depend on each other: when a campaign runs, who can take part, which purchases qualify, how progress is counted, what members get, how many rewards can be issued, and how it's announced. Admins needed to set all of this up with confidence that the rules made sense together.",
+      "bizCtx": "Campaigns let MyLoyal's brands reward specific behaviour, like coming back within seven days, visiting off-peak, or spending 500 kr in a month. They are set up in the MyLoyal admin by the brands' own teams.",
+      "constraints": "Rules interact. The progress window limits which repeat options make sense, basket conditions need product line items from the POS, and several campaigns can match the same purchase, so priority decides which one wins. Once a campaign is live, its rules can't change without making progress inconsistent for members already taking part."
+    },
+    "contribution": {
+      "summary": "I designed the campaign list, the builder, the lifecycle and the results view, and built a working prototype that simulates every state.",
+      "contributions": [
+        "Structured setup as seven plain-language questions, from “When it runs” to “How it's announced”, each with its own completion state.",
+        "Designed the lifecycle (Draft, Scheduled, Active, Paused, Limit reached, Ended, Cancelled, Archived) and what can be edited in each state.",
+        "Designed a results view showing reach, progress and suppressed rewards by reason, including which higher-priority campaign won.",
+        "Built an interactive prototype covering 18 scenarios, with open questions logged inline for product and engineering."
+      ],
+      "collaboration": "[TODO: name your PM, engineering and other partners, and what each owned.]",
+      "image": {
+        "src": "/assets/case-studies/campaigns-management/img-3.webp",
+        "label": "Draft with a validation warning, and a scheduled campaign after its teaser push",
+        "alt": "A draft campaign showing an inline warning, next to a scheduled campaign whose announcement has already been sent."
+      }
+    },
+    "insight": {
+      "methods": [
+        "Interactive prototype",
+        "Scenario walkthroughs",
+        "Open-questions log"
+      ],
+      "findings": [
+        {
+          "finding": "Rules only make sense in combination",
+          "evidence": "Repeat options depend on the progress window, and basket conditions depend on POS line items.",
+          "implication": "The builder checks rules across steps and explains conflicts inline, not on submit."
+        },
+        {
+          "finding": "Admins need to know why a reward didn't fire",
+          "evidence": "Several campaigns can match one purchase; caps and priority decide the winner.",
+          "implication": "Results list suppressed rewards by reason, and name the campaign that won."
+        },
+        {
+          "finding": "Live campaigns can't safely change",
+          "evidence": "Editing rules mid-run would change the terms for members already making progress.",
+          "implication": "Rules lock once active. Name, dates and priority stay editable, and pause and cancel are explicit actions."
+        }
+      ],
+      "decision": "A step-by-step builder in plain language, validation that understands how rules interact, and a lifecycle where live campaigns are locked but still controllable."
+    },
+    "design": {
+      "solution": "The campaign list groups campaigns by status, with reward, priority and rewards issued at a glance. The builder walks admins through seven questions, shows a live reach estimate for the chosen audience, and flags anything that needs attention before a campaign can be scheduled.",
+      "image": {
+        "src": "/assets/case-studies/campaigns-management/img-2.webp",
+        "label": "The builder: seven questions, each with its own state",
+        "alt": "The campaign builder with sections for timing, audience, qualifying purchases and progress."
+      },
+      "flows": "Create a campaign, answer the seven questions, schedule it. At its start time it goes live automatically, with an optional announcement push that can go out before launch as a teaser. While active it can be paused or cancelled; when it ends or hits its cap it closes and moves to results, and can be archived later.",
+      "annotations": "Audience is chosen by tier, club and favourite location, with an estimated reach so admins see the size of the group before they commit. Priority is a plain number, and the results view explains its effect in words, so admins can tune it on the next campaign instead of guessing."
+    },
+    "outcome": {
+      "shipped": "A working prototype covering 18 scenarios, from an empty list to an archived campaign, ready for engineering review together with an open-questions log.",
+      "measures": "Measures that matter once live: time to set up a campaign, the share of drafts that schedule without errors, and how often rewards are suppressed by priority conflicts.",
+      "learnings": "Prototyping the logic, not just the screens, surfaced questions static mockups would have hidden, like whether a daily limit means a calendar day or a rolling 24 hours."
+    }
+  },
+  "imageData": [
+    {
+      "src": "/assets/case-studies/campaigns-management/cover.webp",
+      "label": "Campaign list and builder",
+      "alt": "The campaign list grouped by status, with the campaign builder in front."
+    },
+    {
+      "src": "/assets/case-studies/campaigns-management/img-4.webp",
+      "label": "Results with suppressed rewards",
+      "alt": "Campaign results showing reach, progress and suppressed rewards."
+    },
+    {
+      "src": "/assets/case-studies/campaigns-management/img-5.webp",
+      "label": "Active campaign with rules locked, and a new campaign",
+      "alt": "An active campaign with locked rules, next to a new campaign draft."
+    },
+    {
+      "src": "/assets/case-studies/campaigns-management/detail-1.webp",
+      "label": "Close-up: audience with a live reach estimate",
+      "alt": "The audience step with Brunch Club selected and an estimate of 4,300 app users."
+    },
+    {
+      "src": "/assets/case-studies/campaigns-management/detail-2.webp",
+      "label": "Close-up: condition groups and announcement warnings",
+      "alt": "Qualifying purchase condition groups next to the announcement step with two warnings."
+    }
+  ],
+  "status": "Prototype",
+  "role": "Product Designer",
+  "caseStudyUrl": "/case-studies/published/case-study-campaigns-management.json",
+  "publishedAt": 1790341583650
+}

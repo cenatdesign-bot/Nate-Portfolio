@@ -608,6 +608,26 @@
     color: var(--white);
   }
 
+  /* Hover v2 (2026-09-25): a quiet lift instead of a hard switch.
+     Card ground warms to the image shade, cover eases in, title nudges,
+     arrow turns to point forward. */
+  .project-item { transition: background 0.5s var(--ease); }
+  .project-item:hover { background: #F0EDE8; }
+  body.dark-mode .project-item:hover { background: rgba(255,255,255,0.035); }
+  .project-visual-cover { transition: transform 0.9s var(--ease), filter 0.6s var(--ease); }
+  .project-item:hover .project-visual-inner { transform: none; }
+  .project-item:hover .project-visual-cover { transform: scale(1.035); filter: saturate(1.06) contrast(1.02); }
+  .project-title { transition: transform 0.6s var(--ease); }
+  .project-item:hover .project-title { transform: translateX(6px); }
+  .project-arrow { transition: background 0.35s, border-color 0.35s, color 0.35s, transform 0.5s var(--ease); }
+  .project-arrow-glyph { display: inline-block; transition: transform 0.5s var(--ease); }
+  .project-item:hover .project-arrow-glyph { transform: rotate(45deg); }
+  @media (prefers-reduced-motion: reduce) {
+    .project-item:hover .project-visual-cover,
+    .project-item:hover .project-title,
+    .project-item:hover .project-arrow-glyph { transform: none; }
+  }
+
   /* small status note under the projects grid */
   .projects-source {
     padding: 1.5rem 3.5rem 3rem;
@@ -3385,7 +3405,7 @@ function renderGridCards() {
         </div>
         <div class="project-meta">
           <span class="project-year">${p.year || ''}</span>
-          <div class="project-arrow">↗</div>
+          <div class="project-arrow"><span class="project-arrow-glyph">↗</span></div>
         </div>
       </div>
     </div>`;

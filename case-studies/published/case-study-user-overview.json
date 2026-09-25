@@ -1,0 +1,104 @@
+{
+  "slug": "user-overview",
+  "title": "User Overview",
+  "subtitle": "One page to support any member",
+  "year": 2026,
+  "tags": [
+    "Admin",
+    "Support tooling",
+    "Roles"
+  ],
+  "summary": "Support staff need to answer “what happened to this member?” quickly and fix it safely. I redesigned the member page in the admin: balances, manual adjustments with a reason, offer redemption and undo, and a filterable activity timeline, with guardrails for each admin role.",
+  "services": [
+    "Admin UX",
+    "Information Architecture",
+    "Roles & Permissions"
+  ],
+  "sections": {
+    "problem": {
+      "statement": "Answering a member's question meant piecing together balances, offers and history, and correcting a balance had to be done carefully so it could be traced and reversed.",
+      "bizCtx": "Brand admins and MyLoyal support use the member page to resolve questions about points, wallet and stamps across every brand on the platform.",
+      "constraints": "Three roles use the page, Super Admin, Admin and Test Mode, each with different permissions. Every change to a member's balance needs a record and a way back."
+    },
+    "contribution": {
+      "summary": "I designed the member overview, the adjustment and redemption flows, and the activity timeline.",
+      "contributions": [
+        "Designed the member overview: tier, balances for points, wallet and stamps, and available offers.",
+        "Designed manual adjustments for points, wallet and stamps, each with a reason, plus cancelling an adjustment.",
+        "Designed redeeming and undoing offers on a member's behalf, with confirmations that adapt to the admin's role.",
+        "Designed an activity timeline with a type filter, so every change to a member can be traced."
+      ],
+      "collaboration": "[TODO: name your PM, engineering and other partners, and what each owned.]",
+      "image": {
+        "src": "/assets/case-studies/user-overview/img-4.webp",
+        "label": "Activity timeline and member overview",
+        "alt": "The activity timeline next to the member overview page."
+      }
+    },
+    "insight": {
+      "methods": [
+        "Support workflow review",
+        "Role permissions mapping"
+      ],
+      "findings": [
+        {
+          "finding": "Corrections must be reversible",
+          "evidence": "Adjustments and redemptions are sometimes made by mistake.",
+          "implication": "Every adjustment and redemption has an undo path, recorded in the timeline."
+        },
+        {
+          "finding": "Roles need different guardrails",
+          "evidence": "Super Admin, Admin and Test Mode have different permissions.",
+          "implication": "Confirmations and warnings adapt to the role."
+        },
+        {
+          "finding": "History answers most questions",
+          "evidence": "“Where did my points go?” is answered by what happened, in order.",
+          "implication": "A filterable activity timeline sits on the member page."
+        }
+      ],
+      "decision": "One member page where support can see, change and undo, with every action traced in a timeline."
+    },
+    "design": {
+      "solution": "The member page leads with tier and balances, then available offers. Adjusting a balance opens a focused modal with the current balance, the amount, and a reason. The activity timeline lists every event and can be filtered by type.",
+      "image": {
+        "src": "/assets/case-studies/user-overview/img-3.webp",
+        "label": "Adjusting a points balance",
+        "alt": "The adjust points balance modal over the member overview."
+      },
+      "flows": "Find a member, check balances and history, then adjust a balance, redeem an offer, or undo a previous action. Each action shows up in the timeline straight away.",
+      "annotations": "Destructive or unusual actions, like cancelling a manual adjustment, get an explicit confirmation that explains the effect before anything changes."
+    },
+    "outcome": {
+      "shipped": "Designed: member overview, adjust points, wallet and stamps, redeem and undo offers, cancel adjustments, and the activity timeline with type filters, for each admin role.",
+      "measures": "Measures that matter: time to resolve a member question, and how many manual adjustments are later cancelled.",
+      "learnings": "Designing the undo path together with each action kept the page simple, because nothing had to be over-protected when it could be reversed."
+    }
+  },
+  "imageData": [
+    {
+      "src": "/assets/case-studies/user-overview/cover.webp",
+      "label": "Member overview with an adjustment",
+      "alt": "The member overview with the adjust points modal and the activity timeline."
+    },
+    {
+      "src": "/assets/case-studies/user-overview/img-2.webp",
+      "label": "Member overview and timeline",
+      "alt": "The member overview page next to the activity timeline."
+    },
+    {
+      "src": "/assets/case-studies/user-overview/detail-1.webp",
+      "label": "Close-up: adjusting a balance and redeeming an offer",
+      "alt": "The adjust points balance modal next to the redeem offer modal."
+    },
+    {
+      "src": "/assets/case-studies/user-overview/detail-2.webp",
+      "label": "Close-up: activity timeline with date and type filters",
+      "alt": "The activity timeline with its date picker and type filters."
+    }
+  ],
+  "status": "Designed",
+  "role": "Product Designer",
+  "caseStudyUrl": "/case-studies/published/case-study-user-overview.json",
+  "publishedAt": 1790341583653
+}

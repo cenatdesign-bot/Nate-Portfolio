@@ -40,5 +40,61 @@
     "summary": "Push notifications die the moment they're swiped away. I'm designing a persistent 13-card activity feed, with carousel mechanics and a state machine, so quests, offers, and notifications have a place users can return to.",
     "caseStudyUrl": "/case-studies/published/case-study-myloyal-activity-feed.json",
     "publishedAt": 1784930710912
+  },
+  {
+    "slug": "campaigns-management",
+    "title": "Campaigns Management",
+    "subtitle": "A campaign builder brands can run themselves",
+    "year": 2026,
+    "tags": [
+      "Admin",
+      "Rules engine",
+      "Prototype"
+    ],
+    "summary": "Loyalty campaigns depend on timing, audience, qualifying purchases, rewards and limits all lining up. I designed a seven-step campaign builder and its full lifecycle, from Draft to Archived, and prototyped it end to end so edge cases surfaced before engineering.",
+    "caseStudyUrl": "/case-studies/published/case-study-campaigns-management.json",
+    "publishedAt": 1790341583650
+  },
+  {
+    "slug": "sticky-offers-card-tags",
+    "title": "Sticky Offers & Card Tags",
+    "subtitle": "Making urgency readable at a glance",
+    "year": 2026,
+    "tags": [
+      "Mobile",
+      "Components",
+      "Information hierarchy"
+    ],
+    "summary": "An offer can be time-limited, new, limited in stock, from a partner, or usable several times, often all at once. I designed a tag system for offer cards so members can see what matters, and what's about to expire, before opening anything.",
+    "caseStudyUrl": "/case-studies/published/case-study-sticky-offers-card-tags.json",
+    "publishedAt": 1790341583651
+  },
+  {
+    "slug": "full-receipts",
+    "title": "Full Receipts",
+    "subtitle": "From a purchase list to a real receipt",
+    "year": 2026,
+    "tags": [
+      "Mobile",
+      "Transactions",
+      "Edge cases"
+    ],
+    "summary": "Purchase history showed totals and points, but not the receipt behind them. I designed a full receipt in the member app: line items from the POS, loyalty applied, taxes, what the purchase earned and payment details, with the messy edge cases designed in.",
+    "caseStudyUrl": "/case-studies/published/case-study-full-receipts.json",
+    "publishedAt": 1790341583652
+  },
+  {
+    "slug": "user-overview",
+    "title": "User Overview",
+    "subtitle": "One page to support any member",
+    "year": 2026,
+    "tags": [
+      "Admin",
+      "Support tooling",
+      "Roles"
+    ],
+    "summary": "Support staff need to answer “what happened to this member?” quickly and fix it safely. I redesigned the member page in the admin: balances, manual adjustments with a reason, offer redemption and undo, and a filterable activity timeline, with guardrails for each admin role.",
+    "caseStudyUrl": "/case-studies/published/case-study-user-overview.json",
+    "publishedAt": 1790341583653
   }
 ]

@@ -1,0 +1,104 @@
+{
+  "slug": "full-receipts",
+  "title": "Full Receipts",
+  "subtitle": "From a purchase list to a real receipt",
+  "year": 2026,
+  "tags": [
+    "Mobile",
+    "Transactions",
+    "Edge cases"
+  ],
+  "summary": "Purchase history showed totals and points, but not the receipt behind them. I designed a full receipt in the member app: line items from the POS, loyalty applied, taxes, what the purchase earned and payment details, with the messy edge cases designed in.",
+  "services": [
+    "Mobile UI",
+    "Information Architecture",
+    "Edge-case Design"
+  ],
+  "sections": {
+    "problem": {
+      "statement": "Members could see that they had made a purchase and what it earned, but not what they actually bought or how loyalty was applied to the total.",
+      "bizCtx": "Receipts connect loyalty to real spending: members see points and wallet earned right next to what they bought. Full receipts is a feature brands can switch on or off.",
+      "constraints": "POS data varies by brand and store. Some purchases arrive with full line items, some with none, and product names can be very long. Discounts, wallet use and prizes have to add up clearly to the total."
+    },
+    "contribution": {
+      "summary": "I designed the purchase history and the full receipt, including every state the POS data can put it in.",
+      "contributions": [
+        "Designed the purchase history list, grouped by month, with points and wallet earned on each purchase.",
+        "Designed the full receipt: line items, subtotal, loyalty applied, total, what the purchase earned, and order details.",
+        "Designed the edge cases: no POS data, long product names, collapsible product lists, and the feature switched off.",
+        "Ended each receipt with a short sign-off in the brand's voice."
+      ],
+      "collaboration": "[TODO: name your PM, engineering and other partners, and what each owned.]",
+      "image": {
+        "src": "/assets/case-studies/full-receipts/img-3.webp",
+        "label": "Purchase history and a collapsible receipt",
+        "alt": "The purchase history list next to a receipt with its products collapsed."
+      }
+    },
+    "insight": {
+      "methods": [
+        "POS data review",
+        "Edge-case mapping"
+      ],
+      "findings": [
+        {
+          "finding": "POS data isn't consistent",
+          "evidence": "Some purchases arrive with full line items, others with none.",
+          "implication": "The receipt degrades gracefully: without line items it still shows totals, loyalty and order details."
+        },
+        {
+          "finding": "Long orders bury the loyalty part",
+          "evidence": "Many items, or long product names, push loyalty and earnings far down the screen.",
+          "implication": "Products collapse into one expandable group, so loyalty stays in view."
+        },
+        {
+          "finding": "Loyalty is why members open a receipt",
+          "evidence": "In a loyalty app, the receipt is where members check what they earned.",
+          "implication": "“Loyalty applied” and “Earned with this purchase” get their own labelled blocks."
+        }
+      ],
+      "decision": "One receipt layout that works with full, partial or no POS data, where loyalty always has its own clearly labelled place."
+    },
+    "design": {
+      "solution": "The purchase history is a monthly list of purchases with location, total and what each earned. Opening one shows the full receipt as a sheet: products, subtotal, loyalty applied, the total, what the purchase earned, and order ID, payment method, sales channel and date.",
+      "image": {
+        "src": "/assets/case-studies/full-receipts/img-2.webp",
+        "label": "Receipt with POS data, and long product names",
+        "alt": "A full receipt with line items next to one with very long product names."
+      },
+      "flows": "Open purchase history, tap a purchase, read the receipt. Long product lists collapse behind a Products row that expands on tap.",
+      "annotations": "Amounts align in a right-hand column so totals are easy to scan. Wallet use shows as a negative amount inside Loyalty applied, so members can see how it reduced the total."
+    },
+    "outcome": {
+      "shipped": "Designed: purchase history with full receipts on and off, receipts with and without POS data, collapsible products, and long-name handling.",
+      "measures": "Measures that matter: how often receipts are opened, and fewer support questions about missing points or wallet.",
+      "learnings": "Designing for the worst POS data first made the ideal case simple, not the other way round."
+    }
+  },
+  "imageData": [
+    {
+      "src": "/assets/case-studies/full-receipts/cover.webp",
+      "label": "Purchase history and full receipts",
+      "alt": "Three phones: purchase history, a full receipt and a collapsible receipt."
+    },
+    {
+      "src": "/assets/case-studies/full-receipts/img-4.webp",
+      "label": "All four receipt states",
+      "alt": "Four phones showing the purchase history and three receipt states."
+    },
+    {
+      "src": "/assets/case-studies/full-receipts/detail-1.webp",
+      "label": "Close-up: loyalty applied and what the purchase earned",
+      "alt": "The receipt's loyalty applied and earned with this purchase sections."
+    },
+    {
+      "src": "/assets/case-studies/full-receipts/detail-2.webp",
+      "label": "Close-up: purchase history with points and wallet earned",
+      "alt": "Purchase history rows with points and wallet earned per purchase."
+    }
+  ],
+  "status": "Designed",
+  "role": "Product Designer",
+  "caseStudyUrl": "/case-studies/published/case-study-full-receipts.json",
+  "publishedAt": 1790341583652
+}

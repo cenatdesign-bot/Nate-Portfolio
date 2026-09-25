@@ -1,0 +1,105 @@
+{
+  "slug": "sticky-offers-card-tags",
+  "title": "Sticky Offers & Card Tags",
+  "subtitle": "Making urgency readable at a glance",
+  "year": 2026,
+  "tags": [
+    "Mobile",
+    "Components",
+    "Information hierarchy"
+  ],
+  "summary": "An offer can be time-limited, new, limited in stock, from a partner, or usable several times, often all at once. I designed a tag system for offer cards so members can see what matters, and what's about to expire, before opening anything.",
+  "services": [
+    "Component Design",
+    "Information Hierarchy",
+    "Mobile UI",
+    "Design System"
+  ],
+  "sections": {
+    "problem": {
+      "statement": "Offer cards had to show several conditions at once. Without a system, every combination would be designed on its own and the most urgent detail, like an expiry date, could get lost.",
+      "bizCtx": "Offers live in the member wallet and on the home screen, across 13+ brands running on one design system. If a member misses an expiry date, both the member and the brand lose out.",
+      "constraints": "Cards are shared components themed per brand, so tags had to read on any photo and any brand colour. Some offers exist as several instances with different expiry dates."
+    },
+    "contribution": {
+      "summary": "I mapped every combination of offer conditions and designed the card, tag and stamp card system to cover all of them.",
+      "contributions": [
+        "Mapped the real combinations of offer conditions, from “expiry only” to “expiry + new + limited + usage”, and designed a card for each.",
+        "Set tag order and placement: validity top right, New as an accent pill below it, usage count on the left.",
+        "Handled multi-instance offers: the badge shows the earliest expiry across instances (“Next expires …”).",
+        "Extended the same visual language to stamp cards, with a redeem state when the card is full."
+      ],
+      "collaboration": "[TODO: name your PM, engineering and other partners, and what each owned.]",
+      "image": {
+        "src": "/assets/case-studies/sticky-offers-card-tags/img-3.webp",
+        "label": "Offers list and a stamp card ready to redeem",
+        "alt": "The offers list in the app next to a completed stamp card."
+      }
+    },
+    "insight": {
+      "methods": [
+        "Offer audit",
+        "Combination matrix"
+      ],
+      "findings": [
+        {
+          "finding": "Time-limited offers are the most common",
+          "evidence": "In the combination matrix, expiry-only is the most common case.",
+          "implication": "Validity gets the same fixed top-right slot on every card."
+        },
+        {
+          "finding": "Conditions stack",
+          "evidence": "Combinations like expiry + new + limited stock + usage exist in the product.",
+          "implication": "Tags stack in a set order instead of competing for the same space."
+        },
+        {
+          "finding": "One offer can have several expiry dates",
+          "evidence": "Multi-instance offers each carry their own validity.",
+          "implication": "The card shows the earliest date, phrased as “Next expires”."
+        }
+      ],
+      "decision": "A small, ordered set of tags in fixed positions, so any combination reads the same way on every card and every brand."
+    },
+    "design": {
+      "solution": "Each card pairs a photo with a title and a short line of context. Tags sit on the photo in a fixed order: validity first, then New, with usage count and stock limits placed so they never collide. Stamp cards use the same card shell with a photo background and a clear redeem state.",
+      "image": {
+        "src": "/assets/case-studies/sticky-offers-card-tags/img-2.webp",
+        "label": "Card variants and the stamp card",
+        "alt": "Offer card variants with different tag combinations, and a stamp card."
+      },
+      "flows": "Members scan the offers list, see what's new and what's expiring, and open a card to use it. Stamp cards fill up with purchases and switch to a redeem state when complete.",
+      "annotations": "Photos and copy in these images are placeholder coffee shop content, since the real cards are themed per brand. The tag rules are the same for every brand."
+    },
+    "outcome": {
+      "shipped": "Designed as part of the MyLoyal component library: card variants for each tag combination, the offers list and the stamp card redeem state.",
+      "measures": "Measures that matter: how many offers are redeemed before they expire, and fewer member questions about when an offer ends.",
+      "learnings": "Mapping every combination up front was faster than solving cards one at a time, and it exposed the multi-instance case early."
+    }
+  },
+  "imageData": [
+    {
+      "src": "/assets/case-studies/sticky-offers-card-tags/cover.webp",
+      "label": "Offer cards and the offers list",
+      "alt": "Offer cards with photos and tags, around the offers list in a phone."
+    },
+    {
+      "src": "/assets/case-studies/sticky-offers-card-tags/img-4.webp",
+      "label": "Three tag combinations",
+      "alt": "Three offer cards showing different tag combinations."
+    },
+    {
+      "src": "/assets/case-studies/sticky-offers-card-tags/detail-1.webp",
+      "label": "Close-up: validity and New tags on the photo",
+      "alt": "An offer card photo with Valid until and New tags."
+    },
+    {
+      "src": "/assets/case-studies/sticky-offers-card-tags/detail-2.webp",
+      "label": "Close-up: multi-use pass and a full stamp card",
+      "alt": "A multi-use offer card showing x5 and Next expires, next to a full stamp card."
+    }
+  ],
+  "status": "Designed",
+  "role": "Product Designer",
+  "caseStudyUrl": "/case-studies/published/case-study-sticky-offers-card-tags.json",
+  "publishedAt": 1790341583651
+}

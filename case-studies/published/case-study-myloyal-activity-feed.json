@@ -33,7 +33,11 @@
         "Designed the horizontal carousel interaction so cards surface without displacing the home screen's existing elements."
       ],
       "collaboration": "[TODO: name who you partnered with (PM, engineers, other designers) and what each owned, e.g. who built the state machine in code.]",
-      "image": { "placeholder": true, "label": "You in context: annotated screen showing the decisions you drove · UI coming soon" }
+      "image": {
+        "src": "/assets/case-studies/myloyal-activity-feed/img-2.webp",
+        "label": "Placement explorations: one card, carousel, three cards, all dismissed",
+        "alt": "Four phones showing placement explorations for the activity feed."
+      }
     },
     "insight": {
       "methods": [
@@ -55,7 +59,11 @@
     },
     "design": {
       "solution": "A carousel-based activity feed supporting 13 card types (including notifications, quests, verification, and rewards), each managed through a shared state machine.",
-      "image": { "placeholder": true, "label": "Card anatomy & shared state machine · UI coming soon" },
+      "image": {
+        "src": "/assets/case-studies/myloyal-activity-feed/detail-1.webp",
+        "label": "Close-up: push carousel above the card row",
+        "alt": "The expanded activity feed with a push carousel and an invite card."
+      },
       "flows": "Users see active cards in a horizontal carousel, tap into a card to take action or view more detail, and cards update or clear based on the state machine as actions are completed.",
       "annotations": "A horizontal carousel won over other layouts because it surfaces cards without displacing the home screen's existing elements. The state machine is deliberately generic: no one-off logic per card type."
     },
@@ -68,15 +76,13 @@
   "imageData": [
     {
       "src": "/assets/case-studies/myloyal-activity-feed/cover.webp",
-      "placeholder": true,
-      "label": "Activity feed — carousel & card system · UI coming soon",
-      "alt": "Cover image for the MyLoyal Activity Feed case study; final UI screenshots coming soon."
+      "label": "The inline activity feed: collapsed, expanded and scrolled",
+      "alt": "Three phones showing the activity feed collapsed, expanded and with the card row scrolled."
     },
     {
-      "src": "/assets/case-studies/myloyal-activity-feed/img-2.webp",
-      "placeholder": true,
-      "label": "The 13 card types in context · UI coming soon",
-      "alt": "The activity feed's card types and carousel; final screenshots coming soon."
+      "src": "/assets/case-studies/myloyal-activity-feed/detail-2.webp",
+      "label": "Close-up: collapsed with See all, and the expanded card row",
+      "alt": "Close-ups of the collapsed activity header and the expanded card row."
     }
   ],
   "publishedAt": 1784930710904

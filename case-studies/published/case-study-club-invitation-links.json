@@ -30,11 +30,7 @@
         "Designed the invitee registration flow for both app-installed and non-installed users, including the web-to-app handoff.",
         "Resolved the referral-reward configuration by keeping it flexible for clients to own, rather than MyLoyal dictating one approach."
       ],
-      "collaboration": "[TODO: name your PM, engineering, and legal partners and what each owned, especially on the referral-reward legal question.]",
-      "image": {
-        "placeholder": true,
-        "label": "You in context: annotated screen showing the decisions you drove · UI coming soon"
-      }
+      "collaboration": "[TODO: name your PM, engineering, and legal partners and what each owned, especially on the referral-reward legal question.]"
     },
     "insight": {
       "methods": [
@@ -57,8 +53,9 @@
     "design": {
       "solution": "A link-creation screen for club managers with domain whitelisting and expiration date controls, paired with a registration flow for invitees. If the invitee doesn't have the app, they complete registration on web, then are prompted to download the app to finish joining.",
       "image": {
-        "placeholder": true,
-        "label": "Link-creation controls: whitelisting & expiration · UI coming soon"
+        "src": "/assets/case-studies/club-invitation-links/detail-1.webp",
+        "label": "Close-up: whitelisted domains and link expiration",
+        "alt": "The invitation link settings with whitelisted email domains and an expiration date."
       },
       "flows": "Club manager generates a link, optionally restricts it to specific email domains, and optionally sets an expiration date. Invitee opens the link: if they have the app, it opens directly; if not, they complete web registration and are directed to download the app afterward.",
       "annotations": "One nuance for clients: MyLoyal lets clients choose whether the reward for an invite goes to the invitee, the inviter, both, or neither. Referral-reward structures like this sit in a legal gray area, not clearly prohibited, but not the most recommended approach either. Rather than restrict the configuration, MyLoyal keeps it flexible and treats the choice as the client's responsibility, while offering setup recommendations."
@@ -72,15 +69,18 @@
   "imageData": [
     {
       "src": "/assets/case-studies/club-invitation-links/cover.webp",
-      "placeholder": true,
-      "label": "Invitation link flow · UI coming soon",
-      "alt": "Cover image for the Club Invitation Links case study; final UI screenshots coming soon."
+      "label": "Link settings and the invitee's web-to-app flow",
+      "alt": "The club link settings in the admin, next to the invitee's landing and success screens."
     },
     {
       "src": "/assets/case-studies/club-invitation-links/img-2.webp",
-      "placeholder": true,
-      "label": "Invitee web-to-app registration · UI coming soon",
-      "alt": "The invitation link creation and registration flow; final screenshots coming soon."
+      "label": "Branded landing page on desktop and mobile",
+      "alt": "The branded invitation landing page on desktop and mobile."
+    },
+    {
+      "src": "/assets/case-studies/club-invitation-links/detail-2.webp",
+      "label": "Every way a link can fail, explained",
+      "alt": "Three response states: invalid link, unavailable for your account, and already a member."
     }
   ],
   "publishedAt": 1780065171629,
